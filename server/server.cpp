@@ -1,4 +1,3 @@
-
 #include <cstring> // for memset
 #include <iostream>
 #include <netinet/in.h> // needed for sockaddr_in
@@ -11,13 +10,16 @@
 #include <stdexcept> // for std:run_time_error
 #include <cerrno> // for errno
 #include <fcntl.h>
+#include <vector>
+#include <poll.h> // for pollfds
 
 // 0. make socket nonblocking
 int make_socket_nonblocking(int fd)
 {
 	//fcntl stands for file control int fcntl(int fd, int cmd, ... /* arg */);
-	int current_flags = fcntl(fd, F_GETFL, 0); // get the current file status flags for this fd, returns an integer bitmask something like O_RDONLY | O_NONBLOCK | O_APPEND
-	std::cout << "current flags" << current_flags << std::endl;
+	int current_flags = fcntl(fd, F_GETFL, 0);
+	// get the current file status flags for this fd, returns an integer bitmask something like O_RDONLY | O_NONBLOCK | O_APPEND
+	// std::cout << "current flags: " << current_flags << std::endl;
 	return fcntl(fd, F_SETFL, current_flags | O_NONBLOCK); // add to the current flags the nonblocking flag
 }
 
@@ -28,12 +30,13 @@ int createServerSocket()
 	if (serverSocket == -1)
 		throw std::runtime_error("Socket creation failed");
 	int opt = 1;
-	if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1) 	// reuse port when server gets started to fast
+	if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
+	// reuse port when server gets started to fast
 	{
 		close(serverSocket);
 		throw std::runtime_error("setsockopt failed: " + std::string(strerror(errno)));
 	}
-	// make_socket_nonblocking(serverSocket);
+	make_socket_nonblocking(serverSocket);
 	return serverSocket;
 }
 
@@ -59,10 +62,10 @@ sockaddr_in createServerAddress(uint16_t port)
 }
 
 // 3. bind the socket to a port
-void bindServerSocket(int serverSocket, const sockaddr_in &serverAddress)
+void bindServerSocket(int serverSocket, const sockaddr_in& serverAddress)
 {
-	int bindResult = bind(serverSocket, (struct sockaddr *) &serverAddress,
-		 sizeof(serverAddress));
+	int bindResult = bind(serverSocket, (struct sockaddr*)&serverAddress,
+	                      sizeof(serverAddress));
 	if (bindResult == -1)
 		throw std::runtime_error(std::string("Bind failed: ") + std::strerror(errno));
 }
@@ -77,12 +80,12 @@ void listenServerSocket(int serverSocket, int backlog)
 }
 
 // 5. accept a client connection
-int acceptClient(int serverSocket, sockaddr_in &clientAddress)
+int acceptClient(int serverSocket, sockaddr_in& clientAddress)
 {
 	socklen_t clientAddressLen = sizeof(clientAddress);
 	// accepting client connection
 	// accepts and adds you a new socket FD representing one side of an already-established TCP connection.
-	int clientSocket = accept(serverSocket, (struct sockaddr *) &clientAddress, &clientAddressLen);
+	int clientSocket = accept(serverSocket, (struct sockaddr*)&clientAddress, &clientAddressLen);
 	if (clientSocket == -1)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK) // errno gets set by accept, both errnos are the same
@@ -101,48 +104,84 @@ int main()
 	sockaddr_in serverAddress = createServerAddress(port);
 	bindServerSocket(serverSocket, serverAddress);
 	listenServerSocket(serverSocket, queue_size);
+
+	// Create a vector of pollfd structs
+	std::vector<pollfd> fds;
+
+	// Add the server socket to poll list
+	pollfd pfd{0,0,0}; // set all struct atributes to zero
+	pfd.fd = serverSocket;
+	pfd.events = POLLIN; // there is data to read
+	fds.push_back(pfd);
 	std::cout << "Server listening on port " << port << "..." << std::endl;
-	sockaddr_in clientAddress;
-	int clientSocket = acceptClient(serverSocket, clientAddress);
-	make_socket_nonblocking(serverSocket);
+
+	int clientSocket;
 	std::string buffer;
-	char recvBuf[512];
 	while (true)
 	{
-		int bytesReceived = recv(clientSocket, recvBuf, sizeof(recvBuf) - 1, 0);
-		if (bytesReceived <= 0)
+		// int poll(struct pollfd *fds, nfds_t nfds, int timeout);
+		// fds = Pointer to an array of pollfd structs, nfds = Number of entries in the fds array, timeout = Maximum wait time in milliseconds, -1 means indefinitely
+		int ready = poll(fds.data(), fds.size(), -1);
+		if (ready == -1)
+			throw std::runtime_error("Poll failed: " + std::string(strerror(errno)));
+		for (size_t i = 0; i < fds.size(); i++)
 		{
-			std::cout << "bytes received: "<< bytesReceived << std::endl;
-			std::cout << "Client disconnected" << std::endl;
-			break;
-		}
-
-		recvBuf[bytesReceived] = '\0';
-		buffer += recvBuf;
-
-		size_t end;
-
-		// print buffer before filtering
-		// std::cout << "unfiltered buffer (escaped): ";
-		// for (size_t i = 0; i < buffer.size(); ++i)
-		// {
-		// 	unsigned char c = buffer[i];
-		// 	if (isprint(c))
-		// 		std::cout << c;
-		// 	else
-		// 		std::cout << "\\x" << std::hex << (int)c << std::dec;
-		// }
-		// std::cout << std::endl;
-
-		while ((end = buffer.find("\r\n")) != std::string::npos)
-		{
-			std::string message = buffer.substr(0, end);
-			buffer.erase(0, end + 2);
-			std::cout << "Cleaned message: " << message << std::endl;
-			// handleIRCCommand(message);  // parse and respond
+			// Case 1: The listening socket got a new connection
+			if (fds[i].revents & POLLIN) // revents check if any revents occured and pollin signals conenction ready to accept, both together means connection is ready or there is fd which has data to read
+			{
+				if (fds[i].fd == serverSocket)
+				{
+					sockaddr_in clientAddress;
+					clientSocket = acceptClient(serverSocket, clientAddress);
+					if (clientSocket >= 0)
+					{
+						make_socket_nonblocking(clientSocket);
+						pollfd new_client{0,0,0};
+						new_client.fd = clientSocket;
+						new_client.events = POLLIN;
+						fds.push_back(new_client);
+					}
+				}
+				else
+				{
+					char recvBuf[512];
+					int bytesReceived = recv(fds[i].fd, recvBuf, sizeof(recvBuf) - 1, 0);
+					if (bytesReceived <= 0)
+					{
+						std::cout << "Client "<< fds[i].fd << "disconnected" << std::endl;
+						close(fds[i].fd);
+						fds.erase(fds.begin() + i);
+						--i;
+					}
+					else
+					{
+						recvBuf[bytesReceived] = '\0';
+						buffer += recvBuf;
+						size_t end;
+							// print buffer before filtering
+							// std::cout << "unfiltered buffer (escaped): ";
+							// for (size_t i = 0; i < buffer.size(); ++i)
+							// {
+							// 	unsigned char c = buffer[i];
+							// 	if (isprint(c))
+							// 		std::cout << c;
+							// 	else
+							// 		std::cout << "\\x" << std::hex << (int)c << std::dec;
+							// }
+							// std::cout << std::endl;
+						while ((end = buffer.find("\r\n")) != std::string::npos)
+						{
+							std::string message = buffer.substr(0, end);
+							buffer.erase(0, end + 2);
+							std::cout << "Cleaned message: " << message << std::endl;
+							// handleIRCCommand(message);  // parse and respond
+						}
+					}
+				}
+			}
 		}
 	}
-	close(clientSocket);
+	// close(clientSocket);
 	close(serverSocket);
 	std::cout << "closing server connection" << std::endl;
 	return 0;
