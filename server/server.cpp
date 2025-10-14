@@ -9,7 +9,17 @@
 #include <cstdio> // for perror
 #include <stdlib.h> // for exit
 #include <stdexcept> // for std:run_time_error
-#include <cerrno>
+#include <cerrno> // for errno
+#include <fcntl.h>
+
+// 0. make socket nonblocking
+int make_socket_nonblocking(int fd)
+{
+	//fcntl stands for file control int fcntl(int fd, int cmd, ... /* arg */);
+	int current_flags = fcntl(fd, F_GETFL, 0); // get the current file status flags for this fd, returns an integer bitmask something like O_RDONLY | O_NONBLOCK | O_APPEND
+	std::cout << "current flags" << current_flags << std::endl;
+	return fcntl(fd, F_SETFL, current_flags | O_NONBLOCK); // add to the current flags the nonblocking flag
+}
 
 // 1. creating server socket
 int createServerSocket()
@@ -23,6 +33,7 @@ int createServerSocket()
 		close(serverSocket);
 		throw std::runtime_error("setsockopt failed: " + std::string(strerror(errno)));
 	}
+	// make_socket_nonblocking(serverSocket);
 	return serverSocket;
 }
 
@@ -68,13 +79,16 @@ void listenServerSocket(int serverSocket, int backlog)
 // 5. accept a client connection
 int acceptClient(int serverSocket, sockaddr_in &clientAddress)
 {
-
 	socklen_t clientAddressLen = sizeof(clientAddress);
 	// accepting client connection
 	// accepts and adds you a new socket FD representing one side of an already-established TCP connection.
 	int clientSocket = accept(serverSocket, (struct sockaddr *) &clientAddress, &clientAddressLen);
 	if (clientSocket == -1)
+	{
+		if (errno == EAGAIN || errno == EWOULDBLOCK) // errno gets set by accept, both errnos are the same
+			return -1;
 		throw std::runtime_error("Accept failed: " + std::string(strerror(errno)));
+	}
 	std::cout << "Client connected." << std::endl;
 	return clientSocket;
 }
@@ -90,7 +104,7 @@ int main()
 	std::cout << "Server listening on port " << port << "..." << std::endl;
 	sockaddr_in clientAddress;
 	int clientSocket = acceptClient(serverSocket, clientAddress);
-
+	make_socket_nonblocking(serverSocket);
 	std::string buffer;
 	char recvBuf[512];
 	while (true)
