@@ -12,6 +12,23 @@
 #include <fcntl.h>
 #include <vector>
 #include <poll.h> // for pollfds
+#include <iomanip> // for setw and setfill
+
+void printEscapedBuffer(const std::string &buffer)
+{
+	std::cout << "unfiltered buffer (escaped): ";
+	for (size_t i = 0; i < buffer.size(); ++i)
+	{
+		unsigned char c = buffer[i];
+		if (std::isprint(c))
+			std::cout << c;
+		else
+			std::cout << "\\x"
+					<< std::hex << std::setw(2) << std::setfill('0') << (int) c
+					<< std::dec;
+	}
+	std::cout << std::endl;
+}
 
 // 0. make socket nonblocking
 int make_socket_nonblocking(int fd)
@@ -62,9 +79,9 @@ sockaddr_in createServerAddress(uint16_t port)
 }
 
 // 3. bind the socket to a port
-void bindServerSocket(int serverSocket, const sockaddr_in& serverAddress)
+void bindServerSocket(int serverSocket, const sockaddr_in &serverAddress)
 {
-	int bindResult = bind(serverSocket, (struct sockaddr*)&serverAddress,
+	int bindResult = bind(serverSocket, (struct sockaddr *) &serverAddress,
 	                      sizeof(serverAddress));
 	if (bindResult == -1)
 		throw std::runtime_error(std::string("Bind failed: ") + std::strerror(errno));
@@ -80,12 +97,12 @@ void listenServerSocket(int serverSocket, int backlog)
 }
 
 // 5. accept a client connection
-int acceptClient(int serverSocket, sockaddr_in& clientAddress)
+int acceptClient(int serverSocket, sockaddr_in &clientAddress)
 {
 	socklen_t clientAddressLen = sizeof(clientAddress);
 	// accepting client connection
 	// accepts and adds you a new socket FD representing one side of an already-established TCP connection.
-	int clientSocket = accept(serverSocket, (struct sockaddr*)&clientAddress, &clientAddressLen);
+	int clientSocket = accept(serverSocket, (struct sockaddr *) &clientAddress, &clientAddressLen);
 	if (clientSocket == -1)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK) // errno gets set by accept, both errnos are the same
@@ -94,6 +111,54 @@ int acceptClient(int serverSocket, sockaddr_in& clientAddress)
 	}
 	std::cout << "Client connected." << std::endl;
 	return clientSocket;
+}
+
+void handleNewConnection(int serverSocket, std::vector<pollfd> &fds)
+{
+	sockaddr_in clientAddr{};
+	int clientSocket = acceptClient(serverSocket, clientAddr);
+	if (clientSocket >= 0)
+	{
+		make_socket_nonblocking(clientSocket);
+		pollfd newClient{clientSocket, POLLIN, 0};
+		fds.push_back(newClient);
+		std::cout << "Client connected (fd=" << clientSocket << ")\n";
+	}
+}
+
+bool handleClientData(pollfd &client, std::string &buffer)
+{
+	char recvBuf[512];
+	int bytesReceived = recv(client.fd, recvBuf, sizeof(recvBuf) - 1, 0);
+
+	if (bytesReceived == 0)
+		return true; // client disconnected
+
+	if (bytesReceived < 0) // this case is for do nothing and wait for data
+	{
+		if (errno != EAGAIN && errno != EWOULDBLOCK)
+			return true; // real error
+		return false; // try again later
+	}
+	recvBuf[bytesReceived] = '\0';
+	buffer += recvBuf;
+	printEscapedBuffer(buffer);
+	size_t end;
+	while ((end = buffer.find("\r\n")) != std::string::npos)
+	{
+		std::string msg = buffer.substr(0, end);
+		buffer.erase(0, end + 2);
+		std::cout << "Message from " << client.fd << ": " << msg << "\n";
+		// handleIRCCommand(message);  // parse and respond
+	}
+	return false;
+}
+
+void closeClient(std::vector<pollfd> &fds, size_t i)
+{
+	std::cout << "Client " << fds[i].fd << " disconnected\n";
+	close(fds[i].fd);
+	fds.erase(fds.begin() + i);
 }
 
 int main()
@@ -109,7 +174,7 @@ int main()
 	std::vector<pollfd> fds;
 
 	// Add the server socket to poll list
-	pollfd pfd{0,0,0}; // set all struct atributes to zero
+	pollfd pfd{0, 0, 0}; // set all struct atributes to zero
 	pfd.fd = serverSocket;
 	pfd.events = POLLIN; // there is data to read
 	fds.push_back(pfd);
@@ -126,63 +191,24 @@ int main()
 			throw std::runtime_error("Poll failed: " + std::string(strerror(errno)));
 		for (size_t i = 0; i < fds.size(); i++)
 		{
+			bool shouldClose = false;
 			// Case 1: The listening socket got a new connection
-			if (fds[i].revents & POLLIN) // revents check if any revents occured and pollin signals conenction ready to accept, both together means connection is ready or there is fd which has data to read
+			if (fds[i].revents & POLLIN)
+			// revents check if any revents occurred and pollin signals connection ready to accept, both together means connection is ready or there is fd which has data to read
 			{
 				if (fds[i].fd == serverSocket)
-				{
-					sockaddr_in clientAddress;
-					clientSocket = acceptClient(serverSocket, clientAddress);
-					if (clientSocket >= 0)
-					{
-						make_socket_nonblocking(clientSocket);
-						pollfd new_client{0,0,0};
-						new_client.fd = clientSocket;
-						new_client.events = POLLIN;
-						fds.push_back(new_client);
-					}
-				}
+					handleNewConnection(serverSocket, fds);
 				else
-				{
-					char recvBuf[512];
-					int bytesReceived = recv(fds[i].fd, recvBuf, sizeof(recvBuf) - 1, 0);
-					if (bytesReceived <= 0)
-					{
-						std::cout << "Client "<< fds[i].fd << "disconnected" << std::endl;
-						close(fds[i].fd);
-						fds.erase(fds.begin() + i);
-						--i;
-					}
-					else
-					{
-						recvBuf[bytesReceived] = '\0';
-						buffer += recvBuf;
-						size_t end;
-							// print buffer before filtering
-							// std::cout << "unfiltered buffer (escaped): ";
-							// for (size_t i = 0; i < buffer.size(); ++i)
-							// {
-							// 	unsigned char c = buffer[i];
-							// 	if (isprint(c))
-							// 		std::cout << c;
-							// 	else
-							// 		std::cout << "\\x" << std::hex << (int)c << std::dec;
-							// }
-							// std::cout << std::endl;
-						while ((end = buffer.find("\r\n")) != std::string::npos)
-						{
-							std::string message = buffer.substr(0, end);
-							buffer.erase(0, end + 2);
-							std::cout << "Cleaned message: " << message << std::endl;
-							// handleIRCCommand(message);  // parse and respond
-						}
-					}
-				}
+					shouldClose = handleClientData(fds[i], buffer);
 			}
+			if (fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
+				shouldClose = true;
+			if (shouldClose)
+				closeClient(fds, i--);
 		}
 	}
 	// close(clientSocket);
 	close(serverSocket);
-	std::cout << "closing server connection" << std::endl;
+	std::cout <<"closing server connection" << std::endl;
 	return 0;
 }
