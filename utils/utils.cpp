@@ -6,11 +6,12 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 18:22:33 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/14 18:31:20 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/14 18:38:57 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../parser/Tokenizer.hpp"
+#include <vector>
+#include <string>
 
 std::vector<std::string> split(const std::string &str, const std::string &delimiter)
 {
