@@ -6,12 +6,11 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 18:22:33 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/14 18:38:57 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/15 19:23:03 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <vector>
-#include <string>
+#include "utils.hpp"
 
 std::vector<std::string> split(const std::string &str, const std::string &delimiter)
 {
@@ -26,4 +25,12 @@ std::vector<std::string> split(const std::string &str, const std::string &delimi
     }
     tokens.push_back(str.substr(start));
     return tokens;
+}
+
+std::string to_upper(std::string str)
+{
+    std::string res;
+    for (size_t i = 0; i < str.size(); i++)
+		res[i] = std::toupper(str[i]);
+    return (res);
 }

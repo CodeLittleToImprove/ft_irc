@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 16:28:54 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/14 18:40:31 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/15 18:59:18 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,12 @@ class Tokenizer
 		std::string					_command;
 		std::vector<std::string>	_params;
 
-		void	tokenize();
+		void	_tokenize(std::string message);
 	public:
 		Tokenizer();
 		~Tokenizer();
+		Tokenizer(const Tokenizer &copy);
+		Tokenizer	&operator=(const Tokenizer &copy);
 
 		std::string					get_prefix();
 		std::string					get_command();
