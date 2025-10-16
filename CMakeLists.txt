@@ -11,10 +11,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(ft_irc_server
 #        test/Template.cpp
-        server/server.cpp
-        server/server.cpp)
+        server/Server.cpp
+        server/Server.cpp
+        server/Client.cpp
+        server/Client.hpp)
 
 add_executable(ft_irc_client
         #        test/Template.cpp
-        client/client.cpp
-        client/client.cpp)
+        testClient/TestClient.cpp)
