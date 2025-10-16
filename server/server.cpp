@@ -14,6 +14,7 @@
 #include <poll.h> // for pollfds
 #include <iomanip> // for setw and setfill
 
+// debug function
 void printEscapedBuffer(const std::string &buffer)
 {
 	std::cout << "unfiltered buffer (escaped): ";
@@ -43,22 +44,22 @@ int make_socket_nonblocking(int fd)
 // 1. creating server socket
 int createServerSocket()
 {
-	int serverSocket = socket(AF_INET, SOCK_STREAM, 0); // input: IPv4 protocol, TCP socket, default , also returns a fd
-	if (serverSocket == -1)
+	int server_fd = socket(AF_INET, SOCK_STREAM, 0); // input: IPv4 protocol, TCP socket, default , also returns a fd
+	if (server_fd == -1)
 		throw std::runtime_error("Socket creation failed");
 	int opt = 1;
-	if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
 	// reuse port when server gets started to fast
 	{
-		close(serverSocket);
+		close(server_fd);
 		throw std::runtime_error("setsockopt failed: " + std::string(strerror(errno)));
 	}
-	make_socket_nonblocking(serverSocket);
-	return serverSocket;
+	make_socket_nonblocking(server_fd);
+	return server_fd;
 }
 
 // 2. creating serverAddress
-sockaddr_in createServerAddress(uint16_t port)
+sockaddr_in createServerAddress(uint16_t listenPort)
 {
 	// this is how a sockaddrr_in looks like
 	// struct sockaddr_in
@@ -72,37 +73,37 @@ sockaddr_in createServerAddress(uint16_t port)
 	memset(&serverAddress, 0, sizeof(serverAddress)); // just nice to do not necessary
 	// specifying the address
 	serverAddress.sin_family = AF_INET; // format of ipaddress
-	serverAddress.sin_port = htons(port); // converts to network byte order
+	serverAddress.sin_port = htons(listenPort); // converts to network byte order
 	serverAddress.sin_addr.s_addr = INADDR_ANY; // accept connections on any IP
 	// inet_pton(AF_INET, "0.0.0.0", &serverAddress.sin_addr); // works similar to INADDR_ANY
 	return serverAddress;
 }
 
 // 3. bind the socket to a port
-void bindServerSocket(int serverSocket, const sockaddr_in &serverAddress)
+void bindServerSocket(int server_fd, const sockaddr_in &serverAddress)
 {
-	int bindResult = bind(serverSocket, (struct sockaddr *) &serverAddress,
+	int bindResult = bind(server_fd, (struct sockaddr *) &serverAddress,
 	                      sizeof(serverAddress));
 	if (bindResult == -1)
 		throw std::runtime_error(std::string("Bind failed: ") + std::strerror(errno));
 }
 
 // 4. listen for incoming connections
-void listenServerSocket(int serverSocket, int backlog)
+void listenServerSocket(int server_fd, int backlog)
 {
 	// listening to the assigned socket
-	int listenResult = listen(serverSocket, backlog); // n = how many pending connections can be queued
+	int listenResult = listen(server_fd, backlog); // n = how many pending connections can be queued
 	if (listenResult == -1)
 		throw std::runtime_error(std::string("Listen failed: ") + std::strerror(errno));
 }
 
 // 5. accept a client connection
-int acceptClient(int serverSocket, sockaddr_in &clientAddress)
+int acceptClient(int server_fd, sockaddr_in &clientAddress)
 {
 	socklen_t clientAddressLen = sizeof(clientAddress);
 	// accepting client connection
 	// accepts and adds you a new socket FD representing one side of an already-established TCP connection.
-	int clientSocket = accept(serverSocket, (struct sockaddr *) &clientAddress, &clientAddressLen);
+	int clientSocket = accept(server_fd, (struct sockaddr *) &clientAddress, &clientAddressLen);
 	if (clientSocket == -1)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK) // errno gets set by accept, both errnos are the same
@@ -113,10 +114,11 @@ int acceptClient(int serverSocket, sockaddr_in &clientAddress)
 	return clientSocket;
 }
 
-void handleNewConnection(int serverSocket, std::vector<pollfd> &fds)
+//helper function
+void handleNewConnection(int server_fd, std::vector<pollfd> &fds)
 {
 	sockaddr_in clientAddr{};
-	int clientSocket = acceptClient(serverSocket, clientAddr);
+	int clientSocket = acceptClient(server_fd, clientAddr);
 	if (clientSocket >= 0)
 	{
 		make_socket_nonblocking(clientSocket);
@@ -126,6 +128,7 @@ void handleNewConnection(int serverSocket, std::vector<pollfd> &fds)
 	}
 }
 
+//helper function
 bool handleClientData(pollfd &client, std::string &buffer)
 {
 	char recvBuf[512];
@@ -142,7 +145,7 @@ bool handleClientData(pollfd &client, std::string &buffer)
 	}
 	recvBuf[bytesReceived] = '\0';
 	buffer += recvBuf;
-	printEscapedBuffer(buffer);
+	// printEscapedBuffer(buffer);
 	size_t end;
 	while ((end = buffer.find("\r\n")) != std::string::npos)
 	{
@@ -154,6 +157,7 @@ bool handleClientData(pollfd &client, std::string &buffer)
 	return false;
 }
 
+//helper function
 void closeClient(std::vector<pollfd> &fds, size_t i)
 {
 	std::cout << "Client " << fds[i].fd << " disconnected\n";
@@ -163,10 +167,10 @@ void closeClient(std::vector<pollfd> &fds, size_t i)
 
 int main()
 {
-	uint16_t port = 8080; // typical uint16_t is used for tdp and udp ports
+	uint16_t listenPort = 8080; // typical uint16_t is used for tdp and udp ports
 	size_t queue_size = 5;
 	int serverSocket = createServerSocket();
-	sockaddr_in serverAddress = createServerAddress(port);
+	sockaddr_in serverAddress = createServerAddress(listenPort);
 	bindServerSocket(serverSocket, serverAddress);
 	listenServerSocket(serverSocket, queue_size);
 
@@ -174,11 +178,11 @@ int main()
 	std::vector<pollfd> fds;
 
 	// Add the server socket to poll list
-	pollfd pfd{0, 0, 0}; // set all struct atributes to zero
-	pfd.fd = serverSocket;
-	pfd.events = POLLIN; // there is data to read
-	fds.push_back(pfd);
-	std::cout << "Server listening on port " << port << "..." << std::endl;
+	pollfd server_pfd{0, 0, 0}; // set all struct atributes to zero
+	server_pfd.fd = serverSocket;
+	server_pfd.events = POLLIN; // there is data to read
+	fds.push_back(server_pfd);
+	std::cout << "Server listening on port " << listenPort << "..." << std::endl;
 
 	int clientSocket;
 	std::string buffer;
