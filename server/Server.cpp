@@ -16,6 +16,27 @@
 
 #include "Server.hpp"
 
+Server::Server(std::string port, std::string password) : _port(port), _password(password)
+{
+	this->_commands["CNOTICE"] = new Cnotice();
+	this->_commands["CPRIVMSG"] = new Cprivmsg();
+	this->_commands["INFO"] = new Info();
+	this->_commands["INVITE"] = new Invite();
+	this->_commands["JOIN"] = new Join();
+	this->_commands["KICK"] = new Kick();
+	this->_commands["LIST"] = new List();
+	this->_commands["MODE"] = new Mode();
+	this->_commands["NAMES"] = new Names();
+	this->_commands["NICK"] = new Nick();
+	this->_commands["NOTICE"] = new Notice();
+	this->_commands["OPER"] = new Oper();
+	this->_commands["PASS"] = new Pass();
+	this->_commands["QUIT"] = new Quit();
+	this->_commands["SQUIT"] = new Squit();
+	this->_commands["USER"] = new User();
+	this->_commands["USERS"] = new Users();
+}
+
 void Server::addClient(int client_fd)
 {
 	Client tmp(client_fd);

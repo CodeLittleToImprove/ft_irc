@@ -20,13 +20,18 @@
 #include "Client.hpp"
 #include "../parser/ACommand.hpp"
 
+class ACommand;
+
 class Server
 {
 	private:
-		int _server_fd;
-		std::vector<pollfd> _poll_fds;
-		std::vector<Client> _clients;
-		std::map<std::string, ACommand *> _commands;
+
+		std::string							_port;
+		std::string							_password;
+		int 								_server_fd;
+		std::vector<pollfd>					_poll_fds;
+		std::vector<Client>					_clients;
+		std::map<std::string, ACommand *> 	_commands;
 
 	public:
 
