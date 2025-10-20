@@ -32,6 +32,7 @@ class Server
 		std::vector<pollfd>					_poll_fds;
 		std::vector<Client>					_clients;
 		std::map<std::string, ACommand *> 	_commands;
+		bool								_is_running;
 
 	public:
 

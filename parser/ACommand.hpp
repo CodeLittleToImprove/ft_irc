@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 16:13:05 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/20 17:23:40 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/20 18:31:50 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,18 @@
 
 # include <iostream>
 # include "Tokenizer.hpp"
+# include "../server/Server.hpp"
 
 
 class ACommand
 {
-	private:
+	protected:
 		std::string	_name;
+		Server		*_server;
 	public:
 
-		// Constructors & Destructor
-		ACommand(std::string name);
-		~ACommand();
+		// Constructors
+		ACommand(std::string name, Server *server);
 
 		// Member functions
 		virtual void	execute(Tokenizer *tokens) const = 0;
@@ -34,12 +35,7 @@ class Cnotice : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Cnotice();
-		~Cnotice();
-
-		// Member functions
+		Cnotice(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -47,12 +43,7 @@ class Cprivmsg : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Cprivmsg();
-		~Cprivmsg();
-
-		// Member functions
+		Cprivmsg(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -60,12 +51,7 @@ class Info : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Info();
-		~Info();
-
-		// Member functions
+		Info(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -73,12 +59,7 @@ class Invite : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Invite();
-		~Invite();
-
-		// Member functions
+		Invite(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -86,12 +67,7 @@ class Join : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Join();
-		~Join();
-
-		// Member functions
+		Join(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -99,12 +75,7 @@ class Kick : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Kick();
-		~Kick();
-
-		// Member functions
+		Kick(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -112,12 +83,7 @@ class List : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		List();
-		~List();
-
-		// Member functions
+		List(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -125,12 +91,7 @@ class Mode : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Mode();
-		~Mode();
-
-		// Member functions
+		Mode(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -138,12 +99,7 @@ class Names : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Names();
-		~Names();
-
-		// Member functions
+		Names(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -151,12 +107,7 @@ class Nick : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Nick();
-		~Nick();
-
-		// Member functions
+		Nick(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -164,12 +115,7 @@ class Notice : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Notice();
-		~Notice();
-
-		// Member functions
+		Notice(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -177,12 +123,7 @@ class Oper : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Oper();
-		~Oper();
-
-		// Member functions
+		Oper(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -190,12 +131,7 @@ class Pass : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Pass();
-		~Pass();
-
-		// Member functions
+		Pass(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -203,12 +139,7 @@ class Privmsg : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Privmsg();
-		~Privmsg();
-
-		// Member functions
+		Privmsg(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -216,12 +147,7 @@ class Quit : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Quit();
-		~Quit();
-
-		// Member functions
+		Quit(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -229,12 +155,7 @@ class Squit : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Squit();
-		~Squit();
-
-		// Member functions
+		Squit(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -242,12 +163,7 @@ class User : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		User();
-		~User();
-
-		// Member functions
+		User(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
 
@@ -255,11 +171,6 @@ class Users : public ACommand
 {
 	private:
 	public:
-
-		// Constructors & Destructor
-		Users();
-		~Users();
-
-		// Member functions
+		Users(Server *server);
 		void	execute(Tokenizer *tokens) const;
 };
