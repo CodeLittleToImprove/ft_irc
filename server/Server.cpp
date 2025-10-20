@@ -16,6 +16,82 @@
 
 #include "Server.hpp"
 
+Server::Server(std::string port, std::string password) : _port(port), _password(password)
+{
+	this->_is_running = false;
+
+	this->_commands["CNOTICE"] = new Cnotice(this);
+	this->_commands["CPRIVMSG"] = new Cprivmsg(this);
+	this->_commands["INFO"] = new Info(this);
+	this->_commands["INVITE"] = new Invite(this);
+	this->_commands["JOIN"] = new Join(this);
+	this->_commands["KICK"] = new Kick(this);
+	this->_commands["LIST"] = new List(this);
+	this->_commands["MODE"] = new Mode(this);
+	this->_commands["NAMES"] = new Names(this);
+	this->_commands["NICK"] = new Nick(this);
+	this->_commands["NOTICE"] = new Notice(this);
+	this->_commands["OPER"] = new Oper(this);
+	this->_commands["PASS"] = new Pass(this);
+	this->_commands["QUIT"] = new Quit(this);
+	this->_commands["SQUIT"] = new Squit(this);
+	this->_commands["USER"] = new User(this);
+	this->_commands["USERS"] = new Users(this);
+}
+
+void Server::addClient(int client_fd)
+{
+	Client tmp(client_fd);
+	//The vector now owns its own copy; tmp will be destroyed after this line
+	_clients.push_back(tmp);
+
+	// Create and register this client's poll entry
+	pollfd pollEntry;
+	pollEntry.fd = client_fd;
+	pollEntry.events = POLLIN;
+	pollEntry.revents = 0;
+	_poll_fds.push_back(pollEntry);
+}
+
+void Server::removeClient(int index)
+{
+	// never remove server_fd
+	if (index == 0)
+		return;
+
+	int clientIndex = index - 1; // fds[0] is server
+	Client &client = _clients[clientIndex];
+
+	close(client.getClient_fd());
+	// remove the client from the vector
+	_clients.erase(_clients.begin() + clientIndex);
+
+	// remove the corresponding pollfd
+	_poll_fds.erase((_poll_fds.begin() + index));
+}
+
+void Server::handleClient(int index)
+{
+
+}
+
+// debug function
+void printEscapedBuffer(const std::string &buffer)
+{
+	std::cout << "unfiltered buffer (escaped): ";
+	for (size_t i = 0; i < buffer.size(); ++i)
+	{
+		unsigned char c = buffer[i];
+		if (std::isprint(c))
+			std::cout << c;
+		else
+			std::cout << "\\x"
+					<< std::hex << std::setw(2) << std::setfill('0') << (int) c
+					<< std::dec;
+	}
+	std::cout << std::endl;
+}
+
 // 0. make socket nonblocking
 int make_socket_nonblocking(int fd)
 {
