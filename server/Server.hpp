@@ -22,12 +22,23 @@ class Server
 {
 	private:
 	int _server_fd;
+	uint16_t _port;
 	std::vector<pollfd> _poll_fds;
 	std::vector<Client> _clients;
 
+	int createServerSocket();
+	sockaddr_in createServerAddress();
+	void bindServerSocket();
+	void listenServerSocket(size_t backlog);
+
 	public:
+	Server(uint16_t port);
 	void run();
+	void handleNewConnection();
 	void addClient(int client_fd);
 	void removeClient(int index);
 	void handleClient(int index);
 };
+
+static void addPollfd(std::vector<pollfd> &fds, int fd, short events);
+static void removePollfd(std::vector<pollfd> &fds, int fd);

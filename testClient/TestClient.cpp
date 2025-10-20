@@ -9,58 +9,84 @@
 #include <cerrno>
 #include <cstdio> // for perror
 
+#include <iostream>
+#include <string>
+#include <cstring>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <signal.h>
+
 int main()
 {
-	signal(SIGPIPE, SIG_IGN);  // Ignore SIGPIPE globally
-	// creating socket
+	// Ignore SIGPIPE to avoid crash if server disconnects
+	signal(SIGPIPE, SIG_IGN);
+
+	const char* serverIP = "127.0.0.1";
+	uint16_t serverPort = 8080;
+
+	// 1. Create socket
 	int clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if (clientSocket < 0)
+	{
+		perror("socket creation failed");
+		return 1;
+	}
 
-	// specifying address
-	sockaddr_in serverAddress;
-	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_port = htons(8080);
-	serverAddress.sin_addr.s_addr = INADDR_ANY;
+	// 2. Specify server address
+	struct sockaddr_in serverAddr;
+	memset(&serverAddr, 0, sizeof(serverAddr)); // zero out the struct
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(serverPort);
+	if (inet_aton(serverIP, &serverAddr.sin_addr) == 0)
+	{
+		std::cerr << "Invalid IP address\n";
+		close(clientSocket);
+		return 1;
+	}
 
-	// sending connection request
-	if (connect(clientSocket, (struct sockaddr*)&serverAddress, // connect is counterpart to accept
-			sizeof(serverAddress)) < 0)
+	// 3. Connect to server
+	if (connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0)
 	{
 		perror("connect failed");
 		close(clientSocket);
 		return 1;
 	}
-	std::cout << "Connected to server! Type messages to send.\n";
 
-	// sending data
-	// const char* message = "Hello, server!";
-	// const char* message = ;
+	std::cout << "Connected to server at " << serverIP << ":" << serverPort << "\n";
 
-	std::string message;
+	// 4. Simple loop: read from stdin, send to server
+	char buffer[1024];
 	while (true)
 	{
+		std::string message;
 		std::cout << "> ";
-		std::getline(std::cin, message); // \n gets striped from string
+		std::getline(std::cin, message);
+		if (message.empty())
+			continue;
 
-		message += "\r\n";
-		std::cout << "[debug] sending message bytes: "; // d stands for \r and a for \n
-		for (size_t i = 0; i < message.size(); ++i)
-			std::cout << std::hex << (int)(unsigned char)message[i] << ' ';
-		std::cout << std::dec << std::endl;
+		message += "\r\n"; // append line ending for server
 
-
+		// Send to server
 		ssize_t sent = send(clientSocket, message.c_str(), message.size(), 0);
-		if (sent == -1)
+		if (sent < 0)
 		{
-			if (errno == EPIPE)
-				std::cout << "Server closed connection (EPIPE).\n";
-			else
-				perror("Error in sending message");
+			perror("send failed");
 			break;
 		}
+
 		if (message == "quit\r\n")
 			break;
+
+		// Try to receive any immediate server response (blocking)
+		ssize_t received = recv(clientSocket, buffer, sizeof(buffer) - 1, MSG_DONTWAIT);
+		if (received > 0)
+		{
+			buffer[received] = '\0';
+			std::cout << "[server] " << buffer;
+		}
 	}
-	// closing socket
+
+	// 5. Close socket
 	std::cout << "Closing client connection.\n";
 	close(clientSocket);
 
