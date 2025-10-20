@@ -16,7 +16,7 @@
 
 #include "Server.hpp"
 
-Server::Server(std::string port, std::string password) : _port(port), _password(password)
+Server::Server(uint16_t port, std::string password) : _port(port), _password(password)
 {
 	this->_is_running = false;
 
@@ -39,41 +39,6 @@ Server::Server(std::string port, std::string password) : _port(port), _password(
 	this->_commands["USERS"] = new Users(this);
 }
 
-void Server::addClient(int client_fd)
-{
-	Client tmp(client_fd);
-	//The vector now owns its own copy; tmp will be destroyed after this line
-	_clients.push_back(tmp);
-
-	// Create and register this client's poll entry
-	pollfd pollEntry;
-	pollEntry.fd = client_fd;
-	pollEntry.events = POLLIN;
-	pollEntry.revents = 0;
-	_poll_fds.push_back(pollEntry);
-}
-
-void Server::removeClient(int index)
-{
-	// never remove server_fd
-	if (index == 0)
-		return;
-
-	int clientIndex = index - 1; // fds[0] is server
-	Client &client = _clients[clientIndex];
-
-	close(client.getClient_fd());
-	// remove the client from the vector
-	_clients.erase(_clients.begin() + clientIndex);
-
-	// remove the corresponding pollfd
-	_poll_fds.erase((_poll_fds.begin() + index));
-}
-
-void Server::handleClient(int index)
-{
-
-}
 
 // debug function
 void printEscapedBuffer(const std::string &buffer)
@@ -239,10 +204,10 @@ void Server::removeClient(int index)
 	std::cout << "Client disconnected (fd=" << client_fd << ")\n";
 }
 
-void Server::handleClient(int index)
-{
-	_clients[index - 1].readData();
-}
+// void Server::handleClient(int index) // maybe add later again
+// {
+// 	_clients[index - 1].readData();
+// }
 
 void Server::run()
 {
@@ -299,23 +264,6 @@ void Server::run()
 			}
 		}
 	}
-}
-
-// debug function
-void printEscapedBuffer(const std::string& buffer)
-{
-	std::cout << "unfiltered buffer (escaped): ";
-	for (size_t i = 0; i < buffer.size(); ++i)
-	{
-		unsigned char c = buffer[i];
-		if (std::isprint(c))
-			std::cout << c;
-		else
-			std::cout << "\\x"
-				<< std::hex << std::setw(2) << std::setfill('0') << (int)c
-				<< std::dec;
-	}
-	std::cout << std::endl;
 }
 
 // // 5. accept a client connection

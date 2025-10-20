@@ -24,47 +24,37 @@ class ACommand;
 
 class Server
 {
-	private:
-
-		std::string							_port;
-		std::string							_password;
-		int 								_server_fd;
-		std::vector<pollfd>					_poll_fds;
-		std::vector<Client>					_clients;
-		std::map<std::string, ACommand *> 	_commands;
-		bool								_is_running;
+private:
+	uint16_t							_port;
+	std::string							_password;
 	int _server_fd;
-	uint16_t _port;
 	std::vector<pollfd> _poll_fds;
 	std::vector<Client> _clients;
+	std::map<std::string, ACommand*> _commands;
+	bool _is_running;
 
 	int createServerSocket();
 	sockaddr_in createServerAddress();
 	void bindServerSocket();
 	void listenServerSocket(size_t backlog);
 
-	public:
-
-		// Constructors & Destructor
-		Server(std::string port, std::string password);
-		Server(const Server &copy);
-		~Server();
-
-		// Operator overloads
-		Server  &operator=(const Server &copy);
-
-		// Member functions
-		void run();
-		void addClient(int client_fd);
-		void removeClient(int index);
-		void handleClient(int index);
+public:
+	// Constructors & Destructor
 	Server(uint16_t port);
+	Server(uint16_t port, std::string password);
+	Server(const Server& copy);
+	~Server();
+
+	// Operator overloads
+	Server& operator=(const Server& copy);
+
+	// Member functions
 	void run();
-	void handleNewConnection();
 	void addClient(int client_fd);
 	void removeClient(int index);
-	void handleClient(int index);
+	void handleNewConnection();
+
 };
 
-static void addPollfd(std::vector<pollfd> &fds, int fd, short events);
-static void removePollfd(std::vector<pollfd> &fds, int fd);
+static void addPollfd(std::vector<pollfd>& fds, int fd, short events);
+static void removePollfd(std::vector<pollfd>& fds, int fd);
