@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 16:28:54 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/20 16:47:16 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/20 17:23:23 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ class Tokenizer
 	public:
 		Tokenizer();
 		~Tokenizer();
-		Tokenizer(const Tokenizer &copy);
 		Tokenizer	&operator=(const Tokenizer &copy);
 
 		std::string					get_prefix();

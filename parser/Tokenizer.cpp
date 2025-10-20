@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/14 18:31:51 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/15 19:30:42 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/20 17:22:28 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,6 @@
 
 // Constructors
 Tokenizer::Tokenizer() {}
-
-Tokenizer::Tokenizer(const Tokenizer &copy) { *this = copy; }
 
 // Destructor
 Tokenizer::~Tokenizer() {}

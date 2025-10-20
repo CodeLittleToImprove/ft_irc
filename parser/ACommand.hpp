@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 16:13:05 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/20 17:16:37 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/20 17:23:40 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,8 @@ class ACommand
 	public:
 
 		// Constructors & Destructor
-		ACommand();
 		ACommand(std::string name);
-		ACommand(const ACommand &copy);
 		~ACommand();
-
-		// Operator overloads
-		ACommand	&operator=(const ACommand &copy);
 
 		// Member functions
 		virtual void	execute(Tokenizer *tokens) const = 0;

@@ -13,21 +13,34 @@
 #include <cerrno> // for errno
 #include <fcntl.h>
 #include <vector>
+#include <map>
 #include <poll.h> // for pollfds
 #include <iomanip> // for setw and setfill
 
 #include "Client.hpp"
+#include "../parser/ACommand.hpp"
 
 class Server
 {
 	private:
-	int _server_fd;
-	std::vector<pollfd> _poll_fds;
-	std::vector<Client> _clients;
+		int _server_fd;
+		std::vector<pollfd> _poll_fds;
+		std::vector<Client> _clients;
+		std::map<std::string, ACommand *> _commands;
 
 	public:
-	void run();
-	void addClient(int client_fd);
-	void removeClient(int index);
-	void handleClient(int index);
+
+		// Constructors & Destructor
+		Server(std::string port, std::string password);
+		Server(const Server &copy);
+		~Server();
+
+		// Operator overloads
+		Server  &operator=(const Server &copy);
+
+		// Member functions
+		void run();
+		void addClient(int client_fd);
+		void removeClient(int index);
+		void handleClient(int index);
 };
