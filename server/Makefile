@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: tbui-quo <tbui-quo@student.42.fr>          +#+  +:+       +#+         #
+#    By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/24 16:12:00 by tbui-quo          #+#    #+#              #
-#    Updated: 2025/04/24 17:44:10 by tbui-quo         ###   ########.fr        #
+#    Updated: 2025/10/20 19:51:18 by pschmunk         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,13 +14,13 @@
 CXX = c++
 
 # Compiler flags
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXXFLAGS = -Wall -Wextra -Werror #-std=c++98
 
 # Target executable
 TARGET = basic_server
 
-# Source files (using wildcard)
-SRC = $(wildcard *.cpp)
+# Source files (current + parser directory)
+SRC = $(wildcard *.cpp) $(wildcard ../parser/*.cpp) $(wildcard ../utils/*.cpp)
 
 # Object files (replace .cpp with .o)
 OBJ = $(SRC:.cpp=.o)
@@ -28,21 +28,25 @@ OBJ = $(SRC:.cpp=.o)
 # Default target
 all: $(TARGET)
 
-# Linking the object file(s) to create the executable
+# Link all object files into final binary
 $(TARGET): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
 
-# Compiling each source file to object file
+# Compile rule for any .cpp file (works in subdirectories)
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Clean up object files
+# Clean object files
 clean:
 	rm -f $(OBJ)
 
-# Remove both object files and executable
+# Full clean (objects + executable)
 fclean: clean
 	rm -f $(TARGET)
 
-# Optional: rebuild everything (full clean + rebuild)
+# Rebuild everything
 re: fclean all
+
+# Disable built-in rules and suffixes for speed
+.SUFFIXES:
+.PHONY: all clean fclean re
