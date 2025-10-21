@@ -54,7 +54,6 @@ public:
 	// Member functions
 	void onClientMessage(std::string message);
 	void run();
-	void onClientMessage(std::string message);
 };
 
 
