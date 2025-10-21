@@ -39,7 +39,6 @@ class Server
 		// Constructors & Destructor
 		Server(std::string port, std::string password);
 		Server(const Server &copy);
-		~Server();
 
 		// Operator overloads
 		Server  &operator=(const Server &copy);
@@ -49,4 +48,5 @@ class Server
 		void addClient(int client_fd);
 		void removeClient(int index);
 		void handleClient(int index);
+		void onClientMessage(std::string message);
 };

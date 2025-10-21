@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 16:13:05 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/20 18:31:50 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/20 19:41:57 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include "Tokenizer.hpp"
 # include "../server/Server.hpp"
 
+class Server;
 
 class ACommand
 {

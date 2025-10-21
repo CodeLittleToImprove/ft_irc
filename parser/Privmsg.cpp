@@ -1,20 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Oper.cpp                                           :+:      :+:    :+:   */
+/*   Privmsg.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/20 18:24:21 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/21 19:13:17 by pschmunk         ###   ########.fr       */
+/*   Created: 2025/10/21 18:26:09 by pschmunk          #+#    #+#             */
+/*   Updated: 2025/10/21 19:11:12 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ACommand.hpp"
 
-Oper::Oper(Server *server) : ACommand("OPER", server) {}
+Privmsg::Privmsg(Server *server) : ACommand("PRIVMSG", server) {}
 
-void	Oper::execute(Tokenizer *tokens) const
+void	Privmsg::execute(Tokenizer *tokens) const
 {
 	std::cout	<< "Command " << this->_name << " called!" << std::endl;
 	std::cout	<< "Prefix: ";

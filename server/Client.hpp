@@ -21,7 +21,7 @@ public:
 	explicit Client(int client_fd);
 	~Client();
 
-	int getClient_fd() const;
+	// int getClient_fd() const;
 	bool getConnectedStatus() const;
 	std::string getNickname() const;
 

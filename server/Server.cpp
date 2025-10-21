@@ -33,6 +33,7 @@ Server::Server(std::string port, std::string password) : _port(port), _password(
 	this->_commands["NOTICE"] = new Notice(this);
 	this->_commands["OPER"] = new Oper(this);
 	this->_commands["PASS"] = new Pass(this);
+	this->_commands["PRIVMSG"] = new Privmsg(this);
 	this->_commands["QUIT"] = new Quit(this);
 	this->_commands["SQUIT"] = new Squit(this);
 	this->_commands["USER"] = new User(this);
@@ -60,9 +61,9 @@ void Server::removeClient(int index)
 		return;
 
 	int clientIndex = index - 1; // fds[0] is server
-	Client &client = _clients[clientIndex];
+	// Client &client = _clients[clientIndex];
 
-	close(client.getClient_fd());
+	// close(client.getClient_fd());
 	// remove the client from the vector
 	_clients.erase(_clients.begin() + clientIndex);
 
@@ -70,9 +71,20 @@ void Server::removeClient(int index)
 	_poll_fds.erase((_poll_fds.begin() + index));
 }
 
-void Server::handleClient(int index)
-{
+// void Server::handleClient(int index)
+// {
 
+// }
+
+void Server::onClientMessage(std::string message)
+{
+	Tokenizer	tokens(message);
+
+	std::string command = tokens.get_command();
+	if (this->_commands.find(command) == this->_commands.end())
+		std::cout	<< "Error! Command not found." << std::endl;
+	else
+		this->_commands[command]->execute(&tokens);
 }
 
 // debug function
@@ -176,18 +188,18 @@ int acceptClient(int server_fd, sockaddr_in &clientAddress)
 }
 
 //helper function
-void handleNewConnection(int server_fd, std::vector<pollfd> &fds)
-{
-	sockaddr_in clientAddr{};
-	int clientSocket = acceptClient(server_fd, clientAddr);
-	if (clientSocket >= 0)
-	{
-		make_socket_nonblocking(clientSocket);
-		pollfd newClient{clientSocket, POLLIN, 0};
-		fds.push_back(newClient);
-		std::cout << "Client connected (fd=" << clientSocket << ")\n";
-	}
-}
+// void handleNewConnection(int server_fd, std::vector<pollfd> &fds)
+// {
+// 	sockaddr_in clientAddr{};
+// 	int clientSocket = acceptClient(server_fd, clientAddr);
+// 	if (clientSocket >= 0)
+// 	{
+// 		make_socket_nonblocking(clientSocket);
+// 		pollfd newClient{clientSocket, POLLIN, 0};
+// 		fds.push_back(newClient);
+// 		std::cout << "Client connected (fd=" << clientSocket << ")\n";
+// 	}
+// }
 
 //helper function
 bool handleClientData(pollfd &client, std::string &buffer)
@@ -226,54 +238,62 @@ void closeClient(std::vector<pollfd> &fds, size_t i)
 	fds.erase(fds.begin() + i);
 }
 
-int main()
+int main(int ac, char **av)
 {
-	uint16_t listenPort = 8080; // typical uint16_t is used for tdp and udp ports
-	size_t queue_size = 5;
-	int serverSocket = createServerSocket();
-	sockaddr_in serverAddress = createServerAddress(listenPort);
-	bindServerSocket(serverSocket, serverAddress);
-	listenServerSocket(serverSocket, queue_size);
-
-	// Create a vector of pollfd structs
-	std::vector<pollfd> fds;
-
-	// Add the server socket to poll list
-	pollfd server_pfd{0, 0, 0}; // set all struct attributes to zero
-	server_pfd.fd = serverSocket;
-	server_pfd.events = POLLIN; // there is data to read
-	fds.push_back(server_pfd);
-	std::cout << "Server listening on port " << listenPort << "..." << std::endl;
-
-	int clientSocket;
-	std::string buffer;
-	while (true)
-	{
-		// int poll(struct pollfd *fds, nfds_t nfds, int timeout);
-		// fds = Pointer to an array of pollfd structs, nfds = Number of entries in the fds array, timeout = Maximum wait time in milliseconds, -1 means indefinitely
-		int ready = poll(fds.data(), fds.size(), -1);
-		if (ready == -1)
-			throw std::runtime_error("Poll failed: " + std::string(strerror(errno)));
-		for (size_t i = 0; i < fds.size(); i++)
-		{
-			bool shouldClose = false;
-			// Case 1: The listening socket got a new connection
-			if (fds[i].revents & POLLIN)
-			// revents check if any revents occurred and pollin signals connection ready to accept, both together means connection is ready or there is fd which has data to read
-			{
-				if (fds[i].fd == serverSocket)
-					handleNewConnection(serverSocket, fds);
-				else
-					shouldClose = handleClientData(fds[i], buffer);
-			}
-			if (fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
-				shouldClose = true;
-			if (shouldClose)
-				closeClient(fds, i--);
-		}
-	}
-	// close(clientSocket);
-	close(serverSocket);
-	std::cout <<"closing server connection" << std::endl;
-	return 0;
+	(void)ac;
+	Server	server("pipi", "kaka");
+	server.onClientMessage(av[1]);
+	return (0);
 }
+
+// int main()
+// {
+// 	uint16_t listenPort = 8080; // typical uint16_t is used for tdp and udp ports
+// 	size_t queue_size = 5;
+// 	int serverSocket = createServerSocket();
+// 	sockaddr_in serverAddress = createServerAddress(listenPort);
+// 	bindServerSocket(serverSocket, serverAddress);
+// 	listenServerSocket(serverSocket, queue_size);
+
+// 	// Create a vector of pollfd structs
+// 	std::vector<pollfd> fds;
+
+// 	// Add the server socket to poll list
+// 	pollfd server_pfd{0, 0, 0}; // set all struct attributes to zero
+// 	server_pfd.fd = serverSocket;
+// 	server_pfd.events = POLLIN; // there is data to read
+// 	fds.push_back(server_pfd);
+// 	std::cout << "Server listening on port " << listenPort << "..." << std::endl;
+
+// 	int clientSocket;
+// 	std::string buffer;
+// 	while (true)
+// 	{
+// 		// int poll(struct pollfd *fds, nfds_t nfds, int timeout);
+// 		// fds = Pointer to an array of pollfd structs, nfds = Number of entries in the fds array, timeout = Maximum wait time in milliseconds, -1 means indefinitely
+// 		int ready = poll(fds.data(), fds.size(), -1);
+// 		if (ready == -1)
+// 			throw std::runtime_error("Poll failed: " + std::string(strerror(errno)));
+// 		for (size_t i = 0; i < fds.size(); i++)
+// 		{
+// 			bool shouldClose = false;
+// 			// Case 1: The listening socket got a new connection
+// 			if (fds[i].revents & POLLIN)
+// 			// revents check if any revents occurred and pollin signals connection ready to accept, both together means connection is ready or there is fd which has data to read
+// 			{
+// 				if (fds[i].fd == serverSocket)
+// 					handleNewConnection(serverSocket, fds);
+// 				else
+// 					shouldClose = handleClientData(fds[i], buffer);
+// 			}
+// 			if (fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
+// 				shouldClose = true;
+// 			if (shouldClose)
+// 				closeClient(fds, i--);
+// 		}
+// 	}
+// 	// close(clientSocket);
+// 	close(serverSocket);
+// 	std::cout <<"closing server connection" << std::endl;
+// 	return 0;
+// }

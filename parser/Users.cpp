@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:27:09 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/20 18:28:00 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/21 19:14:11 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	Users::execute(Tokenizer *tokens) const
 	else
 	{
 		for (size_t i = 0; i < tokens->get_params().size(); i++)
-			std::cout	<< tokens->get_params().at(i) << ", ";
+			std::cout	<< tokens->get_params().at(i) << "|";
 		std::cout	<< std::endl;
 	}
 }
