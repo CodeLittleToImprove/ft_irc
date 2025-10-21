@@ -15,7 +15,7 @@
 #include <vector>
 #include <map>
 #include <poll.h> // for pollfds
-#include <iomanip> // for setw and setfill
+
 
 #include "Client.hpp"
 #include "../parser/ACommand.hpp"
@@ -37,24 +37,23 @@ private:
 	sockaddr_in createServerAddress();
 	void bindServerSocket();
 	void listenServerSocket(size_t backlog);
+	void addClient(int client_fd);
+	void removeClient(int index);
+	void handleNewConnection();
 
 public:
 	// Constructors & Destructor
 	Server(uint16_t port);
 	Server(uint16_t port, std::string password);
-	Server(const Server& copy);
+	Server(const Server& copy); // should be private?
 	~Server();
 
 	// Operator overloads
-	Server& operator=(const Server& copy);
+	Server& operator=(const Server& copy); // should be private ?
 
 	// Member functions
 	void run();
-	void addClient(int client_fd);
-	void removeClient(int index);
-	void handleNewConnection();
-
 };
 
-static void addPollfd(std::vector<pollfd>& fds, int fd, short events);
-static void removePollfd(std::vector<pollfd>& fds, int fd);
+
+

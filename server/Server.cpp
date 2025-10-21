@@ -1,20 +1,14 @@
-#include <cstring> // for memset
-#include <iostream>
-#include <netinet/in.h> // needed for sockaddr_in
-#include <sys/socket.h> // for portability
-#include <sys/types.h>
-#include <arpa/inet.h> // for inet_pton
-#include <unistd.h> // for close
-#include <cstdio> // for perror
-#include <stdlib.h> // for exit
-#include <stdexcept> // for std:run_time_error
-#include <cerrno> // for errno
-#include <fcntl.h>
-#include <vector>
-#include <poll.h> // for pollfds
-#include <iomanip> // for setw and setfill
-
 #include "Server.hpp"
+#include "utils.cpp"
+
+Server::Server(uint16_t port) // add password later
+{
+	int backlog = 5; // for now 5 change later
+	_port = port;
+	_server_fd = createServerSocket();
+	bindServerSocket();
+	listenServerSocket(backlog);
+}
 
 Server::Server(uint16_t port, std::string password) : _port(port), _password(password)
 {
@@ -39,26 +33,12 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	this->_commands["USERS"] = new Users(this);
 }
 
-
-// debug function
-void printEscapedBuffer(const std::string &buffer)
-{
-	std::cout << "unfiltered buffer (escaped): ";
-	for (size_t i = 0; i < buffer.size(); ++i)
-	{
-		unsigned char c = buffer[i];
-		if (std::isprint(c))
-			std::cout << c;
-		else
-			std::cout << "\\x"
-					<< std::hex << std::setw(2) << std::setfill('0') << (int) c
-					<< std::dec;
-	}
-	std::cout << std::endl;
-}
+/******************************************************************************/
+/*                         Static Functions                                   */
+/******************************************************************************/
 
 // 0. make socket nonblocking
-int make_socket_nonblocking(int fd)
+static int make_socket_nonblocking(int fd)
 {
 	//fcntl stands for file control int fcntl(int fd, int cmd, ... /* arg */);
 	int current_flags = fcntl(fd, F_GETFL, 0);
@@ -67,7 +47,14 @@ int make_socket_nonblocking(int fd)
 	return fcntl(fd, F_SETFL, current_flags | O_NONBLOCK); // add to the current flags the nonblocking flag
 }
 
-// static function
+static void closeClient(std::vector<pollfd>& fds, size_t i) // not used yet
+{
+	std::cout << "Client " << fds[i].fd << " disconnected\n";
+	close(fds[i].fd);
+	fds.erase(fds.begin() + i);
+}
+
+// Add a pollfd entry by file descriptor
 static void addPollfd(std::vector<pollfd>& fds, int fd, short events)
 {
 	struct pollfd pfd;
@@ -90,6 +77,9 @@ static void removePollfd(std::vector<pollfd>& fds, int fd)
 	}
 }
 
+/******************************************************************************/
+/*                         Private Functions                                  */
+/******************************************************************************/
 
 // 1. creating server socket
 int Server::createServerSocket()
@@ -148,15 +138,7 @@ void Server::listenServerSocket(size_t backlog)
 		throw std::runtime_error(std::string("Listen failed: ") + std::strerror(errno));
 }
 
-Server::Server(uint16_t port)
-{
-	int backlog = 5; // for now change later
-	_port = port;
-	_server_fd = createServerSocket();
-	bindServerSocket();
-	listenServerSocket(backlog);
-}
-
+// 5. accept new clients
 void Server::addClient(int client_fd)
 {
 	Client tmp(client_fd);
@@ -168,6 +150,7 @@ void Server::addClient(int client_fd)
 	addPollfd(_poll_fds, client_fd, POLLIN);
 }
 
+// 5. accept new clients
 void Server::handleNewConnection()
 {
 	// Accept a new client
@@ -186,6 +169,7 @@ void Server::handleNewConnection()
 	addClient(client_fd);
 }
 
+// 5. during server run , can remove clients
 void Server::removeClient(int index)
 {
 	// never remove server_fd
@@ -209,6 +193,9 @@ void Server::removeClient(int index)
 // 	_clients[index - 1].readData();
 // }
 
+/******************************************************************************/
+/*                         Public Functions                                  */
+/******************************************************************************/
 void Server::run()
 {
 	// Add the server socket to the pollfd vector using the helper
@@ -264,113 +251,4 @@ void Server::run()
 			}
 		}
 	}
-}
-
-// // 5. accept a client connection
-// int acceptClient(int server_fd, sockaddr_in& clientAddress)
-// {
-// 	socklen_t clientAddressLen = sizeof(clientAddress);
-// 	// accepting client connection
-// 	// accepts and adds you a new socket FD representing one side of an already-established TCP connection.
-// 	int clientSocket = accept(server_fd, (struct sockaddr*)&clientAddress, &clientAddressLen);
-// 	if (clientSocket == -1)
-// 	{
-// 		if (errno == EAGAIN || errno == EWOULDBLOCK) // errno gets set by accept, both errnos are the same
-// 			return -1;
-// 		throw std::runtime_error("Accept failed: " + std::string(strerror(errno)));
-// 	}
-// 	std::cout << "Client connected." << std::endl;
-// 	return clientSocket;
-// }
-
-
-// //helper function
-// bool handleClientData(pollfd& client, std::string& buffer)
-// {
-// 	char recvBuf[512];
-// 	int bytesReceived = recv(client.fd, recvBuf, sizeof(recvBuf) - 1, 0);
-//
-// 	if (bytesReceived == 0)
-// 		return true; // client disconnected
-//
-// 	if (bytesReceived < 0) // this case is for do nothing and wait for data
-// 	{
-// 		if (errno != EAGAIN && errno != EWOULDBLOCK)
-// 			return true; // real error
-// 		return false; // try again later
-// 	}
-// 	recvBuf[bytesReceived] = '\0';
-// 	buffer += recvBuf;
-// 	// printEscapedBuffer(buffer);
-// 	size_t end;
-// 	while ((end = buffer.find("\r\n")) != std::string::npos)
-// 	{
-// 		std::string msg = buffer.substr(0, end);
-// 		buffer.erase(0, end + 2);
-// 		std::cout << "Message from " << client.fd << ": " << msg << "\n";
-// 		// handleIRCCommand(message);  // parse and respond
-// 	}
-// 	return false;
-// }
-
-//helper function
-void closeClient(std::vector<pollfd>& fds, size_t i)
-{
-	std::cout << "Client " << fds[i].fd << " disconnected\n";
-	close(fds[i].fd);
-	fds.erase(fds.begin() + i);
-}
-
-int main()
-{
-	uint16_t listenPort = 8080; // typical uint16_t is used for tdp and udp ports
-	Server server(listenPort);
-	server.run();
-	// int serverSocket = createServerSocket();
-	// sockaddr_in serverAddress = createServerAddress(listenPort);
-	// bindServerSocket(serverSocket, serverAddress);
-	// listenServerSocket(serverSocket, queue_size);
-
-	// // Create a vector of pollfd structs
-	// std::vector<pollfd> fds;
-	//
-	// // Add the server socket to poll list
-	// pollfd server_pfd;
-	// memset(&server_pfd, 0, sizeof(server_pfd));
-	// server_pfd.fd = serverSocket;
-	// server_pfd.events = POLLIN; // there is data to read
-	// fds.push_back(server_pfd);
-	// std::cout << "Server listening on port " << listenPort << "..." << std::endl;
-	//
-	// // int clientSocket; // not needed anymore?
-	// std::string buffer;
-	// while (true)
-	// {
-	// 	// int poll(struct pollfd *fds, nfds_t nfds, int timeout);
-	// 	// fds = Pointer to an array of pollfd structs, nfds = Number of entries in the fds array, timeout = Maximum wait time in milliseconds, -1 means indefinitely
-	// 	int ready = poll(fds.data(), fds.size(), -1);
-	// 	if (ready == -1)
-	// 		throw std::runtime_error("Poll failed: " + std::string(strerror(errno)));
-	// 	for (size_t i = 0; i < fds.size(); i++)
-	// 	{
-	// 		bool shouldClose = false;
-	// 		// Case 1: The listening socket got a new connection
-	// 		if (fds[i].revents & POLLIN)
-	// 		// revents check if any revents occurred and pollin signals connection ready to accept, both together means connection is ready or there is fd which has data to read
-	// 		{
-	// 			if (fds[i].fd == serverSocket)
-	// 				handleNewConnection(serverSocket, fds);
-	// 			else
-	// 				shouldClose = handleClientData(fds[i], buffer);
-	// 		}
-	// 		if (fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
-	// 			shouldClose = true;
-	// 		if (shouldClose)
-	// 			closeClient(fds, i--);
-	// 	}
-	// }
-	// // close(clientSocket);
-	// close(serverSocket);
-	// std::cout << "closing server connection" << std::endl;
-	return 0;
 }

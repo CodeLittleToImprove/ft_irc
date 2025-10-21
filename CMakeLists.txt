@@ -14,7 +14,11 @@ add_executable(ft_irc_server
         server/Server.cpp
         server/Server.cpp
         server/Client.cpp
-        server/Client.hpp)
+        server/Client.hpp
+        server/utils.cpp
+        server/utils.hpp
+        server/main.cpp
+        server/main.cpp)
 
 add_executable(ft_irc_client
         #        test/Template.cpp
