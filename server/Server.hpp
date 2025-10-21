@@ -16,7 +16,7 @@
 #include <map>
 #include <poll.h> // for pollfds
 
-
+#include "serverUtils.cpp"
 #include "Client.hpp"
 #include "../parser/ACommand.hpp"
 
@@ -46,13 +46,13 @@ public:
 	Server(uint16_t port);
 	Server(uint16_t port, std::string password);
 	Server(const Server& copy); // should be private?
+	// ~Server();
 
 	// Operator overloads
 	Server& operator=(const Server& copy); // should be private ?
 
 	// Member functions
 	void run();
-	void handleClient(int index);
 	void onClientMessage(std::string message);
 };
 

@@ -1,5 +1,6 @@
 #include "Server.hpp"
 
+
 Server::Server(uint16_t port) // add password later
 {
 	int backlog = 5; // for now 5 change later
@@ -36,47 +37,6 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 /******************************************************************************/
 /*                         Static Functions                                   */
 /******************************************************************************/
-// void Server::addClient(int client_fd)
-// {
-// 	Client tmp(client_fd);
-// 	//The vector now owns its own copy; tmp will be destroyed after this line
-// 	_clients.push_back(tmp);
-
-// 	// Create and register this client's poll entry
-// 	pollfd pollEntry;
-// 	pollEntry.fd = client_fd;
-// 	pollEntry.events = POLLIN;
-// 	pollEntry.revents = 0;
-// 	_poll_fds.push_back(pollEntry);
-// }
-
-// void Server::removeClient(int index)
-// {
-// 	// never remove server_fd
-// 	if (index == 0)
-// 		return;
-
-// 	int clientIndex = index - 1; // fds[0] is server
-// 	// Client &client = _clients[clientIndex];
-
-// 	// close(client.getClient_fd());
-// 	// remove the client from the vector
-// 	_clients.erase(_clients.begin() + clientIndex);
-
-// 	// remove the corresponding pollfd
-// 	_poll_fds.erase((_poll_fds.begin() + index));
-// }
-
-void Server::onClientMessage(std::string message)
-{
-	Tokenizer	tokens(message);
-
-	std::string command = tokens.get_command();
-	if (this->_commands.find(command) == this->_commands.end())
-		std::cout	<< "Error! Command not found." << std::endl;
-	else
-		this->_commands[command]->execute(&tokens);
-}
 
 // 0. make socket nonblocking
 static int make_socket_nonblocking(int fd)
@@ -292,12 +252,4 @@ void Server::run()
 			}
 		}
 	}
-}
-
-int main(int ac, char **av)
-{
-	(void)ac;
-	Server	server(200, "kaka");
-	server.onClientMessage(av[1]);
-	return (0);
 }

@@ -15,10 +15,13 @@ add_executable(ft_irc_server
         server/Server.cpp
         server/Client.cpp
         server/Client.hpp
-        server/utils.cpp
-        server/utils.hpp
         server/main.cpp
-        server/main.cpp)
+        server/main.cpp
+        parser/ACommand.hpp
+        parser/ACommand.cpp
+        server/main.cpp
+        utils/utils.hpp
+        parser/ACommand.hpp)
 
 add_executable(ft_irc_client
         #        test/Template.cpp
