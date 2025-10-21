@@ -12,22 +12,23 @@
 
 class Client
 {
-private:
-	int _client_fd;
-	// pollfd *_pollEntry;
-	bool _connected;
-	std::string _nickName;
-	std::string _buffer;
+	private:
+		int			_client_fd;
+		// pollfd *_pollEntry;
+		bool 		_connected;
+		bool		_has_nickname;
+		std::string _nickname;
+		std::string _buffer;
 
-public:
-	explicit Client(int client_fd);
-	~Client();
+	public:
+		explicit Client(int client_fd);
+		~Client();
 
-	int getClient_fd() const;
-	bool getConnectedStatus() const;
-	std::string getNickname() const;
+		int getClient_fd() const;
+		bool getConnectedStatus() const;
+		std::string getNickname() const;
 
-	bool readData();
-	// void sendData(const std::string &msg);
-	void closeConnection();
+		bool readData();
+		// void sendData(const std::string &msg);
+		void closeConnection();
 };
