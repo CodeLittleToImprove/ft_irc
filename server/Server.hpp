@@ -15,7 +15,7 @@
 #include <vector>
 #include <map>
 #include <poll.h> // for pollfds
-#include <iomanip> // for setw and setfill
+
 
 #include "Client.hpp"
 #include "../parser/ACommand.hpp"
@@ -24,24 +24,31 @@ class ACommand;
 
 class Server
 {
-	private:
+private:
+	uint16_t							_port;
+	std::string							_password;
+	int 								_server_fd;
+	std::vector<pollfd> 				_poll_fds;
+	std::vector<Client> 				_clients;
+	std::map<std::string, ACommand*>	_commands;
+	bool								_is_running;
 
-		std::string							_port;
-		std::string							_password;
-		int 								_server_fd;
-		std::vector<pollfd>					_poll_fds;
-		std::vector<Client>					_clients;
-		std::map<std::string, ACommand *> 	_commands;
-		bool								_is_running;
+	int createServerSocket();
+	sockaddr_in createServerAddress();
+	void bindServerSocket();
+	void listenServerSocket(size_t backlog);
+	void addClient(int client_fd);
+	void removeClient(int index);
+	void handleNewConnection();
 
-	public:
+public:
+	// Constructors & Destructor
+	Server(uint16_t port);
+	Server(uint16_t port, std::string password);
+	Server(const Server& copy); // should be private?
 
-		// Constructors & Destructor
-		Server(std::string port, std::string password);
-		Server(const Server &copy);
-
-		// Operator overloads
-		Server  &operator=(const Server &copy);
+	// Operator overloads
+	Server& operator=(const Server& copy); // should be private ?
 
 		// Member functions
 		void run();
@@ -50,3 +57,6 @@ class Server
 		void handleClient(int index);
 		void onClientMessage(std::string message);
 };
+
+
+
