@@ -1,5 +1,4 @@
 #include "Server.hpp"
-#include "utils.cpp"
 
 Server::Server(uint16_t port) // add password later
 {
