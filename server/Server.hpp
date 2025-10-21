@@ -50,12 +50,10 @@ public:
 	// Operator overloads
 	Server& operator=(const Server& copy); // should be private ?
 
-		// Member functions
-		void run();
-		void addClient(int client_fd);
-		void removeClient(int index);
-		void handleClient(int index);
-		void onClientMessage(std::string message);
+	// Member functions
+	void run();
+	void handleClient(int index);
+	void onClientMessage(std::string message);
 };
 
 

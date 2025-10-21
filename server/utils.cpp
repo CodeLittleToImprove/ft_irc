@@ -17,4 +17,3 @@ void printEscapedBuffer(const std::string &buffer)
 	}
 	std::cout << std::endl;
 }
-
