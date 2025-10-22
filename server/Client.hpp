@@ -21,14 +21,20 @@ class Client
 		std::string _buffer;
 
 	public:
+
+		// Constructors
 		explicit Client(int client_fd);
 		~Client();
 
-		int getClient_fd() const;
-		bool getConnectedStatus() const;
-		std::string getNickname() const;
+		// Getter
+		int			getClient_fd() const;
+		bool		getConnectedStatus() const;
+		std::string	getNickname() const;
 
+		// Setter
+		void		setNickname(std::string nickname);
+
+		// Member functions
 		bool readData();
-		// void sendData(const std::string &msg);
 		void closeConnection();
 };

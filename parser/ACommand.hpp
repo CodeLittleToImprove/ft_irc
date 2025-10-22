@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ACommand.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: phillymilly <phillymilly@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 16:13:05 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/20 19:41:57 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/22 21:15:46 by phillymilly      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,10 @@
 # include <iostream>
 # include "Tokenizer.hpp"
 # include "../server/Server.hpp"
+# include "../server/Client.hpp"
 
 class Server;
+class Client;
 
 class ACommand
 {
@@ -109,7 +111,8 @@ class Nick : public ACommand
 	private:
 	public:
 		Nick(Server *server);
-		void	execute(Tokenizer *tokens) const;
+		void	execute(Client *client, Tokenizer *tokens) const;
+		void	parser_debugging(Tokenizer *tokens) const;
 };
 
 class Notice : public ACommand

@@ -1,9 +1,6 @@
 #include "Client.hpp"
 
-Client::Client(int client_fd)
-	: _client_fd(client_fd), _connected(true)
-{
-}
+Client::Client(int client_fd) : _client_fd(client_fd), _connected(true), _has_nickname(false) {}
 
 Client::~Client()
 {
@@ -74,5 +71,11 @@ bool Client::getConnectedStatus() const
 
 std::string Client::getNickname() const
 {
-	return _nickName;
+	return _nickname;
+}
+
+void Client::setNickname(std::string nickname)
+{
+	this->_nickname = nickname;
+	this->_has_nickname = true;
 }
