@@ -52,7 +52,7 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 Server::~Server()
 {
 	// Close all client sockets first
-	for (int i = 1; i < _poll_fds.size(); ++i)
+	for (size_t i = 1; i < _poll_fds.size(); ++i)
 	{
 		if (_poll_fds[i].fd >= 0)
 			close(_poll_fds[i].fd);
@@ -174,10 +174,17 @@ void Server::listenServerSocket(size_t backlog)
 // 5. helper function accept new clients
 void Server::addClient(int client_fd)
 {
-	Client tmp(client_fd);
-	//The vector now owns its own copy; tmp will be destroyed after this line
-	_clients.push_back(tmp);
+	Client *client = new Client(client_fd);
+	//bool indicating if insertion succeeded
+	std::pair<std::map<int, Client*>::iterator, bool> insertSuccess;
+	insertSuccess = _clients.insert(std::make_pair(client_fd, client));
 
+	if (!insertSuccess.second)
+	{
+		std::cout << "Warning: client with fd " << client_fd << " already exists!" << std::endl;
+		delete client;
+		return;
+	}
 	std::cout << "New client connected (fd=" << client_fd << ")\n";
 	// Create and register this client's poll entry
 	addPollfd(_poll_fds, client_fd, POLLIN);
@@ -202,18 +209,15 @@ void Server::handleNewConnection()
 }
 
 // 5. during server run , can remove clients
-void Server::removeClient(int index)
+void Server::removeClient(int client_fd)
 {
-	// never remove server_fd
-	if (index == 0 || index > static_cast<int>(_clients.size()))
+	std::map<int, Client*>::iterator it = _clients.find(client_fd);
+	if (it == _clients.end())
 		return;
 
-	int clientIndex = index - 1; // fds[0] is server
-	int client_fd = _clients[clientIndex].getClient_fd();
-
 	close(client_fd);
-	// remove the client object
-	_clients.erase(_clients.begin() + clientIndex);
+	delete it->second; 	// free the client object
+	_clients.erase(it);
 
 	// remove the corresponding pollfd
 	removePollfd(_poll_fds, client_fd);
@@ -259,43 +263,45 @@ void Server::run()
 				continue;
 			throw std::runtime_error("Poll failed: " + std::string(strerror(errno)));
 		}
+		// Iterate through all file descriptors we’re monitoring
 		for (size_t i = 0; i < _poll_fds.size(); i++)
 		{
 			struct pollfd &curPollEntry = _poll_fds[i];
 			// Case 1: New client connection
+			// revents check if any revents occurred and pollin signals connection ready to accept, both together means connection is ready or there is fd which has data to read
 			if (curPollEntry.fd == _server_fd && (curPollEntry.revents & POLLIN))
 			{
 				handleNewConnection();
 				continue;
 			}
-			// revents check if any revents occurred and pollin signals connection ready to accept, both together means connection is ready or there is fd which has data to read
+
 
 			// Case 2: Ignore server socket entries here
 			if (curPollEntry.fd == _server_fd)
 				continue;
-			size_t clientIndex = i - 1;
-			if (clientIndex >= _clients.size())
+
+			int client_fd = curPollEntry.fd;
+			std::map<int, Client*>::iterator it = _clients.find(curPollEntry.fd);
+			if (it == _clients.end())
 				continue;
-			Client &curClient = _clients[clientIndex];
+			Client *curClient = it->second;
 
 			// Case 3: Client disconnected or error
 			if (curPollEntry.revents & (POLLHUP | POLLERR | POLLNVAL))
 			{
-				std::cout << "Client fd=" << curClient.getClient_fd() << " disconnected/error\n";
-				removeClient(clientIndex);
+				std::cout << "Client fd=" << curClient->getClient_fd() << " disconnected/error\n";
+				removeClient(client_fd);
 				i--;
 				continue;
 			}
 			// Case 4: Client sent data
 			if (curPollEntry.revents & POLLIN)
 			{
-				size_t clientIndex = i - 1;
-				Client& curClient = _clients[clientIndex];
-				bool clientConnected = curClient.readData();
+				bool clientConnected = curClient->readData();
 				if (!clientConnected)
 				{
-					std::cout << "Client fd=" << curClient.getClient_fd() << " disconnected\n";
-					removeClient(clientIndex);
+					std::cout << "Client fd=" << curClient->getClient_fd() << " disconnected\n";
+					removeClient(client_fd);
 					i--;
 				}
 			}
