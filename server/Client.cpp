@@ -35,7 +35,7 @@ bool Client::readData()
 	{
 		// Client closed connection gracefully
 		std::cout << "Client " << _client_fd << " closed connection." << std::endl;
-		_connected = false; _connected = false; // maybe optional
+		_connected = false; // maybe optional
 		return false;
 	}
 	if (errno == EAGAIN || errno == EWOULDBLOCK)

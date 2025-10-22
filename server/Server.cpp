@@ -49,6 +49,23 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	this->_commands["USERS"] = new Users(this);
 }
 
+Server::~Server()
+{
+	// Close all client sockets first
+	for (int i = 1; i < _poll_fds.size(); ++i)
+	{
+		if (_poll_fds[i].fd >= 0)
+			close(_poll_fds[i].fd);
+	}
+
+	// Close server socket last
+	if (_server_fd >= 0)
+		close(_server_fd);
+
+	std::cout << "All sockets closed. Server stopped." << std::endl;
+}
+
+
 /******************************************************************************/
 /*                         Static Functions                                   */
 /******************************************************************************/
@@ -154,7 +171,7 @@ void Server::listenServerSocket(size_t backlog)
 		throw std::runtime_error(std::string("Listen failed: ") + std::strerror(errno));
 }
 
-// 5. accept new clients
+// 5. helper function accept new clients
 void Server::addClient(int client_fd)
 {
 	Client tmp(client_fd);
@@ -225,9 +242,11 @@ void Server::onClientMessage(std::string message)
 
 void Server::run()
 {
+	std::cout << "Server started" << std::endl;
 	// Add the server socket to the pollfd vector using the helper
 	addPollfd(_poll_fds, _server_fd, POLLIN);
-	while (true)
+	this->_is_running = true;
+	while (_is_running)
 	{
 		// int poll(struct pollfd *fds, nfds_t nfds, int timeout);
 		// _poll_fds.data() -> array of pollfd structs representing all sockets
@@ -235,10 +254,14 @@ void Server::run()
 		// int timeout -> timeout in milliseconds / -1 means "wait indefinitely" until at least one fd becomes ready
 		int ready = poll(_poll_fds.data(), _poll_fds.size(), -1);
 		if (ready == -1)
+		{
+			if (errno == EINTR)
+				continue;
 			throw std::runtime_error("Poll failed: " + std::string(strerror(errno)));
+		}
 		for (size_t i = 0; i < _poll_fds.size(); i++)
 		{
-			struct pollfd& curPollEntry = _poll_fds[i];
+			struct pollfd &curPollEntry = _poll_fds[i];
 			// Case 1: New client connection
 			if (curPollEntry.fd == _server_fd && (curPollEntry.revents & POLLIN))
 			{
@@ -251,14 +274,15 @@ void Server::run()
 			if (curPollEntry.fd == _server_fd)
 				continue;
 			size_t clientIndex = i - 1;
-			Client& curClient = _clients[clientIndex];
+			if (clientIndex >= _clients.size())
+				continue;
+			Client &curClient = _clients[clientIndex];
 
 			// Case 3: Client disconnected or error
 			if (curPollEntry.revents & (POLLHUP | POLLERR | POLLNVAL))
 			{
 				std::cout << "Client fd=" << curClient.getClient_fd() << " disconnected/error\n";
 				removeClient(clientIndex);
-				removePollfd(_poll_fds, curPollEntry.fd);
 				i--;
 				continue;
 			}
@@ -267,12 +291,11 @@ void Server::run()
 			{
 				size_t clientIndex = i - 1;
 				Client& curClient = _clients[clientIndex];
-				bool stillConnected = curClient.readData();
-				if (!stillConnected)
+				bool clientConnected = curClient.readData();
+				if (!clientConnected)
 				{
 					std::cout << "Client fd=" << curClient.getClient_fd() << " disconnected\n";
 					removeClient(clientIndex);
-					removePollfd(_poll_fds, curPollEntry.fd);
 					i--;
 				}
 			}

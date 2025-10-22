@@ -46,7 +46,7 @@ public:
 	Server(uint16_t port);
 	Server(uint16_t port, std::string password);
 	Server(const Server& copy); // should be private?
-	// ~Server();
+	~Server();
 
 	// Operator overloads
 	Server& operator=(const Server& copy); // should be private ?
