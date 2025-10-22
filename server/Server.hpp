@@ -40,6 +40,7 @@ private:
 	void addClient(int client_fd);
 	void removeClient(int index);
 	void handleNewConnection();
+	void handleAdminInput();
 
 public:
 	// Constructors & Destructor

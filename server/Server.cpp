@@ -88,7 +88,7 @@ static int make_socket_nonblocking(int fd)
 // }
 
 // Add a pollfd entry by file descriptor
-static void addPollfd(std::vector<pollfd>& fds, int fd, short events)
+static void addPollfd(std::vector<pollfd> &fds, int fd, short events)
 {
 	struct pollfd pfd;
 	pfd.fd = fd;
@@ -98,7 +98,7 @@ static void addPollfd(std::vector<pollfd>& fds, int fd, short events)
 }
 
 // Remove a pollfd entry by file descriptor
-static void removePollfd(std::vector<pollfd>& fds, int fd)
+static void removePollfd(std::vector<pollfd> &fds, int fd)
 {
 	for (std::vector<pollfd>::iterator it = fds.begin(); it != fds.end(); ++it)
 	{
@@ -156,7 +156,7 @@ sockaddr_in Server::createServerAddress()
 void Server::bindServerSocket()
 {
 	sockaddr_in serverAddress = createServerAddress();
-	int bindResult = bind(_server_fd, (struct sockaddr*)&serverAddress,
+	int bindResult = bind(_server_fd, (struct sockaddr *) &serverAddress,
 	                      sizeof(serverAddress));
 	if (bindResult == -1)
 		throw std::runtime_error(std::string("Bind failed: ") + std::strerror(errno));
@@ -174,20 +174,26 @@ void Server::listenServerSocket(size_t backlog)
 // 5. helper function accept new clients
 void Server::addClient(int client_fd)
 {
-	Client *client = new Client(client_fd);
-	//bool indicating if insertion succeeded
-	std::pair<std::map<int, Client*>::iterator, bool> insertSuccess;
-	insertSuccess = _clients.insert(std::make_pair(client_fd, client));
-
-	if (!insertSuccess.second)
+	try
 	{
-		std::cout << "Warning: client with fd " << client_fd << " already exists!" << std::endl;
-		delete client;
-		return;
+		Client *client = new Client(client_fd);
+		//bool indicating if insertion succeeded
+		std::pair<std::map<int, Client *>::iterator, bool> insertSuccess;
+		insertSuccess = _clients.insert(std::make_pair(client_fd, client));
+
+		if (!insertSuccess.second)
+		{
+			std::cout << "Warning: client with fd " << client_fd << " already exists!" << std::endl;
+			delete client;
+			return;
+		}
+		std::cout << "New client connected (fd=" << client_fd << ")\n";
+		// Create and register this client's poll entry
+		addPollfd(_poll_fds, client_fd, POLLIN);
+	} catch (const std::exception &e)
+	{
+		std::cerr << "Failed to add client fd=" << client_fd << ": " << e.what() << std::endl;
 	}
-	std::cout << "New client connected (fd=" << client_fd << ")\n";
-	// Create and register this client's poll entry
-	addPollfd(_poll_fds, client_fd, POLLIN);
 }
 
 // 5. accept new clients
@@ -195,7 +201,7 @@ void Server::handleNewConnection()
 {
 	sockaddr_in clientAddr;
 	socklen_t len = sizeof(clientAddr);
-	int client_fd = accept(_server_fd, (sockaddr*)&clientAddr, &len);
+	int client_fd = accept(_server_fd, (sockaddr *) &clientAddr, &len);
 
 	// If no client is ready (non-blocking) or error occurred, just return
 	if (client_fd < 0)
@@ -211,17 +217,37 @@ void Server::handleNewConnection()
 // 5. during server run , can remove clients
 void Server::removeClient(int client_fd)
 {
-	std::map<int, Client*>::iterator it = _clients.find(client_fd);
+	std::map<int, Client *>::iterator it = _clients.find(client_fd);
 	if (it == _clients.end())
 		return;
 
-	close(client_fd);
-	delete it->second; 	// free the client object
+	if (close(client_fd) == -1)
+		std::cout << "Warning: failed to close fd " << client_fd << ": " << strerror(errno) << std::endl;
+	delete it->second; // free the client object
 	_clients.erase(it);
 
 	// remove the corresponding pollfd
 	removePollfd(_poll_fds, client_fd);
 	std::cout << "Client disconnected (fd=" << client_fd << ")\n";
+}
+
+void Server::handleAdminInput()
+{
+	char buffer[256];
+	int bytes = read(STDIN_FILENO, buffer, sizeof(buffer) - 1);
+	if (bytes <= 0)
+		return;
+
+	buffer[bytes] = '\0';
+	std::string input(buffer);
+
+	if (input == "exit\n" || input == "quit\n")
+	{
+		std::cout << "Shutting down server..." << std::endl;
+		_is_running = false;
+	}
+	else
+		std::cout << "Unknown command: " << input;
 }
 
 // void Server::handleClient(int index) // maybe add later again
@@ -235,11 +261,11 @@ void Server::removeClient(int client_fd)
 
 void Server::onClientMessage(std::string message)
 {
-	Tokenizer	tokens(message);
+	Tokenizer tokens(message);
 
 	std::string command = tokens.get_command();
 	if (this->_commands.find(command) == this->_commands.end())
-		std::cout	<< "Error! Command not found." << std::endl;
+		std::cout << "Error! Command not found." << std::endl;
 	else
 		this->_commands[command]->execute(&tokens);
 }
@@ -249,6 +275,8 @@ void Server::run()
 	std::cout << "Server started" << std::endl;
 	// Add the server socket to the pollfd vector using the helper
 	addPollfd(_poll_fds, _server_fd, POLLIN);
+	// Add stdin ot the pollfd vector
+	addPollfd(_poll_fds, STDIN_FILENO, POLLIN);
 	this->_is_running = true;
 	while (_is_running)
 	{
@@ -266,7 +294,15 @@ void Server::run()
 		// Iterate through all file descriptors we’re monitoring
 		for (size_t i = 0; i < _poll_fds.size(); i++)
 		{
-			struct pollfd &curPollEntry = _poll_fds[i];
+			pollfd &curPollEntry = _poll_fds[i];
+			// --- Case 0: Handle STDIN (admin commands like "exit") ---
+			if (curPollEntry.fd == STDIN_FILENO && (curPollEntry.revents & POLLIN))
+			{
+				handleAdminInput();
+				if (!_is_running)
+					break; // stop the loop if exit/quit was entered
+				continue;
+			}
 			// Case 1: New client connection
 			// revents check if any revents occurred and pollin signals connection ready to accept, both together means connection is ready or there is fd which has data to read
 			if (curPollEntry.fd == _server_fd && (curPollEntry.revents & POLLIN))
@@ -275,13 +311,12 @@ void Server::run()
 				continue;
 			}
 
-
 			// Case 2: Ignore server socket entries here
 			if (curPollEntry.fd == _server_fd)
 				continue;
 
 			int client_fd = curPollEntry.fd;
-			std::map<int, Client*>::iterator it = _clients.find(curPollEntry.fd);
+			std::map<int, Client *>::iterator it = _clients.find(curPollEntry.fd);
 			if (it == _clients.end())
 				continue;
 			Client *curClient = it->second;
