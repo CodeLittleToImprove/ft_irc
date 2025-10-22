@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: phillymilly <phillymilly@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 20:16:04 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/21 20:16:27 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/22 23:28:28 by phillymilly      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,24 +29,24 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 {
 	this->_is_running = false;
 
-	this->_commands["CNOTICE"] = new Cnotice(this);
-	this->_commands["CPRIVMSG"] = new Cprivmsg(this);
-	this->_commands["INFO"] = new Info(this);
-	this->_commands["INVITE"] = new Invite(this);
-	this->_commands["JOIN"] = new Join(this);
-	this->_commands["KICK"] = new Kick(this);
-	this->_commands["LIST"] = new List(this);
-	this->_commands["MODE"] = new Mode(this);
-	this->_commands["NAMES"] = new Names(this);
-	this->_commands["NICK"] = new Nick(this);
-	this->_commands["NOTICE"] = new Notice(this);
-	this->_commands["OPER"] = new Oper(this);
-	this->_commands["PASS"] = new Pass(this);
-	this->_commands["PRIVMSG"] = new Privmsg(this);
-	this->_commands["QUIT"] = new Quit(this);
-	this->_commands["SQUIT"] = new Squit(this);
-	this->_commands["USER"] = new User(this);
-	this->_commands["USERS"] = new Users(this);
+	this->_commands["CNOTICE"]	= new Cnotice(this);
+	this->_commands["CPRIVMSG"]	= new Cprivmsg(this);
+	this->_commands["INFO"] 	= new Info(this);
+	this->_commands["INVITE"]	= new Invite(this);
+	this->_commands["JOIN"]		= new Join(this);
+	this->_commands["KICK"] 	= new Kick(this);
+	this->_commands["LIST"] 	= new List(this);
+	this->_commands["MODE"] 	= new Mode(this);
+	this->_commands["NAMES"] 	= new Names(this);
+	this->_commands["NICK"] 	= new Nick(this);
+	this->_commands["NOTICE"] 	= new Notice(this);
+	this->_commands["OPER"] 	= new Oper(this);
+	this->_commands["PASS"] 	= new Pass(this);
+	this->_commands["PRIVMSG"] 	= new Privmsg(this);
+	this->_commands["QUIT"] 	= new Quit(this);
+	this->_commands["SQUIT"] 	= new Squit(this);
+	this->_commands["USER"] 	= new User(this);
+	this->_commands["USERS"] 	= new Users(this);
 }
 
 Server::~Server()
@@ -259,15 +259,43 @@ void Server::handleAdminInput()
 /*                          Public Functions                                  */
 /******************************************************************************/
 
-void Server::onClientMessage(std::string message)
+Client *Server::get_client(int client_fd)
+{
+    std::map<int, Client *>::iterator it = _clients.find(client_fd);
+    if (it == _clients.end()) {
+        throw std::runtime_error("Client not found");
+    }
+    return it->second;
+}
+
+Client *Server::get_client(std::string nickname)
+{
+	for (size_t i = 0; i < _clients.size(); i++)
+		if (_clients[i]->getNickname() == nickname)
+			return (_clients[i]);
+	return (NULL);
+}
+
+void Server::onClientMessage(int client_fd, std::string message)
 {
 	Tokenizer tokens(message);
+	Client	*client = get_client(client_fd);
 
 	std::string command = tokens.get_command();
 	if (this->_commands.find(command) == this->_commands.end())
 		std::cout << "Error! Command not found." << std::endl;
 	else
-		this->_commands[command]->execute(&tokens);
+		this->_commands[command]->execute(client, &tokens);
+}
+
+void Server::response(int client_fd, std::string code, std::string message)
+{
+	std::string code_str = code.empty() ? "" : code + ' ';
+	std::string nickname = get_client(client_fd)->getNickname();
+	std::string nickname_str = nickname.empty() ? "unregistered " : nickname + ' ';
+	std::string response = ':' + this->_hostname + ' ' + code_str + nickname + message;
+
+	send(client_fd, response.c_str(), response.length(), 0);
 }
 
 void Server::run()

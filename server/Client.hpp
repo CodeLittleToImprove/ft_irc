@@ -17,7 +17,10 @@ class Client
 		// pollfd *_pollEntry;
 		bool 		_connected;
 		bool		_has_nickname;
-		std::string _nickName;
+		bool		_is_registered;
+		std::string _nickname;
+		std::string _username;
+		std::string _realname;
 		std::string _buffer;
 
 	public:
@@ -28,6 +31,8 @@ class Client
 
 		// Getter
 		int			getClient_fd() const;
+		bool		hasNickname() const;
+		bool		is_registered() const;
 		bool		getConnectedStatus() const;
 		std::string	getNickname() const;
 
@@ -37,4 +42,5 @@ class Client
 		// Member functions
 		bool readData();
 		void closeConnection();
+		void register_client(std::string username, std::string realname);
 };

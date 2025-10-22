@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Invite.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: phillymilly <phillymilly@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:20:39 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/21 19:12:45 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/23 01:33:50 by phillymilly      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,22 +14,7 @@
 
 Invite::Invite(Server *server) : ACommand("INVITE", server) {}
 
-void	Invite::execute(Tokenizer *tokens) const
+void	Invite::execute(Client *client, Tokenizer *tokens) const
 {
-	std::cout	<< "Command " << this->_name << " called!" << std::endl;
-	std::cout	<< "Prefix: ";
-	if (tokens->get_prefix().empty())
-		std::cout	<< "None" << std::endl;
-	else
-		std::cout	<< tokens->get_prefix() << std::endl;
-	std::cout	<< "Command: " << tokens->get_command() << std::endl;
-	std::cout	<< "Parameter: ";
-	if (tokens->get_params().empty())
-		std::cout	<< "None" << std::endl;
-	else
-	{
-		for (size_t i = 0; i < tokens->get_params().size(); i++)
-			std::cout	<< tokens->get_params().at(i) << "|";
-		std::cout	<< std::endl;
-	}
+	parser_debugging(tokens);
 }

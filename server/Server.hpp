@@ -27,9 +27,10 @@ class Server
 private:
 	uint16_t							_port;
 	std::string							_password;
+	std::string							_hostname;
 	int 								_server_fd;
 	std::vector<pollfd> 				_poll_fds;
-	std::map<int, Client*> 			_clients;
+	std::map<int, Client*> 				_clients;
 	std::map<std::string, ACommand*>	_commands;
 	bool								_is_running;
 
@@ -52,8 +53,13 @@ public:
 	// Operator overloads
 	Server& operator=(const Server& copy); // should be private ?
 
+	// Getter
+	Client *get_client(int client_fd);
+	Client *get_client(std::string nickname);
+
 	// Member functions
-	void onClientMessage(std::string message);
+	void Server::onClientMessage(int client_fd, std::string message);
+	void response(int client_fd, std::string code, std::string message);
 	void run();
 };
 
