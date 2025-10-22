@@ -49,6 +49,23 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	this->_commands["USERS"] = new Users(this);
 }
 
+Server::~Server()
+{
+	// Close all client sockets first
+	for (size_t i = 1; i < _poll_fds.size(); ++i)
+	{
+		if (_poll_fds[i].fd >= 0)
+			close(_poll_fds[i].fd);
+	}
+
+	// Close server socket last
+	if (_server_fd >= 0)
+		close(_server_fd);
+
+	std::cout << "All sockets closed. Server stopped." << std::endl;
+}
+
+
 /******************************************************************************/
 /*                         Static Functions                                   */
 /******************************************************************************/
@@ -71,7 +88,7 @@ static int make_socket_nonblocking(int fd)
 // }
 
 // Add a pollfd entry by file descriptor
-static void addPollfd(std::vector<pollfd>& fds, int fd, short events)
+static void addPollfd(std::vector<pollfd> &fds, int fd, short events)
 {
 	struct pollfd pfd;
 	pfd.fd = fd;
@@ -81,7 +98,7 @@ static void addPollfd(std::vector<pollfd>& fds, int fd, short events)
 }
 
 // Remove a pollfd entry by file descriptor
-static void removePollfd(std::vector<pollfd>& fds, int fd)
+static void removePollfd(std::vector<pollfd> &fds, int fd)
 {
 	for (std::vector<pollfd>::iterator it = fds.begin(); it != fds.end(); ++it)
 	{
@@ -139,7 +156,7 @@ sockaddr_in Server::createServerAddress()
 void Server::bindServerSocket()
 {
 	sockaddr_in serverAddress = createServerAddress();
-	int bindResult = bind(_server_fd, (struct sockaddr*)&serverAddress,
+	int bindResult = bind(_server_fd, (struct sockaddr *) &serverAddress,
 	                      sizeof(serverAddress));
 	if (bindResult == -1)
 		throw std::runtime_error(std::string("Bind failed: ") + std::strerror(errno));
@@ -154,16 +171,29 @@ void Server::listenServerSocket(size_t backlog)
 		throw std::runtime_error(std::string("Listen failed: ") + std::strerror(errno));
 }
 
-// 5. accept new clients
+// 5. helper function accept new clients
 void Server::addClient(int client_fd)
 {
-	Client tmp(client_fd);
-	//The vector now owns its own copy; tmp will be destroyed after this line
-	_clients.push_back(tmp);
+	try
+	{
+		Client *client = new Client(client_fd);
+		//bool indicating if insertion succeeded
+		std::pair<std::map<int, Client *>::iterator, bool> insertSuccess;
+		insertSuccess = _clients.insert(std::make_pair(client_fd, client));
 
-	std::cout << "New client connected (fd=" << client_fd << ")\n";
-	// Create and register this client's poll entry
-	addPollfd(_poll_fds, client_fd, POLLIN);
+		if (!insertSuccess.second)
+		{
+			std::cout << "Warning: client with fd " << client_fd << " already exists!" << std::endl;
+			delete client;
+			return;
+		}
+		std::cout << "New client connected (fd=" << client_fd << ")\n";
+		// Create and register this client's poll entry
+		addPollfd(_poll_fds, client_fd, POLLIN);
+	} catch (const std::exception &e)
+	{
+		std::cerr << "Failed to add client fd=" << client_fd << ": " << e.what() << std::endl;
+	}
 }
 
 // 5. accept new clients
@@ -171,7 +201,7 @@ void Server::handleNewConnection()
 {
 	sockaddr_in clientAddr;
 	socklen_t len = sizeof(clientAddr);
-	int client_fd = accept(_server_fd, (sockaddr*)&clientAddr, &len);
+	int client_fd = accept(_server_fd, (sockaddr *) &clientAddr, &len);
 
 	// If no client is ready (non-blocking) or error occurred, just return
 	if (client_fd < 0)
@@ -185,22 +215,39 @@ void Server::handleNewConnection()
 }
 
 // 5. during server run , can remove clients
-void Server::removeClient(int index)
+void Server::removeClient(int client_fd)
 {
-	// never remove server_fd
-	if (index == 0 || index > static_cast<int>(_clients.size()))
+	std::map<int, Client *>::iterator it = _clients.find(client_fd);
+	if (it == _clients.end())
 		return;
 
-	int clientIndex = index - 1; // fds[0] is server
-	int client_fd = _clients[clientIndex].getClient_fd();
-
-	close(client_fd);
-	// remove the client object
-	_clients.erase(_clients.begin() + clientIndex);
+	if (close(client_fd) == -1)
+		std::cout << "Warning: failed to close fd " << client_fd << ": " << strerror(errno) << std::endl;
+	delete it->second; // free the client object
+	_clients.erase(it);
 
 	// remove the corresponding pollfd
 	removePollfd(_poll_fds, client_fd);
 	std::cout << "Client disconnected (fd=" << client_fd << ")\n";
+}
+
+void Server::handleAdminInput()
+{
+	char buffer[256];
+	int bytes = read(STDIN_FILENO, buffer, sizeof(buffer) - 1);
+	if (bytes <= 0)
+		return;
+
+	buffer[bytes] = '\0';
+	std::string input(buffer);
+
+	if (input == "exit\n" || input == "quit\n")
+	{
+		std::cout << "Shutting down server..." << std::endl;
+		_is_running = false;
+	}
+	else
+		std::cout << "Unknown command: " << input;
 }
 
 // void Server::handleClient(int index) // maybe add later again
@@ -214,20 +261,24 @@ void Server::removeClient(int index)
 
 void Server::onClientMessage(std::string message)
 {
-	Tokenizer	tokens(message);
+	Tokenizer tokens(message);
 
 	std::string command = tokens.get_command();
 	if (this->_commands.find(command) == this->_commands.end())
-		std::cout	<< "Error! Command not found." << std::endl;
+		std::cout << "Error! Command not found." << std::endl;
 	else
 		this->_commands[command]->execute(&tokens);
 }
 
 void Server::run()
 {
+	std::cout << "Server started" << std::endl;
 	// Add the server socket to the pollfd vector using the helper
 	addPollfd(_poll_fds, _server_fd, POLLIN);
-	while (true)
+	// Add stdin ot the pollfd vector
+	addPollfd(_poll_fds, STDIN_FILENO, POLLIN);
+	this->_is_running = true;
+	while (_is_running)
 	{
 		// int poll(struct pollfd *fds, nfds_t nfds, int timeout);
 		// _poll_fds.data() -> array of pollfd structs representing all sockets
@@ -235,44 +286,57 @@ void Server::run()
 		// int timeout -> timeout in milliseconds / -1 means "wait indefinitely" until at least one fd becomes ready
 		int ready = poll(_poll_fds.data(), _poll_fds.size(), -1);
 		if (ready == -1)
+		{
+			if (errno == EINTR)
+				continue;
 			throw std::runtime_error("Poll failed: " + std::string(strerror(errno)));
+		}
+		// Iterate through all file descriptors we’re monitoring
 		for (size_t i = 0; i < _poll_fds.size(); i++)
 		{
-			struct pollfd& curPollEntry = _poll_fds[i];
+			pollfd &curPollEntry = _poll_fds[i];
+			// --- Case 0: Handle STDIN (admin commands like "exit") ---
+			if (curPollEntry.fd == STDIN_FILENO && (curPollEntry.revents & POLLIN))
+			{
+				handleAdminInput();
+				if (!_is_running)
+					break; // stop the loop if exit/quit was entered
+				continue;
+			}
 			// Case 1: New client connection
+			// revents check if any revents occurred and pollin signals connection ready to accept, both together means connection is ready or there is fd which has data to read
 			if (curPollEntry.fd == _server_fd && (curPollEntry.revents & POLLIN))
 			{
 				handleNewConnection();
 				continue;
 			}
-			// revents check if any revents occurred and pollin signals connection ready to accept, both together means connection is ready or there is fd which has data to read
 
 			// Case 2: Ignore server socket entries here
 			if (curPollEntry.fd == _server_fd)
 				continue;
-			size_t clientIndex = i - 1;
-			Client& curClient = _clients[clientIndex];
+
+			int client_fd = curPollEntry.fd;
+			std::map<int, Client *>::iterator it = _clients.find(curPollEntry.fd);
+			if (it == _clients.end())
+				continue;
+			Client *curClient = it->second;
 
 			// Case 3: Client disconnected or error
 			if (curPollEntry.revents & (POLLHUP | POLLERR | POLLNVAL))
 			{
-				std::cout << "Client fd=" << curClient.getClient_fd() << " disconnected/error\n";
-				removeClient(clientIndex);
-				removePollfd(_poll_fds, curPollEntry.fd);
+				std::cout << "Client fd=" << curClient->getClient_fd() << " disconnected/error\n";
+				removeClient(client_fd);
 				i--;
 				continue;
 			}
 			// Case 4: Client sent data
 			if (curPollEntry.revents & POLLIN)
 			{
-				size_t clientIndex = i - 1;
-				Client& curClient = _clients[clientIndex];
-				bool stillConnected = curClient.readData();
-				if (!stillConnected)
+				bool clientConnected = curClient->readData();
+				if (!clientConnected)
 				{
-					std::cout << "Client fd=" << curClient.getClient_fd() << " disconnected\n";
-					removeClient(clientIndex);
-					removePollfd(_poll_fds, curPollEntry.fd);
+					std::cout << "Client fd=" << curClient->getClient_fd() << " disconnected\n";
+					removeClient(client_fd);
 					i--;
 				}
 			}

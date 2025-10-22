@@ -29,7 +29,7 @@ private:
 	std::string							_password;
 	int 								_server_fd;
 	std::vector<pollfd> 				_poll_fds;
-	std::vector<Client> 				_clients;
+	std::map<int, Client*> 			_clients;
 	std::map<std::string, ACommand*>	_commands;
 	bool								_is_running;
 
@@ -40,13 +40,14 @@ private:
 	void addClient(int client_fd);
 	void removeClient(int index);
 	void handleNewConnection();
+	void handleAdminInput();
 
 public:
 	// Constructors & Destructor
 	Server(uint16_t port);
 	Server(uint16_t port, std::string password);
 	Server(const Server& copy); // should be private?
-	// ~Server();
+	~Server();
 
 	// Operator overloads
 	Server& operator=(const Server& copy); // should be private ?

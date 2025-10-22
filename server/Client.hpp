@@ -17,7 +17,7 @@ class Client
 		// pollfd *_pollEntry;
 		bool 		_connected;
 		bool		_has_nickname;
-		std::string _nickname;
+		std::string _nickName;
 		std::string _buffer;
 
 	public:

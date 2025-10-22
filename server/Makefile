@@ -50,3 +50,5 @@ re: fclean all
 # Disable built-in rules and suffixes for speed
 .SUFFIXES:
 .PHONY: all clean fclean re
+
+# for faster compiling use make -j
