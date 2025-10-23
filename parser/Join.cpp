@@ -16,5 +16,6 @@ Join::Join(Server *server) : ACommand("JOIN", server) {}
 
 void	Join::execute(Client *client, Tokenizer *tokens) const
 {
+	(void) client;
 	parser_debugging(tokens);
 }

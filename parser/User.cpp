@@ -14,6 +14,22 @@
 
 User::User(Server *server) : ACommand("USER", server) {}
 
+bool	is_printable(std::string str)
+{
+	for (size_t i = 0; i < str.length(); i++)
+		if (!std::isprint(str[i]))
+			return (false);
+	return (true);
+}
+
+static bool	is_valid(std::string str) // added static to prevent compiler error
+{
+	for (size_t i = 0; i < str.length(); i++)
+		if (!std::isalnum(str[i]) && str[i] != '_' && str[i] != '-' && str[i] != '.')
+			return (false);
+	return (true);
+}
+
 void	User::execute(Client *client, Tokenizer *tokens) const
 {
 	parser_debugging(tokens);
@@ -47,20 +63,5 @@ void	User::execute(Client *client, Tokenizer *tokens) const
 	}
 	client->register_client(username, realname);
 	this->_server->response(client->getClient_fd(), RPL_WELCOME, ":Welcome to the Internet Relay Network " + client->getNickname() + "!");
-}
-
-bool	is_printable(std::string str)
-{
-	for (size_t i = 0; i < str.length(); i++)
-		if (!std::isprint(str[i]))
-			return (false);
-	return (true);
-}
-
-bool	is_valid(std::string str)
-{
-	for (size_t i = 0; i < str.length(); i++)
-		if (!std::isalnum(str[i]) && str[i] != '_' && str[i] != '-' && str[i] != '.')
-			return (false);
-	return (true);
+	std::cout << username << " registered as " << realname << std::endl;
 }

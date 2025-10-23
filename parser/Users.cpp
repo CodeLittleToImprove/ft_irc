@@ -16,5 +16,6 @@ Users::Users(Server *server) : ACommand("USERS", server) {}
 
 void	Users::execute(Client *client, Tokenizer *tokens) const
 {
+	(void) client;
 	parser_debugging(tokens);
 }

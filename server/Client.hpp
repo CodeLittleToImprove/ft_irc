@@ -9,7 +9,7 @@
 #include <cerrno>
 #include <cstdio> // for perror
 #include <poll.h> // for pollfd
-
+#include <vector>
 class Client
 {
 	private:
@@ -40,7 +40,7 @@ class Client
 		void		setNickname(std::string nickname);
 
 		// Member functions
-		bool readData();
+		std::vector<std::string> readData();
 		void closeConnection();
 		void register_client(std::string username, std::string realname);
 };

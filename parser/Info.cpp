@@ -16,5 +16,6 @@ Info::Info(Server *server) : ACommand("INFO", server) {}
 
 void	Info::execute(Client *client, Tokenizer *tokens) const
 {
+	(void) client;
 	parser_debugging(tokens);
 }

@@ -16,5 +16,6 @@ Cprivmsg::Cprivmsg(Server *server) : ACommand("CPRIVMSG", server) {}
 
 void	Cprivmsg::execute(Client *client, Tokenizer *tokens) const
 {
+	(void) client;
 	parser_debugging(tokens);
 }
