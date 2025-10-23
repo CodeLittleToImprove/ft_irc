@@ -14,8 +14,9 @@
 
 Oper::Oper(Server *server) : ACommand("OPER", server) {}
 
-void	Oper::execute(Tokenizer *tokens) const
+void	Oper::execute(Client *client, Tokenizer *tokens) const
 {
+	(void) client;
 	std::cout	<< "Command " << this->_name << " called!" << std::endl;
 	std::cout	<< "Prefix: ";
 	if (tokens->get_prefix().empty())

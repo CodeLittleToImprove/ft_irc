@@ -39,8 +39,12 @@ private:
 	void bindServerSocket();
 	void listenServerSocket(size_t backlog);
 	void addClient(int client_fd);
+	// void addClient(int client_fd, const std::string password);
 	void removeClient(int index);
+	void removeIfDisconnected(Client *client, int client_fd, size_t &i, const std::string &context);
+	void handlePollEvents();
 	void handleNewConnection();
+	void handleClientEvent(pollfd &entry, size_t &i);
 	void handleAdminInput();
 
 public:
@@ -59,7 +63,10 @@ public:
 
 	// Member functions
 	void onClientMessage(int client_fd, std::string message);
+
 	void response(int client_fd, std::string code, std::string message);
+	//overload to use the client object directly
+	void response(Client *client, std::string code, std::string message);
 	void run();
 };
 
