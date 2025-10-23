@@ -58,7 +58,7 @@ public:
 	Client *get_client(std::string nickname);
 
 	// Member functions
-	void Server::onClientMessage(int client_fd, std::string message);
+	void onClientMessage(int client_fd, std::string message);
 	void response(int client_fd, std::string code, std::string message);
 	void run();
 };

@@ -16,5 +16,6 @@ Invite::Invite(Server *server) : ACommand("INVITE", server) {}
 
 void	Invite::execute(Client *client, Tokenizer *tokens) const
 {
+	(void) client;
 	parser_debugging(tokens);
 }

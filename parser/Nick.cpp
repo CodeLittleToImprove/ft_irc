@@ -14,6 +14,16 @@
 
 Nick::Nick(Server *server) : ACommand("NICK", server) {}
 
+bool	is_valid(std::string str) // muss woanders hin da du das auch in user benutzt?
+{
+	for (size_t i = 0; i < str.length(); i++)
+	{
+		if (!std::isalnum(str[i]) && str[i] != '_')
+			return (false);
+	}
+	return (true);
+}
+
 void	Nick::execute(Client *client, Tokenizer *tokens) const
 {
 	parser_debugging(tokens);
@@ -42,12 +52,3 @@ void	Nick::execute(Client *client, Tokenizer *tokens) const
 	client->setNickname(nickname);
 }
 
-bool	is_valid(std::string str)
-{
-	for (int i = 0; i < str.length(); i++)
-	{
-		if (!std::isalnum(str[i]) && str[i] != '_')
-			return (false);
-	}
-	return (true);
-}

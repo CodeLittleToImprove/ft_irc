@@ -29,24 +29,24 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 {
 	this->_is_running = false;
 
-	this->_commands["CNOTICE"]	= new Cnotice(this);
-	this->_commands["CPRIVMSG"]	= new Cprivmsg(this);
-	this->_commands["INFO"] 	= new Info(this);
-	this->_commands["INVITE"]	= new Invite(this);
-	this->_commands["JOIN"]		= new Join(this);
-	this->_commands["KICK"] 	= new Kick(this);
-	this->_commands["LIST"] 	= new List(this);
-	this->_commands["MODE"] 	= new Mode(this);
-	this->_commands["NAMES"] 	= new Names(this);
+	// this->_commands["CNOTICE"]	= new Cnotice(this);
+	// this->_commands["CPRIVMSG"]	= new Cprivmsg(this);
+	// this->_commands["INFO"] 	= new Info(this);
+	// this->_commands["INVITE"]	= new Invite(this);
+	// this->_commands["JOIN"]		= new Join(this);
+	// this->_commands["KICK"] 	= new Kick(this);
+	// this->_commands["LIST"] 	= new List(this);
+	// this->_commands["MODE"] 	= new Mode(this);
+	// this->_commands["NAMES"] 	= new Names(this);
 	this->_commands["NICK"] 	= new Nick(this);
-	this->_commands["NOTICE"] 	= new Notice(this);
-	this->_commands["OPER"] 	= new Oper(this);
-	this->_commands["PASS"] 	= new Pass(this);
-	this->_commands["PRIVMSG"] 	= new Privmsg(this);
-	this->_commands["QUIT"] 	= new Quit(this);
-	this->_commands["SQUIT"] 	= new Squit(this);
+	// this->_commands["NOTICE"] 	= new Notice(this);
+	// this->_commands["OPER"] 	= new Oper(this);
+	// this->_commands["PASS"] 	= new Pass(this);
+	// this->_commands["PRIVMSG"] 	= new Privmsg(this);
+	// this->_commands["QUIT"] 	= new Quit(this);
+	// this->_commands["SQUIT"] 	= new Squit(this);
 	this->_commands["USER"] 	= new User(this);
-	this->_commands["USERS"] 	= new Users(this);
+	// this->_commands["USERS"] 	= new Users(this);
 }
 
 Server::~Server()

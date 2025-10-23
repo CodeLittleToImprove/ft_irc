@@ -41,7 +41,7 @@ class Cnotice : public ACommand
 	private:
 	public:
 		Cnotice(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
+		void	execute(Tokenizer *tokens) const;
 };
 
 class Cprivmsg : public ACommand
@@ -81,7 +81,7 @@ class Kick : public ACommand
 	private:
 	public:
 		Kick(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
+		void	execute(Tokenizer *tokens) const;
 };
 
 class List : public ACommand
@@ -89,7 +89,7 @@ class List : public ACommand
 	private:
 	public:
 		List(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
+		void	execute(Tokenizer *tokens) const;
 };
 
 class Mode : public ACommand
@@ -97,7 +97,7 @@ class Mode : public ACommand
 	private:
 	public:
 		Mode(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
+		void	execute(Tokenizer *tokens) const;
 };
 
 class Names : public ACommand
@@ -105,7 +105,7 @@ class Names : public ACommand
 	private:
 	public:
 		Names(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
+		void	execute(Tokenizer *tokens) const;
 };
 
 class Nick : public ACommand
@@ -121,7 +121,7 @@ class Notice : public ACommand
 	private:
 	public:
 		Notice(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
+		void	execute(Tokenizer *tokens) const;
 };
 
 class Oper : public ACommand
@@ -129,7 +129,7 @@ class Oper : public ACommand
 	private:
 	public:
 		Oper(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
+		void	execute(Tokenizer *tokens) const;
 };
 
 class Pass : public ACommand
@@ -137,7 +137,7 @@ class Pass : public ACommand
 	private:
 	public:
 		Pass(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
+		void	execute(Tokenizer *tokens) const;
 };
 
 class Privmsg : public ACommand
@@ -145,7 +145,7 @@ class Privmsg : public ACommand
 	private:
 	public:
 		Privmsg(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
+		void	execute(Tokenizer *tokens) const;
 };
 
 class Quit : public ACommand
@@ -153,7 +153,7 @@ class Quit : public ACommand
 	private:
 	public:
 		Quit(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
+		void	execute(Tokenizer *tokens) const;
 };
 
 class Squit : public ACommand
@@ -161,7 +161,7 @@ class Squit : public ACommand
 	private:
 	public:
 		Squit(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
+		void	execute(Tokenizer *tokens) const;
 };
 
 class User : public ACommand
