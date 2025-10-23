@@ -277,7 +277,7 @@ Client *Server::get_client(int client_fd)
 Client *Server::get_client(std::string nickname)
 {
 	for (size_t i = 0; i < _clients.size(); i++)
-		if (_clients[i]->getNickname() == nickname)
+		if (_clients[i]->hasNickname() && _clients[i]->getNickname() == nickname)
 			return (_clients[i]);
 	return (NULL);
 }

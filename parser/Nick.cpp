@@ -39,7 +39,7 @@ void	Nick::execute(Client *client, Tokenizer *tokens) const
 		this->_server->response(client->getClient_fd(), ERR_NONICKNAMEGIVEN, ":No nickname given");
 		return;
 	}
-	if (this->_server->get_client(nickname))
+	if (this->_server->get_client(client->getClient_fd())->hasNickname())
 	{
 		this->_server->response(client->getClient_fd(), ERR_NICKNAMEINUSE, ":Nickname already in use");
 		return;

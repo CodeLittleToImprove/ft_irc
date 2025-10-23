@@ -81,7 +81,7 @@ std::string Client::getNickname() const
 void Client::setNickname(std::string nickname)
 {
 	this->_nickname = nickname;
-	
+	this->_has_nickname= true;
 }
 
 void Client::register_client(std::string username, std::string realname)
