@@ -16,5 +16,7 @@
 # include <vector>
 # include <string>
 # include <sstream>
+#include <iomanip> // for setw and setfill
 
 std::vector<std::string> split(const std::string &str);
+void printEscapedBuffer(const std::string &buffer);

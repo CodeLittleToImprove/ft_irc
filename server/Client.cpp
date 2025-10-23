@@ -8,8 +8,9 @@ Client::~Client()
 		close(_client_fd); // is this really needed?
 }
 
-bool Client::readData()
+std::vector<std::string> Client::readData()
 {
+	std::vector<std::string> messages;
 	char recvBuf[512];
 	int bytesReceived = recv(_client_fd, recvBuf, sizeof(recvBuf) - 1, 0);
 
@@ -23,30 +24,23 @@ bool Client::readData()
 		{
 			std::string msg = _buffer.substr(0, end);
 			_buffer.erase(0, end + 2);
-			std::cout << "Message from " << _client_fd << ": " << msg << "\n";
+			// std::cout << "Message from " << _client_fd << ": " << msg << "\n";
+			messages.push_back(msg);
 			// handleIRCCommand(message);  // parse and respond this should be done somewhere else
 		}
-		return true;
 	}
 	else if (bytesReceived == 0)
 	{
 		// Client closed connection gracefully
 		std::cout << "Client " << _client_fd << " closed connection." << std::endl;
 		_connected = false; // maybe optional
-		return false;
 	}
-	if (errno == EAGAIN || errno == EWOULDBLOCK)
+	else if (!(errno == EAGAIN || errno == EWOULDBLOCK))
 	{
-		// No data available now, just return true; connection is still alive
-		return true;
-	}
-	else
-	{
-		// Real error
 		std::cout << "Recv error on client " << _client_fd << ": " << strerror(errno) << std::endl;
-		_connected = false; // maybe optional
-		return false;
+		_connected = false;
 	}
+	return messages;
 }
 
 void Client::closeConnection()
