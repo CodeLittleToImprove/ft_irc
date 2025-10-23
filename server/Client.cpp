@@ -98,7 +98,7 @@ void Client::setNickname(std::string nickname)
 {
 	std::cout << "successful set nickname: " << nickname << std::endl;
 	this->_nickname = nickname;
-	this->_has_nickname= true;
+	this->_has_nickname = true;
 }
 
 void Client::setPassword(const std::string &password)
