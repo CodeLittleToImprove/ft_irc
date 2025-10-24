@@ -49,6 +49,7 @@ void	Nick::execute(Client *client, Tokenizer *tokens) const
 		this->_server->response(client->getClient_fd(), ERR_ERRONEUSNICKNAME, ":Nickname should only contain letters, numbers and underscores");
 		return;
 	}
+	// need validation check before setting nickname
 	client->setNickname(nickname);
 }
 

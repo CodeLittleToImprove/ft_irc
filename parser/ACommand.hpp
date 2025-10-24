@@ -129,7 +129,7 @@ class Oper : public ACommand
 	private:
 	public:
 		Oper(Server *server);
-		void	execute(Tokenizer *tokens) const;
+		void	execute(Client *client, Tokenizer *tokens) const;
 };
 
 class Pass : public ACommand
@@ -137,7 +137,7 @@ class Pass : public ACommand
 	private:
 	public:
 		Pass(Server *server);
-		void	execute(Tokenizer *tokens) const;
+		void	execute(Client *client, Tokenizer *tokens) const;
 };
 
 class Privmsg : public ACommand

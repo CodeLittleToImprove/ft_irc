@@ -19,19 +19,26 @@
 /*                             Constructors                                   */
 /******************************************************************************/
 
-Server::Server(uint16_t port): _port(port) // add password later
+Server::Server(uint16_t port): _port(port) // debug constructor without password handling
+{
+	std::cout << "Lazy constructor" << std::endl;
+	int backlog = 5; // for now 5 change later
+	_server_fd = createServerSocket();
+	bindServerSocket();
+	listenServerSocket(backlog);
+	this->_password = "default";
+	// supported commands so far
+	this->_commands["NICK"] = new Nick(this);
+	this->_commands["USER"] = new User(this);
+	this->_commands["PASS"] = new Pass(this);
+}
+
+Server::Server(uint16_t port, std::string password) : _port(port), _password(password)
 {
 	int backlog = 5; // for now 5 change later
 	_server_fd = createServerSocket();
 	bindServerSocket();
 	listenServerSocket(backlog);
-	// supported commands so far
-	this->_commands["NICK"] = new Nick(this);
-	this->_commands["USER"] = new User(this);
-}
-
-Server::Server(uint16_t port, std::string password) : _port(port), _password(password)
-{
 	this->_is_running = false;
 
 	// this->_commands["CNOTICE"]	= new Cnotice(this);
@@ -46,7 +53,7 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	this->_commands["NICK"] = new Nick(this);
 	// this->_commands["NOTICE"] 	= new Notice(this);
 	// this->_commands["OPER"] 	= new Oper(this);
-	// this->_commands["PASS"] 	= new Pass(this);
+	this->_commands["PASS"] 	= new Pass(this);
 	// this->_commands["PRIVMSG"] 	= new Privmsg(this);
 	// this->_commands["QUIT"] 	= new Quit(this);
 	// this->_commands["SQUIT"] 	= new Squit(this);
@@ -201,6 +208,30 @@ void Server::addClient(int client_fd)
 	}
 }
 
+// void Server::addClient(int client_fd, std::string password)
+// {
+// 	try
+// 	{
+//
+// 		Client *client = new Client(client_fd, password);
+// 		//bool indicating if insertion succeeded
+// 		std::pair<std::map<int, Client *>::iterator, bool> insertSuccess;
+// 		insertSuccess = _clients.insert(std::make_pair(client_fd, client));
+//
+// 		if (!insertSuccess.second)
+// 		{
+// 			std::cout << "Warning: client with fd " << client_fd << " already exists!" << std::endl;
+// 			delete client;
+// 			return;
+// 		}
+// 		std::cout << "New client connected (fd=" << client_fd << ")\n";
+// 		// Create and register this client's poll entry
+// 		addPollfd(_poll_fds, client_fd, POLLIN);
+// 	} catch (const std::exception &e)
+// 	{
+// 		std::cerr << "Failed to add client fd=" << client_fd << ": " << e.what() << std::endl;
+// 	}
+// }
 // 5. accept new clients
 void Server::handleNewConnection()
 {
@@ -284,12 +315,12 @@ Client *Server::get_client(std::string nickname)
 
 void Server::onClientMessage(int client_fd, std::string message)
 {
-	std::cout << "Debug message in onClient: " << message << std::endl;
+	// std::cout << "Debug message in onClient: " << message << std::endl;
 	Tokenizer tokens(message);
 	Client *client = get_client(client_fd);
 
 	std::string command = tokens.get_command();
-	std::cout << "command in onClient: " << message << std::endl;
+	// std::cout << "command in onClient: " << message << std::endl;
 	if (this->_commands.find(command) == this->_commands.end())
 		std::cout << "Error! Command not found." << std::endl;
 	else
@@ -304,6 +335,94 @@ void Server::response(int client_fd, std::string code, std::string message)
 	std::string response = ':' + this->_hostname + ' ' + code_str + nickname + message + CRLF;
 	printEscapedBuffer(response);
 	send(client_fd, response.c_str(), response.length(), 0);
+}
+
+void Server::response(Client *client, std::string code, std::string message)
+{
+	if (!client)
+		return;
+
+	std::string code_str = code.empty() ? "" : code + ' ';
+	std::string nickname = client->getNickname();
+	std::string nickname_str = nickname.empty() ? "unregistered " : nickname + ' ';
+	std::string response = ':' + this->_hostname + ' ' + code_str + nickname_str + message + CRLF;
+	printEscapedBuffer(response);
+	send(client->getClient_fd(), response.c_str(), response.length(), 0);
+}
+
+void Server::removeIfDisconnected(Client *client, int client_fd, size_t &i, const std::string &context)
+{
+	if (!client->getConnectedStatus())
+	{
+		std::cout << "[Poll] Removing disconnected client fd=" << client_fd
+				  << " (" << context << ")" << std::endl;
+		removeClient(client_fd);
+		i--;
+	}
+}
+void Server::handleClientEvent(pollfd &entry, size_t &i)
+{
+	int client_fd = entry.fd;
+	std::map<int, Client *>::iterator it = _clients.find(entry.fd);
+	if (it == _clients.end())
+		return;
+	Client *curClient = it->second;
+
+	// client was marked manually for removal before reading
+	removeIfDisconnected(curClient, client_fd, i, "pre-check");
+
+	// Disconnected or error event (not in my control)
+	if (entry.revents & (POLLHUP | POLLERR | POLLNVAL))
+	{
+		std::cout << "Client fd=" << curClient->getClient_fd() << " disconnected/error\n";
+		removeClient(client_fd);
+		i--;
+		return;
+	}
+	// client has sent data
+	if (entry.revents & POLLIN)
+	{
+		std::vector<std::string> messages = curClient->readData();
+		removeIfDisconnected(curClient, client_fd, i, "after read");
+		if (_clients.find(client_fd) == _clients.end()) // no such client, probably disconnected
+			return;
+
+		for (size_t i = 0; i < messages.size(); i++)
+		{
+			// std::cout << "[DEBUG] Received from fd " << client_fd
+			// 		<< ": \"" << messages[i] << "\"" << std::endl;
+			onClientMessage(client_fd, messages[i]);
+		}
+	}
+}
+
+void Server::handlePollEvents()
+{
+	// Iterate through all file descriptors we’re monitoring
+	for (size_t i = 0; i < _poll_fds.size(); i++)
+	{
+		pollfd &curPollEntry = _poll_fds[i];
+		// --- Case 0: Handle STDIN (admin commands like "exit") ---
+		if (curPollEntry.fd == STDIN_FILENO && (curPollEntry.revents & POLLIN))
+		{
+			handleAdminInput();
+			if (!_is_running)
+				break; // stop the loop if exit/quit was entered
+			continue;
+		}
+		// Case 1: New client connection
+		// revents check if any revents occurred and pollin signals connection ready to accept, both together means connection is ready or there is fd which has data to read
+		if (curPollEntry.fd == _server_fd && (curPollEntry.revents & POLLIN))
+		{
+			handleNewConnection();
+			continue;
+		}
+		// Case 2: Ignore server socket entries here
+		if (curPollEntry.fd == _server_fd)
+			continue;
+		// Case 3: Current client has events
+		handleClientEvent(curPollEntry, i);
+	}
 }
 
 void Server::run()
@@ -327,61 +446,7 @@ void Server::run()
 				continue;
 			throw std::runtime_error("Poll failed: " + std::string(strerror(errno)));
 		}
-		// Iterate through all file descriptors we’re monitoring
-		for (size_t i = 0; i < _poll_fds.size(); i++)
-		{
-			pollfd &curPollEntry = _poll_fds[i];
-			// --- Case 0: Handle STDIN (admin commands like "exit") ---
-			if (curPollEntry.fd == STDIN_FILENO && (curPollEntry.revents & POLLIN))
-			{
-				handleAdminInput();
-				if (!_is_running)
-					break; // stop the loop if exit/quit was entered
-				continue;
-			}
-			// Case 1: New client connection
-			// revents check if any revents occurred and pollin signals connection ready to accept, both together means connection is ready or there is fd which has data to read
-			if (curPollEntry.fd == _server_fd && (curPollEntry.revents & POLLIN))
-			{
-				handleNewConnection();
-				continue;
-			}
-
-			// Case 2: Ignore server socket entries here
-			if (curPollEntry.fd == _server_fd)
-				continue;
-
-			int client_fd = curPollEntry.fd;
-			std::map<int, Client *>::iterator it = _clients.find(curPollEntry.fd);
-			if (it == _clients.end())
-				continue;
-			Client *curClient = it->second;
-
-			// Case 3: Client disconnected or error
-			if (curPollEntry.revents & (POLLHUP | POLLERR | POLLNVAL))
-			{
-				std::cout << "Client fd=" << curClient->getClient_fd() << " disconnected/error\n";
-				removeClient(client_fd);
-				i--;
-				continue;
-			}
-			// Case 4: Client sent data
-			if (curPollEntry.revents & POLLIN)
-			{
-				if (!curClient->getConnectedStatus())
-				{
-					std::cout << "Client fd=" << curClient->getClient_fd() << " disconnected\n";
-					removeClient(client_fd);
-					i--;
-				}
-				std::vector<std::string> messages = curClient->readData();
-				for (size_t i = 0; i < messages.size(); i++)
-				{
-					// std::cout << "[DEBUG] Received from fd " << client_fd
-					// 		<< ": \"" << messages[i] << "\"" << std::endl;
-					onClientMessage(client_fd, messages[i]);
-				}
-			}
-		}
+		handlePollEvents();
 	}
 }
+

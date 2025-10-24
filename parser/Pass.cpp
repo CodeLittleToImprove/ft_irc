@@ -14,22 +14,37 @@
 
 Pass::Pass(Server *server) : ACommand("PASS", server) {}
 
-void	Pass::execute(Tokenizer *tokens) const
+void	Pass::execute(Client *client, Tokenizer *tokens) const
 {
-	std::cout	<< "Command " << this->_name << " called!" << std::endl;
-	std::cout	<< "Prefix: ";
-	if (tokens->get_prefix().empty())
-		std::cout	<< "None" << std::endl;
-	else
-		std::cout	<< tokens->get_prefix() << std::endl;
-	std::cout	<< "Command: " << tokens->get_command() << std::endl;
-	std::cout	<< "Parameter: ";
-	if (tokens->get_params().empty())
-		std::cout	<< "None" << std::endl;
-	else
+
+	parser_debugging(tokens);
+	// Check if client is already authenticated
+	bool authentstatus = client->isAuthenticated();
+
+	std::cout << "Authenticate status: " << authentstatus << std::endl;
+	if (client->isAuthenticated())
 	{
-		for (size_t i = 0; i < tokens->get_params().size(); i++)
-			std::cout	<< tokens->get_params().at(i) << "|";
-		std::cout	<< std::endl;
+		_server->response(client, ERR_ALREADYREGISTRED, ":You are already authenticated from pass");
+		return;
 	}
+	// Check if message has enough parameters
+	if (tokens->get_params().size() != 1)
+	{
+		_server->response(client, ERR_NEEDMOREPARAMS, ":Not enough parameters on PASS command");
+		return;
+	}
+	client->setPassword(tokens->get_params()[0]);
+	client->authenticate(tokens->get_params()[0]);
+
+	if (!client->isAuthenticated())
+	{
+		_server->response(client,ERR_PASSWDMISMATCH, ":Incorrect password");
+		client->closeConnection("disconnected due to authentication failure");
+	}
+	// user filled nickname, username , password optional registered
+	if (client->is_registered()) // this gets not trigger yet
+		_server->response(client, RPL_WELCOME, ":Welcome to the Internet Relay Network " + client->getNickname() + "!");
+	//need to add host- and username later
+
 }
+

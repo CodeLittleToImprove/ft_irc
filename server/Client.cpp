@@ -1,12 +1,19 @@
 #include "Client.hpp"
 
-Client::Client(int client_fd) : _client_fd(client_fd), _connected(true), _has_nickname(false), _is_registered(false) {}
+Client::Client(int client_fd)
+	: _client_fd(client_fd), _connected(true), _has_nickname(false),
+	  _is_registered(false), _authenticated(false), _password("") {}
 
-Client::~Client()
-{
-	if (_connected == false)
-		close(_client_fd); // is this really needed?
-}
+// Client::Client(int client_fd, std::string password)
+// 	: _client_fd(client_fd), _connected(true), _has_nickname(false),
+// 	  _is_registered(false), _authenticated(false), _password("") {} // setting default password not working yet
+// Client::~Client()
+// {
+// 	if (_connected == false)
+// 		close(_client_fd); // is this really needed?
+// }
+
+
 
 std::vector<std::string> Client::readData()
 {
@@ -43,13 +50,17 @@ std::vector<std::string> Client::readData()
 	return messages;
 }
 
-void Client::closeConnection()
+void Client::closeConnection(std::string message)
 {
 	if (_connected)
 	{
-		std::cout << "Closing client " << _client_fd << std::endl;
-		close(_client_fd);
+		// add hostname later
+		std::string quitMessage = std::string(":") + RPL_QUIT + " QUIT :" + message + CRLF;
+		send(_client_fd, quitMessage.c_str(), quitMessage.length(), 0);
+		// need client request RPL_QUIT?
 		_connected = false;
+		// std::cout << _client_fd << " marked as to close" << std::endl;
+		shutdown(_client_fd, SHUT_RDWR); // wake poll via POLLHUP
 	}
 }
 
@@ -78,11 +89,23 @@ std::string Client::getNickname() const
 	return _nickname;
 }
 
+bool	Client::isAuthenticated(void) const
+{
+	return _authenticated;
+}
+
 void Client::setNickname(std::string nickname)
 {
+	std::cout << "successful set nickname: " << nickname << std::endl;
 	this->_nickname = nickname;
 	this->_has_nickname = true;
 }
+
+void Client::setPassword(const std::string &password)
+{
+	_password = password;
+}
+
 
 void Client::register_client(std::string username, std::string realname)
 {
@@ -100,4 +123,13 @@ void Client::request(std::string command, std::string target, std::string messag
 								message[0] == ':' ? message : ':' + message;
 	std::string request = sender + ' ' + command + ' ' + target + ' ' + message_str + CRLF;
 	send(this->_client_fd, request.c_str(), request.length(), 0);
+}
+
+void Client::authenticate(std::string password)
+{
+	std::cout << "Client " << _client_fd << " authenticated." << std::endl;
+	std::cout << "password: " << password << std::endl;
+	std::cout << "_password: " << _password << std::endl;
+	if (password == _password)
+		_authenticated = true;
 }
