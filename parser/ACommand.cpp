@@ -6,13 +6,23 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 16:12:57 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/24 21:44:38 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/24 22:36:40 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ACommand.hpp"
 
 ACommand::ACommand(std::string name, Server *server) : _name(name), _server(server) {}
+
+bool	ACommand::is_registered_full(Client *client) const
+{
+	if (!client)
+		return (false);
+	if (client->isAuthenticated() && client->is_registered())
+		return (true);
+	this->_server->response(client, ERR_NOTREGISTERED, ":You are not registered yet");
+	return (false);
+}
 
 bool	ACommand::has_enough_params(Client *client, Tokenizer *tokens, size_t num) const
 {

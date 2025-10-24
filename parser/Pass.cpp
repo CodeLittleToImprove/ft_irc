@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:25:24 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/24 21:44:08 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/24 22:37:30 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void	Pass::execute(Client *client, Tokenizer *tokens) const
 		return;
 	}
 	// Check if message has enough parameters
-	if (has_enough_params(client, tokens, 1))
+	if (!has_enough_params(client, tokens, 1))
 		return;
 	client->setPassword(tokens->get_params()[0]);
 	client->authenticate(tokens->get_params()[0]);

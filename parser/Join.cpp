@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:21:05 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/24 22:23:09 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/24 22:37:01 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,9 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 {
 	parser_debugging(tokens);
 
-	if (!(client->isAuthenticated() && client->is_registered()))
-	{
-		this->_server->response(client, ERR_NOTREGISTERED, ":You are not registered yet");
+	if (!is_registered_full(client))
 		return;
-	}
-	if (has_enough_params(client, tokens, 1))
+	if (!has_enough_params(client, tokens, 1))
 		return;
 	std::string channel_name = tokens->get_param(0);
 	if (channel_name[0] != '#')

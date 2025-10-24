@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 18:26:09 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/21 19:11:12 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/24 22:55:50 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,22 +14,34 @@
 
 Privmsg::Privmsg(Server *server) : ACommand("PRIVMSG", server) {}
 
-void	Privmsg::execute(Tokenizer *tokens) const
+void	Privmsg::execute(Client *client, Tokenizer *tokens) const
 {
-	std::cout	<< "Command " << this->_name << " called!" << std::endl;
-	std::cout	<< "Prefix: ";
-	if (tokens->get_prefix().empty())
-		std::cout	<< "None" << std::endl;
-	else
-		std::cout	<< tokens->get_prefix() << std::endl;
-	std::cout	<< "Command: " << tokens->get_command() << std::endl;
-	std::cout	<< "Parameter: ";
-	if (tokens->get_params().empty())
-		std::cout	<< "None" << std::endl;
-	else
+	parser_debugging(tokens);
+
+	if (!is_registered_full(client))
+		return;
+	if (!has_enough_params(client, tokens, 2))
+		return;
+	
+	std::string target_name = tokens->get_param(0);
+	std::string message = tokens->get_param(1);
+	Channel *channel = this->_server->get_channel(target_name);
+	Client *target = this->_server->get_client(target_name);
+
+	if (!channel && !target)
 	{
-		for (size_t i = 0; i < tokens->get_params().size(); i++)
-			std::cout	<< tokens->get_params().at(i) << "|";
-		std::cout	<< std::endl;
+		this->_server->response(client, ERR_NOSUCHNICK, ":Target-user/-channel not found");
+		return;
 	}
+	if (channel)
+	{
+		if (!channel->isInChannel(client))
+		{
+			this->_server->response(client, ERR_NOTONCHANNEL, ":You are not on the channel '" + target_name + "'");
+			return;
+		}
+		client->request(client, this->_name, target_name, message);
+	}
+	else
+		target->request(client, this->_name, target_name, message);
 }
