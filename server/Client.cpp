@@ -90,3 +90,14 @@ void Client::register_client(std::string username, std::string realname)
 	this->_realname = realname;
 	this->_is_registered = true;
 }
+
+void Client::request(std::string command, std::string target, std::string message)
+{
+	std::string sender = this->_nickname + '!' + this->_username + '@' + this->_hostname;
+	std::string message_str = 	command == "KICK"	||
+								command == "INVITE" ||
+								message.empty()		||
+								message[0] == ':' ? message : ':' + message;
+	std::string request = sender + ' ' + command + ' ' + target + ' ' + message_str + CRLF;
+	send(this->_client_fd, request.c_str(), request.length(), 0);
+}
