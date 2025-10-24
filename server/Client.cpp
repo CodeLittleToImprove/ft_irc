@@ -2,7 +2,7 @@
 
 Client::Client(int client_fd)
 	: _client_fd(client_fd), _connected(true), _has_nickname(false),
-	  _is_registered(false), _authenticated(false), _password("") {}
+	  _is_registered(false), _authenticated(false), _is_oper(false), _password("") {}
 
 // Client::Client(int client_fd, std::string password)
 // 	: _client_fd(client_fd), _connected(true), _has_nickname(false),
@@ -89,14 +89,19 @@ std::string Client::getNickname() const
 	return _nickname;
 }
 
-bool	Client::isAuthenticated(void) const
+bool Client::isAuthenticated() const
 {
 	return _authenticated;
 }
 
+bool Client::isOper() const
+{
+	return _is_oper;
+}
+
 void Client::setNickname(std::string nickname)
 {
-	std::cout << "successful set nickname: " << nickname << std::endl;
+	std::cout << "successfully set nickname: " << nickname << std::endl;
 	this->_nickname = nickname;
 	this->_has_nickname = true;
 }
@@ -114,14 +119,14 @@ void Client::register_client(std::string username, std::string realname)
 	this->_is_registered = true;
 }
 
-void Client::request(std::string command, std::string target, std::string message)
+void Client::request(Client *sender, std::string command, std::string target, std::string message)
 {
-	std::string sender = this->_nickname + '!' + this->_username + '@' + this->_hostname;
+	std::string sender_str = sender->_nickname + '!' + sender->_username + '@' + sender->_hostname;
 	std::string message_str = 	command == "KICK"	||
 								command == "INVITE" ||
 								message.empty()		||
 								message[0] == ':' ? message : ':' + message;
-	std::string request = sender + ' ' + command + ' ' + target + ' ' + message_str + CRLF;
+	std::string request = sender_str + ' ' + command + ' ' + target + ' ' + message_str + CRLF;
 	send(this->_client_fd, request.c_str(), request.length(), 0);
 }
 

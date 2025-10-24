@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phillymilly <phillymilly@student.42.fr>    +#+  +:+       +#+        */
+/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 20:16:04 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/22 23:28:28 by phillymilly      ###   ########.fr       */
+/*   Updated: 2025/10/24 22:19:41 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -308,9 +308,26 @@ Client *Server::get_client(int client_fd)
 Client *Server::get_client(std::string nickname)
 {
 	for (size_t i = 0; i < _clients.size(); i++)
-		if (_clients[i]->hasNickname() && _clients[i]->getNickname() == nickname)
-			return (_clients[i]);
+	{
+		if (_clients.at(i)->getNickname() == nickname)
+			return (_clients.at(i));
+	}
 	return (NULL);
+}
+
+Channel *Server::get_channel(std::string name)
+{
+	for (size_t i = 0; i < _channels.size(); i++)
+	{
+		if (_channels.at(i)->getName() == name)
+			return (_channels.at(i));
+	}
+	return (NULL);
+}
+
+std::string Server::get_hostname()
+{
+	return (this->_hostname);
 }
 
 void Server::onClientMessage(int client_fd, std::string message)
@@ -327,16 +344,6 @@ void Server::onClientMessage(int client_fd, std::string message)
 		this->_commands[command]->execute(client, &tokens);
 }
 
-void Server::response(int client_fd, std::string code, std::string message)
-{
-	std::string code_str = code.empty() ? "" : code + ' ';
-	std::string nickname = get_client(client_fd)->getNickname();
-	std::string nickname_str = nickname.empty() ? "unregistered " : nickname + ' ';
-	std::string response = ':' + this->_hostname + ' ' + code_str + nickname + message + CRLF;
-	printEscapedBuffer(response);
-	send(client_fd, response.c_str(), response.length(), 0);
-}
-
 void Server::response(Client *client, std::string code, std::string message)
 {
 	if (!client)
@@ -348,6 +355,11 @@ void Server::response(Client *client, std::string code, std::string message)
 	std::string response = ':' + this->_hostname + ' ' + code_str + nickname_str + message + CRLF;
 	printEscapedBuffer(response);
 	send(client->getClient_fd(), response.c_str(), response.length(), 0);
+}
+
+void Server::add_channel(Channel *channel)
+{
+	this->_channels.push_back(channel);
 }
 
 void Server::removeIfDisconnected(Client *client, int client_fd, size_t &i, const std::string &context)

@@ -21,6 +21,7 @@ class Client
 		bool		_has_nickname;
 		bool		_is_registered;
 		bool		_authenticated;
+		bool		_is_oper;
 		std::string _nickname;
 		std::string _username;
 		std::string _realname;
@@ -42,6 +43,7 @@ class Client
 		bool		is_registered() const;
 		bool		getConnectedStatus() const;
 		bool		isAuthenticated() const;
+		bool		isOper() const;
 		std::string	getNickname() const;
 
 		// Setter
@@ -52,6 +54,6 @@ class Client
 		std::vector<std::string> readData();
 		void closeConnection(std::string message);
 		void register_client(std::string username, std::string realname);
-		void request(std::string command, std::string target, std::string message);
+		void request(Client *client, std::string command, std::string target, std::string message);
 		void authenticate(std::string password);
 };

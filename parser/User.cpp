@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   User.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phillymilly <phillymilly@student.42.fr>    +#+  +:+       +#+        */
+/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:26:46 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/23 01:31:50 by phillymilly      ###   ########.fr       */
+/*   Updated: 2025/10/24 21:43:20 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,32 +36,29 @@ void	User::execute(Client *client, Tokenizer *tokens) const
 	
 	if (client->is_registered())
 	{
-		this->_server->response(client->getClient_fd(), ERR_ALREADYREGISTRED, ":You are already registered");
+		this->_server->response(client, ERR_ALREADYREGISTRED, ":You are already registered");
 		return;
 	}
 	if (!client->hasNickname())
 	{
-		this->_server->response(client->getClient_fd(), ERR_NONICKNAMEGIVEN, ":You have to set a nickname before registering");
+		this->_server->response(client, ERR_NONICKNAMEGIVEN, ":You have to set a nickname before registering");
 		return;
 	}
-	if (tokens->get_params().size() != 4) 
-	{
-		this->_server->response(client->getClient_fd(), ERR_NEEDMOREPARAMS, ":Wrong number of parameters (Please use ':' in front of the realname)");
+	if (!has_enough_params(client, tokens, 4))
 		return;
-	}
 	std::string username = tokens->get_param(0);
 	if (!is_valid(username))
 	{
-		this->_server->response(client->getClient_fd(), ERR_ERRONEUSUSERNAME, ":Username should only contain letters, numbers, underscores, dashes and dots");
+		this->_server->response(client, ERR_ERRONEUSUSERNAME, ":Username should only contain letters, numbers, underscores, dashes and dots");
 		return;
 	}
 	std::string realname = tokens->get_param(3);
 	if (!is_printable(realname))
 	{
-		this->_server->response(client->getClient_fd(), ERR_ERRONEUSREALNAME, ":Realname should only contain printable characters");
+		this->_server->response(client, ERR_ERRONEUSREALNAME, ":Realname should only contain printable characters");
 		return;
 	}
 	client->register_client(username, realname);
-	this->_server->response(client->getClient_fd(), RPL_WELCOME, ":Welcome to the Internet Relay Network " + client->getNickname() + "!");
+	this->_server->response(client, RPL_WELCOME, ":Welcome to the Internet Relay Network " + client->getNickname() + "!");
 	std::cout << username << " registered as " << realname << std::endl;
 }

@@ -3,16 +3,28 @@
 /*                                                        :::      ::::::::   */
 /*   ACommand.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phillymilly <phillymilly@student.42.fr>    +#+  +:+       +#+        */
+/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 16:12:57 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/22 23:31:33 by phillymilly      ###   ########.fr       */
+/*   Updated: 2025/10/24 21:44:38 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ACommand.hpp"
 
 ACommand::ACommand(std::string name, Server *server) : _name(name), _server(server) {}
+
+bool	ACommand::has_enough_params(Client *client, Tokenizer *tokens, size_t num) const
+{
+	if (!client || !tokens)
+		return (false);
+	if (tokens->get_params().size() < num)
+	{
+		this->_server->response(client, ERR_NEEDMOREPARAMS, ":Not enough parameters");
+		return (false);
+	}
+	return (true);
+}
 
 void	ACommand::parser_debugging(Tokenizer *tokens) const
 {

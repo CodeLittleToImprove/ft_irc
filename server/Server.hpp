@@ -16,9 +16,9 @@
 #include <map>
 #include <poll.h> // for pollfds
 
-#include "serverUtils.cpp"
 #include "Client.hpp"
 #include "../parser/ACommand.hpp"
+#include "../channel/Channel.hpp"
 
 class ACommand;
 
@@ -30,6 +30,7 @@ private:
 	std::string							_hostname;
 	int 								_server_fd;
 	std::vector<pollfd> 				_poll_fds;
+	std::vector<Channel *>				_channels;
 	std::map<int, Client*> 				_clients;
 	std::map<std::string, ACommand*>	_commands;
 	bool								_is_running;
@@ -58,15 +59,15 @@ public:
 	Server& operator=(const Server& copy); // should be private ?
 
 	// Getter
-	Client *get_client(int client_fd);
-	Client *get_client(std::string nickname);
+	Client		*get_client(int client_fd);
+	Client		*get_client(std::string nickname);
+	Channel		*get_channel(std::string name);
+	std::string	get_hostname();
 
 	// Member functions
 	void onClientMessage(int client_fd, std::string message);
-
-	void response(int client_fd, std::string code, std::string message);
-	//overload to use the client object directly
 	void response(Client *client, std::string code, std::string message);
+	void add_channel(Channel *channel);
 	void run();
 };
 

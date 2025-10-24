@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ACommand.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phillymilly <phillymilly@student.42.fr>    +#+  +:+       +#+        */
+/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 16:13:05 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/23 01:36:08 by phillymilly      ###   ########.fr       */
+/*   Updated: 2025/10/24 21:41:36 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ class ACommand
 
 		// Member functions
 		void			parser_debugging(Tokenizer *tokens) const;
+		bool			has_enough_params(Client *client, Tokenizer *tokens, size_t num) const;
 		virtual void	execute(Client *client, Tokenizer *tokens) const = 0;
 };
 

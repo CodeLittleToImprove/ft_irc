@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Nick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phillymilly <phillymilly@student.42.fr>    +#+  +:+       +#+        */
+/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:23:29 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/23 01:29:16 by phillymilly      ###   ########.fr       */
+/*   Updated: 2025/10/24 22:25:09 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,25 +28,22 @@ void	Nick::execute(Client *client, Tokenizer *tokens) const
 {
 	parser_debugging(tokens);
 
-	if (tokens->get_params().size() != 1)
-	{
-		this->_server->response(client->getClient_fd(), ERR_ERRONEUSNICKNAME, ":Wrong number of parameters");
+	if (!has_enough_params(client, tokens, 1))
 		return;
-	}
 	std::string nickname = tokens->get_param(0);
 	if (nickname.empty())
 	{
-		this->_server->response(client->getClient_fd(), ERR_NONICKNAMEGIVEN, ":No nickname given");
+		this->_server->response(client, ERR_NONICKNAMEGIVEN, ":No nickname given");
 		return;
 	}
-	if (this->_server->get_client(client->getClient_fd())->hasNickname())
+	if (this->_server->get_client(nickname))
 	{
-		this->_server->response(client->getClient_fd(), ERR_NICKNAMEINUSE, ":Nickname already in use");
+		this->_server->response(client, ERR_NICKNAMEINUSE, ":Nickname already in use");
 		return;
 	}
 	if (!is_valid(nickname))
 	{
-		this->_server->response(client->getClient_fd(), ERR_ERRONEUSNICKNAME, ":Nickname should only contain letters, numbers and underscores");
+		this->_server->response(client, ERR_ERRONEUSNICKNAME, ":Nickname should only contain letters, numbers and underscores");
 		return;
 	}
 	// need validation check before setting nickname
