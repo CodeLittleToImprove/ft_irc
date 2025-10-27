@@ -22,12 +22,15 @@
 
 class ACommand;
 
+class Channel;
+
 class Server
 {
 private:
 	uint16_t							_port;
 	std::string							_password;
 	std::string							_hostname;
+	std::string							_oper_password;
 	int 								_server_fd;
 	std::vector<pollfd> 				_poll_fds;
 	std::vector<Channel *>				_channels;
@@ -63,6 +66,7 @@ public:
 	Client		*get_client(std::string nickname);
 	Channel		*get_channel(std::string name);
 	std::string	get_hostname();
+	std::string	getOperPassword();
 
 	// Member functions
 	void onClientMessage(int client_fd, std::string message);

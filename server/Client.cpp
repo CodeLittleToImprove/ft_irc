@@ -138,3 +138,15 @@ void Client::authenticate(std::string password)
 	if (password == _password)
 		_authenticated = true;
 }
+
+void Client::giveOper(std::string oper_password, Server *server)
+{
+	if (oper_password == server->getOperPassword())
+		this->_is_oper = true;
+}
+
+void Client::takeOper()
+{
+	if (this->_is_oper)
+		this->_is_oper = false;
+}

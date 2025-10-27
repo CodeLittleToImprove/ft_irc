@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:24:21 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/21 19:13:17 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/27 17:39:08 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,21 +16,48 @@ Oper::Oper(Server *server) : ACommand("OPER", server) {}
 
 void	Oper::execute(Client *client, Tokenizer *tokens) const
 {
-	(void) client;
-	std::cout	<< "Command " << this->_name << " called!" << std::endl;
-	std::cout	<< "Prefix: ";
-	if (tokens->get_prefix().empty())
-		std::cout	<< "None" << std::endl;
-	else
-		std::cout	<< tokens->get_prefix() << std::endl;
-	std::cout	<< "Command: " << tokens->get_command() << std::endl;
-	std::cout	<< "Parameter: ";
-	if (tokens->get_params().empty())
-		std::cout	<< "None" << std::endl;
+	parser_debugging(tokens);
+
+	if (!is_registered_full(client))
+		return;
+	if (!has_enough_params(client, tokens, 1))
+		return;
+	
+	std::string target_name = tokens->get_param(0);
+	Client *target = this->_server->get_client(target_name);
+
+	if (!target)
+	{
+		this->_server->response(client, ERR_NOSUCHNICK, ":User not found");
+		return;
+	}
+	if (!target->is_registered())
+	{
+		this->_server->response(client, ERR_NOTREGISTERED, ":" + target_name + " is not registered yet");
+		return;
+	}
+	if (target->isOper())
+	{
+		this->_server->response(client, RPL_YOUREOPER, ":" + target_name + " is already an operator");
+		return;
+	}
+	if (tokens->get_params().size() == 1)
+	{
+		if (!client->isOper())
+		{
+			this->_server->response(client, ERR_NOPRIVILEGES, ":Permission denied!");
+			return;
+		}
+		target->giveOper(this->_server->getOperPassword(), this->_server);
+	}
 	else
 	{
-		for (size_t i = 0; i < tokens->get_params().size(); i++)
-			std::cout	<< tokens->get_params().at(i) << "|";
-		std::cout	<< std::endl;
+		target->giveOper(tokens->get_param(1), this->_server);
+		if (target->isOper())
+		{
+			this->_server->response(client, RPL_YOUREOPER, ":" + target_name + " is now an operator");
+			return;
+		}
+		this->_server->response(client, ERR_PASSWDMISMATCH, ":Operator password is incorrect");
 	}
 }
