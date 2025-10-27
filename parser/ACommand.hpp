@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 16:13:05 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/24 22:36:36 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/27 18:04:51 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ class Kick : public ACommand
 	private:
 	public:
 		Kick(Server *server);
-		void	execute(Tokenizer *tokens) const;
+		void	execute(Client *client, Tokenizer *tokens) const;
 };
 
 class List : public ACommand
