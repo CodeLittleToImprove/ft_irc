@@ -19,9 +19,7 @@ void	Pass::execute(Client *client, Tokenizer *tokens) const
 
 	parser_debugging(tokens);
 	// Check if client is already authenticated
-	bool authentstatus = client->isAuthenticated();
 
-	std::cout << "Authenticate status: " << authentstatus << std::endl;
 	if (client->isAuthenticated())
 	{
 		_server->response(client, ERR_ALREADYREGISTRED, ":You are already authenticated from pass");
@@ -30,7 +28,8 @@ void	Pass::execute(Client *client, Tokenizer *tokens) const
 	// Check if message has enough parameters
 	if (!has_enough_params(client, tokens, 1))
 		return;
-	client->setPassword(tokens->get_params()[0]);
+
+
 	client->authenticate(tokens->get_params()[0]);
 
 	if (!client->isAuthenticated())
@@ -38,7 +37,8 @@ void	Pass::execute(Client *client, Tokenizer *tokens) const
 		_server->response(client,ERR_PASSWDMISMATCH, ":Incorrect password");
 		client->closeConnection("disconnected due to authentication failure");
 	}
-	// user filled nickname, username , password optional registered
+	// user filled nickname, usernameregistered
+	std::cout << "pre if registered" << std::endl;
 	if (client->is_registered()) // this gets not trigger yet
 		_server->response(client, RPL_WELCOME, ":Welcome to the Internet Relay Network " + client->getNickname() + "!");
 	//need to add host- and username later

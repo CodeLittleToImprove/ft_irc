@@ -188,7 +188,8 @@ void Server::addClient(int client_fd)
 {
 	try
 	{
-		Client *client = new Client(client_fd);
+		// std::cout << "passsword_: "<< _password << std::endl;
+		Client *client = new Client(client_fd, _password);
 		//bool indicating if insertion succeeded
 		std::pair<std::map<int, Client *>::iterator, bool> insertSuccess;
 		insertSuccess = _clients.insert(std::make_pair(client_fd, client));

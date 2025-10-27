@@ -4,9 +4,9 @@ int main (int argc, const char * argv[])
 {
 	if (argc < 2)
 	{
-		std::cout << "default password is password" << std::endl;
+		std::cout << "default password is defaultpassword" << std::endl;
 		uint16_t listenPort = 8080; // typical uint16_t is used for tdp and udp ports
-		std::string password = "password";
+		std::string password = "defaultpassword";
 		Server server(listenPort, password);
 		server.run();
 	}

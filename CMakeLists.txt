@@ -8,7 +8,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Add strict warnings
 #add_compile_options(-Wall -Wextra -Werror)
 
-
 add_executable(ft_irc_server
 #        test/Template.cpp
         server/Server.cpp
