@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 20:16:04 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/24 22:19:41 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/27 17:15:00 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ Server::Server(uint16_t port): _port(port) // debug constructor without password
 	this->_commands["PASS"] = new Pass(this);
 }
 
-Server::Server(uint16_t port, std::string password) : _port(port), _password(password)
+Server::Server(uint16_t port, std::string password) : _port(port), _password(password), _oper_password("1234")
 {
 	int backlog = 5; // for now 5 change later
 	_server_fd = createServerSocket();
@@ -45,16 +45,16 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	// this->_commands["CPRIVMSG"]	= new Cprivmsg(this);
 	// this->_commands["INFO"] 	= new Info(this);
 	// this->_commands["INVITE"]	= new Invite(this);
-	// this->_commands["JOIN"]		= new Join(this);
+	this->_commands["JOIN"]		= new Join(this);
 	// this->_commands["KICK"] 	= new Kick(this);
 	// this->_commands["LIST"] 	= new List(this);
 	// this->_commands["MODE"] 	= new Mode(this);
 	// this->_commands["NAMES"] 	= new Names(this);
 	this->_commands["NICK"] = new Nick(this);
 	// this->_commands["NOTICE"] 	= new Notice(this);
-	// this->_commands["OPER"] 	= new Oper(this);
+	this->_commands["OPER"] 	= new Oper(this);
 	this->_commands["PASS"] 	= new Pass(this);
-	// this->_commands["PRIVMSG"] 	= new Privmsg(this);
+	this->_commands["PRIVMSG"] 	= new Privmsg(this);
 	// this->_commands["QUIT"] 	= new Quit(this);
 	// this->_commands["SQUIT"] 	= new Squit(this);
 	this->_commands["USER"] = new User(this);
@@ -308,29 +308,12 @@ Client *Server::get_client(int client_fd)
 
 Client *Server::get_client(std::string nickname)
 {
-	// std::cout << "get client called " << std::endl;
-	// std::cout << "Nickname: " << nickname << std::endl;
-	// std::cout << "client size: "<<_clients.size() << std::endl;
-
 	std::map<int, Client*>::iterator it;
 	for (it = _clients.begin(); it != _clients.end(); it++)
 	{
-		// std::cout << "client size in for: "<<_clients.size() << std::endl;
 		Client *current_client = it->second;
-		// std::cout << "client nickname: " << current_client->getNickname() << std::endl;
 		if (current_client->getNickname() == nickname)
-		{
-			// std::cout << "nickname and client is the same" << std::endl;
 			return (current_client);
-		}
-
-		// std::cout<< "i: "<< i << std::endl;
-		// if (_clients[i] == NULL)
-		// {
-		// 	std::cout << "client not existing?" << std::endl;
-		// }
-		// if (_clients.at(i)->getNickname() == nickname)
-		// return (_clients.at(i));
 	}
 	return (NULL);
 }
@@ -348,6 +331,11 @@ Channel *Server::get_channel(std::string name)
 std::string Server::get_hostname()
 {
 	return (this->_hostname);
+}
+
+std::string	Server::getOperPassword()
+{
+	return (this->_oper_password);
 }
 
 void Server::onClientMessage(int client_fd, std::string message)

@@ -11,6 +11,9 @@
 # include <poll.h> // for pollfd
 # include <vector>
 # include "../macros/macros.hpp"
+# include "Server.hpp"
+
+class Server;
 
 class Client
 {
@@ -50,8 +53,8 @@ class Client
 		std::string	getPassword() const;
 
 		// Setter
-		void		setNickname(std::string nickname);
-		void		setPassword(const std::string &password);
+		void setNickname(std::string nickname);
+		void setPassword(const std::string &password);
 
 		// Member functions
 		std::vector<std::string> readData();
@@ -59,4 +62,6 @@ class Client
 		void register_client(std::string username, std::string realname);
 		void request(Client *client, std::string command, std::string target, std::string message);
 		bool authenticate(std::string password);
+		void giveOper(std::string oper_password, Server *server);
+		void takeOper();
 };
