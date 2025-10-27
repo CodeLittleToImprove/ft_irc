@@ -307,10 +307,29 @@ Client *Server::get_client(int client_fd)
 
 Client *Server::get_client(std::string nickname)
 {
-	for (size_t i = 0; i < _clients.size(); i++)
+	// std::cout << "get client called " << std::endl;
+	// std::cout << "Nickname: " << nickname << std::endl;
+	// std::cout << "client size: "<<_clients.size() << std::endl;
+
+	std::map<int, Client*>::iterator it;
+	for (it = _clients.begin(); it != _clients.end(); it++)
 	{
-		if (_clients.at(i)->getNickname() == nickname)
-			return (_clients.at(i));
+		// std::cout << "client size in for: "<<_clients.size() << std::endl;
+		Client *current_client = it->second;
+		// std::cout << "client nickname: " << current_client->getNickname() << std::endl;
+		if (current_client->getNickname() == nickname)
+		{
+			// std::cout << "nickname and client is the same" << std::endl;
+			return (current_client);
+		}
+
+		// std::cout<< "i: "<< i << std::endl;
+		// if (_clients[i] == NULL)
+		// {
+		// 	std::cout << "client not existing?" << std::endl;
+		// }
+		// if (_clients.at(i)->getNickname() == nickname)
+		// return (_clients.at(i));
 	}
 	return (NULL);
 }
