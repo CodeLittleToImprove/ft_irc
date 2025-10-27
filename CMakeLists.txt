@@ -19,7 +19,6 @@ add_executable(ft_irc_server
         server/main.cpp
         parser/ACommand.hpp
         parser/ACommand.cpp
-
         parser/Cnotice.cpp
         parser/Cprivmsg.cpp
         parser/Info.cpp
@@ -40,7 +39,8 @@ add_executable(ft_irc_server
         parser/User.cpp
         parser/Users.cpp
         utils/utils.hpp
-        utils/utils.cpp)
+        utils/utils.cpp
+        channel/Channel.cpp)
 
 add_executable(ft_irc_client
         #        test/Template.cpp

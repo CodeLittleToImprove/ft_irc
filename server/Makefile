@@ -20,7 +20,7 @@ CXXFLAGS = -Wall -Wextra -Werror #-std=c++98
 TARGET = basic_server
 
 # Source files (current + parser directory)
-SRC = $(wildcard *.cpp) $(wildcard ../parser/*.cpp) $(wildcard ../utils/*.cpp)
+SRC = $(wildcard *.cpp) $(wildcard ../parser/*.cpp) $(wildcard ../utils/*.cpp) $(wildcard ../channel/*.cpp)
 
 # Object files (replace .cpp with .o)
 OBJ = $(SRC:.cpp=.o)
