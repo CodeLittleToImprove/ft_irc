@@ -12,7 +12,7 @@ int main (int argc, const char * argv[])
 	}
 	else if (argc == 3)
 	{
-		uint16_t listenPort = atoi(argv[1]);
+		uint16_t listenPort = atoi(argv[1]); // need error handling here later
 		std::string password = argv[2];
 		std::cout << "password from argv: "<< password << std::endl;
 		Server server(listenPort, password);

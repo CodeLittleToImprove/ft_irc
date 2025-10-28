@@ -20,6 +20,7 @@
 
 class Server;
 class Client;
+class Channel;
 
 class ACommand
 {

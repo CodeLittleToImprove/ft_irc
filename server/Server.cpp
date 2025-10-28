@@ -40,6 +40,7 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	bindServerSocket();
 	listenServerSocket(backlog);
 	this->_is_running = false;
+	this->_hostname = "127.0.0.1";
 
 	// this->_commands["CNOTICE"]	= new Cnotice(this);
 	// this->_commands["CPRIVMSG"]	= new Cprivmsg(this);

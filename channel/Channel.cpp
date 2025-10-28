@@ -65,7 +65,7 @@ void Channel::changeUserNum(std::string mode)
 		this->_num_users++;
 	else if (mode == "sub")
 	{
-		if (this->_num_users >= 0)
+		if (this->_num_users > 0) // should pre probably bigger than 0 otherwise it would not compile
 			this->_num_users--;
 	}
 }

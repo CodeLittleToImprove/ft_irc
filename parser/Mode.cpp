@@ -14,7 +14,7 @@
 
 Mode::Mode(Server *server) : ACommand("MODE", server) {}
 
-void	Mode::execute(Client *client, Tokenizer *tokens) const
+void Mode::execute(Client *client, Tokenizer *tokens) const
 {
 	parser_debugging(tokens);
 
@@ -64,10 +64,12 @@ void	Mode::execute(Client *client, Tokenizer *tokens) const
 			channel->setKey(mode_flag[0], param);
 			break;
 		case 'o':
+		{
 			Client *target = this->_server->get_client(param);
 			if (!channel->isInChannel(target))
 			{
-				this->_server->response(client, ERR_USERNOTINCHANNEL, ":Target-user is not on the channel " + channel_name);
+				this->_server->response(client, ERR_USERNOTINCHANNEL,
+				                        ":Target-user is not on the channel " + channel_name);
 				return;
 			}
 			if (channel->isChOper(param))
@@ -89,6 +91,7 @@ void	Mode::execute(Client *client, Tokenizer *tokens) const
 				channel->addOpClient(target);
 			}
 			break;
+		}
 		case 'l':
 			if (mode_flag[0] == '+')
 			{
@@ -97,7 +100,7 @@ void	Mode::execute(Client *client, Tokenizer *tokens) const
 					this->_server->response(client, ERR_UNKNOWNMODE, ":Userlimit has to be a number");
 					return;
 				}
-				int	limit = std::atoi(param.c_str());
+				int limit = std::atoi(param.c_str());
 				if (limit < 1)
 				{
 					this->_server->response(client, ERR_UNKNOWNMODE, ":Userlimit has to be greater than 0");
