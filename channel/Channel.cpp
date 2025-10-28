@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/24 20:22:50 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/24 22:11:45 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/28 14:17:07 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@
 /*                              Constructors                                  */
 /******************************************************************************/
 
-Channel::Channel(std::string name, std::string hostname) : _name(name), _hostname(hostname) {}
+Channel::Channel(std::string name, std::string hostname)
+: _name(name), _hostname(hostname), _num_users(0), _invite_only(false),  _has_key(false) {}
 
 /******************************************************************************/
 /*                            Member Functions                                */
@@ -53,7 +54,23 @@ void Channel::removeOpClient(Client *client)
 		_op_clients.erase(it);
 }
 
-bool Channel::isOper(std::string nickname)
+void Channel::inviteClient(Client *client)
+{
+	this->_invited_clients.push_back(client);
+}
+
+void Channel::changeUserNum(std::string mode)
+{
+	if (mode == "add")
+		this->_num_users++;
+	else if (mode == "sub")
+	{
+		if (this->_num_users >= 0)
+			this->_num_users--;
+	}
+}
+
+bool Channel::isChOper(std::string nickname)
 {
 	for (size_t i = 0; i < this->_op_clients.size(); i++)
 	{
@@ -69,6 +86,36 @@ bool Channel::isInChannel(Client *client)
 	if (it == _clients.end())
 		return (false);
 	return (true);
+}
+
+bool Channel::isInviteOnly()
+{
+	return (this->_invite_only);
+}
+
+bool Channel::isInvited(Client *client)
+{
+	std::vector<Client *>::iterator it = std::find(_invited_clients.begin(), _invited_clients.end(), client);
+	if (it == _invited_clients.end())
+		return (false);
+	else
+		return (true);
+}
+
+bool Channel::checkKey(std::string key)
+{
+	if (this->_has_key)
+	{
+		if (this->_key == key)
+			return (true);
+		return (false);
+	}
+	return (true);
+}
+
+bool Channel::hasUserLimit()
+{
+	return (this->_user_limit);
 }
 
 /******************************************************************************/
@@ -88,4 +135,44 @@ std::vector<Client *> Channel::getClients()
 std::vector<Client *> Channel::getOpClients()
 {
 	return (this->_op_clients);
+}
+
+std::vector<Client *> Channel::getInvitedClients()
+{
+	return (this->_invited_clients);
+}
+
+unsigned int Channel::getUserNum()
+{
+	return (this->_num_users);
+}
+
+unsigned int Channel::getUserLimit()
+{
+	return (this->_user_limit);
+}
+
+/******************************************************************************/
+/*                                 Setters                                    */
+/******************************************************************************/
+
+void Channel::setInviteOnly(char mode)
+{
+	if (mode == '+')
+		this->_invite_only = true;
+	else if (mode == '-')
+		this->_invite_only = false;
+}
+
+void Channel::setKey(bool mode, std::string key)
+{
+	this->_key = key;
+	this->_has_key = mode;
+}
+
+void Channel::setUserLimit(bool mode, int num)
+{
+	this->_has_user_limit = mode;
+	if (this->_has_user_limit)
+		this->_user_limit = num;
 }

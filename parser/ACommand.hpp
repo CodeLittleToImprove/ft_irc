@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 16:13:05 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/27 18:04:51 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/28 13:04:31 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ class ACommand
 		// Member functions
 		bool			is_registered_full(Client *client) const;
 		bool			has_enough_params(Client *client, Tokenizer *tokens, size_t num) const;
+		bool			hasChannelAndIsInChannel(Client *client, Channel *channel, std::string channel_name) const;
 		void			parser_debugging(Tokenizer *tokens) const;
 		virtual void	execute(Client *client, Tokenizer *tokens) const = 0;
 };
@@ -99,7 +100,7 @@ class Mode : public ACommand
 	private:
 	public:
 		Mode(Server *server);
-		void	execute(Tokenizer *tokens) const;
+		void	execute(Client *client, Tokenizer *tokens) const;
 };
 
 class Names : public ACommand

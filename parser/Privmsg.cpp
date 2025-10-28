@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 18:26:09 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/24 22:55:50 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/28 12:55:22 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,7 @@ void	Privmsg::execute(Client *client, Tokenizer *tokens) const
 {
 	parser_debugging(tokens);
 
-	if (!is_registered_full(client))
-		return;
-	if (!has_enough_params(client, tokens, 2))
+	if (!is_registered_full(client) || !has_enough_params(client, tokens, 2))
 		return;
 	
 	std::string target_name = tokens->get_param(0);

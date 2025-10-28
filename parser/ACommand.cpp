@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 16:12:57 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/24 22:36:40 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/28 13:04:55 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,21 @@ bool	ACommand::has_enough_params(Client *client, Tokenizer *tokens, size_t num) 
 	if (tokens->get_params().size() < num)
 	{
 		this->_server->response(client, ERR_NEEDMOREPARAMS, ":Not enough parameters");
+		return (false);
+	}
+	return (true);
+}
+
+bool	ACommand::hasChannelAndIsInChannel(Client *client, Channel *channel, std::string channel_name) const
+{
+	if (!channel)
+	{
+		this->_server->response(client, ERR_NOSUCHCHANNEL, ":Channel " + channel_name + " doesn't exist");
+		return (false);
+	}
+	if (!channel->isInChannel(client))
+	{
+		this->_server->response(client, ERR_NOTONCHANNEL, ":You are not on the channel " + channel_name);
 		return (false);
 	}
 	return (true);

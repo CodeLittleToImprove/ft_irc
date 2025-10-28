@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:21:33 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/27 18:25:05 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/28 13:05:50 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,7 @@ void	Kick::execute(Client *client, Tokenizer *tokens) const
 {
 	parser_debugging(tokens);
 
-	if (is_registered_full(client))
-		return;
-	if (has_enough_params(client, tokens, 2));
+	if (is_registered_full(client) || has_enough_params(client, tokens, 2))
 		return;
 	
 	std::string	channel_name = tokens->get_param(0);
@@ -28,19 +26,11 @@ void	Kick::execute(Client *client, Tokenizer *tokens) const
 	Client		*target = this->_server->get_client(tokens->get_param(1));
 	std::string	reason = tokens->get_params().size() > 2 ? tokens->get_param(2) : "Kicked";
 
-	if (!channel)
-	{
-		this->_server->response(client, ERR_NOSUCHCHANNEL, ":Channel " + channel_name + " doesn't exist");
+	if (!hasChannelAndIsInChannel(client, channel, channel_name))
 		return;
-	}
-	if (!channel->isInChannel(client))
+	if (!channel->isChOper(client->getNickname()))
 	{
-		this->_server->response(client, ERR_NOTONCHANNEL, ":You are not on the channel " + channel_name);
-		return;
-	}
-	if (!channel->isOper(client->getNickname()))
-	{
-		this->_server->response(client, ERR_NOPRIVILEGES, ":Permission denied!");
+		this->_server->response(client, ERR_CHANOPRIVSNEEDED, ":You are not a channel operator");
 		return;
 	}
 	if (!target)
@@ -53,4 +43,7 @@ void	Kick::execute(Client *client, Tokenizer *tokens) const
 		this->_server->response(client, ERR_NOTONCHANNEL, ":" + target->getNickname() + " is not on the channel " + channel_name);
 		return;
 	}
+	client->request(client, this->_name, channel->getName(), target->getNickname() + " :" + reason);
+	channel->removeOpClient(target);
+	channel->removeClient(target);
 }
