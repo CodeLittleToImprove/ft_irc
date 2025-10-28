@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:21:47 by phillymilly       #+#    #+#             */
-/*   Updated: 2025/10/28 14:16:49 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/28 14:39:15 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ class Channel
 
 		// Setters
 		void	setInviteOnly(char mode);
-		void	setKey(bool mode, std::string key);
+		void	setKey(char mode, std::string key);
 		void	setUserLimit(bool toggle, int num);
+		void	setRestriction(char mode);
 };

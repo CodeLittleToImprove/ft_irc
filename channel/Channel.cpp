@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/24 20:22:50 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/28 14:17:07 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/28 14:39:24 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 /******************************************************************************/
 
 Channel::Channel(std::string name, std::string hostname)
-: _name(name), _hostname(hostname), _num_users(0), _invite_only(false),  _has_key(false) {}
+: _name(name), _hostname(hostname), _num_users(0), _invite_only(false),  _restriction(false), _has_key(false) {}
 
 /******************************************************************************/
 /*                            Member Functions                                */
@@ -164,10 +164,13 @@ void Channel::setInviteOnly(char mode)
 		this->_invite_only = false;
 }
 
-void Channel::setKey(bool mode, std::string key)
+void Channel::setKey(char mode, std::string key)
 {
+	if (mode == '+')
+		this->_has_key = true;
+	else if (mode == '-')
+		this->_has_key = false;
 	this->_key = key;
-	this->_has_key = mode;
 }
 
 void Channel::setUserLimit(bool mode, int num)
@@ -175,4 +178,12 @@ void Channel::setUserLimit(bool mode, int num)
 	this->_has_user_limit = mode;
 	if (this->_has_user_limit)
 		this->_user_limit = num;
+}
+
+void Channel::setRestriction(char mode)
+{
+	if (mode == '+')
+		this->_restriction = true;
+	else if (mode == '-')
+		this->_restriction = false;
 }

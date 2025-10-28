@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:22:25 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/28 14:23:20 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/28 14:53:18 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,35 +37,40 @@ void	Mode::execute(Client *client, Tokenizer *tokens) const
 	}
 
 	std::string mode_flag = tokens->get_param(1);
+	std::string param = "";
 	if (mode_flag.length() != 2 && mode_flag[0] != '-' && mode_flag[0] != '+')
 	{
 		this->_server->response(client, ERR_UNKNOWNMODE, ":Uknown mode");
 		return;
 	}
-	if ((mode_flag == "+k" || mode_flag == "+o" || mode_flag == "+l") && tokens->get_params().size() < 3)
+	if (mode_flag == "+k" || mode_flag == "+o" || mode_flag == "+l")
 	{
-		this->_server->response(client, ERR_NEEDMOREPARAMS, ":not enough parameters");
-		return;
+		if (tokens->get_params().size() < 3)
+		{
+			this->_server->response(client, ERR_NEEDMOREPARAMS, ":not enough parameters");
+			return;
+		}
+		param = tokens->get_param(2);
 	}
 	switch (mode_flag[1])
 	{
 		case 'i':
 			channel->setInviteOnly(mode_flag[0]);
 			break;
+		case 't':
+			channel->setRestriction(mode_flag[0]);
+			break;
 		case 'k':
-			if (mode_flag[0] == '+')
-				channel->setKey(true, tokens->get_param(2));
-			else
-				channel->setKey(false, "");
+			channel->setKey(mode_flag[0], param);
 			break;
 		case 'o':
-			Client *target = this->_server->get_client(tokens->get_param(2));
+			Client *target = this->_server->get_client(param);
 			if (!channel->isInChannel(target))
 			{
 				this->_server->response(client, ERR_USERNOTINCHANNEL, ":Target-user is not on the channel " + channel_name);
 				return;
 			}
-			if (channel->isChOper(tokens->get_param(2)))
+			if (channel->isChOper(param))
 			{
 				if (mode_flag[0] == '+')
 				{
@@ -87,13 +92,12 @@ void	Mode::execute(Client *client, Tokenizer *tokens) const
 		case 'l':
 			if (mode_flag[0] == '+')
 			{
-				std::string limit_str = tokens->get_param(2);
-				int			limit = std::atoi(limit_str.c_str());
-				if (limit_str.find_first_not_of("0123456789") != std::string::npos)
+				if (param.find_first_not_of("0123456789") != std::string::npos)
 				{
 					this->_server->response(client, ERR_UNKNOWNMODE, ":Userlimit has to be a number");
 					return;
 				}
+				int	limit = std::atoi(param.c_str());
 				if (limit < 1)
 				{
 					this->_server->response(client, ERR_UNKNOWNMODE, ":Userlimit has to be greater than 0");
@@ -101,11 +105,12 @@ void	Mode::execute(Client *client, Tokenizer *tokens) const
 				}
 				channel->setUserLimit(true, limit);
 			}
-			else
-				channel->setUserLimit(false, 0);
+			channel->setUserLimit(false, 0);
 			break;
 		default:
 			this->_server->response(client, ERR_UNKNOWNMODE, ":Uknown mode");
-			break;
+			return;
 	}
+	std::string msg = !param.empty() ? " " + param : "";
+	client->request(client, this->_name, channel->getName(), mode_flag + msg);
 }
