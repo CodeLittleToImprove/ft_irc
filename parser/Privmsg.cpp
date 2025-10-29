@@ -38,7 +38,7 @@ void	Privmsg::execute(Client *client, Tokenizer *tokens) const
 			this->_server->response(client, ERR_NOTONCHANNEL, ":You are not on the channel '" + target_name + "'");
 			return;
 		}
-		client->request(client, this->_name, target_name, message);
+		channel->broadcast(client, this->_name, target_name, message);
 	}
 	else
 		target->request(client, this->_name, target_name, message);

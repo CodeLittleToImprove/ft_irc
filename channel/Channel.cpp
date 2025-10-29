@@ -127,6 +127,8 @@ void Channel::broadcast(Client *sender, std::string command, std::string target,
 	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
 	{
 		Client *member = *it;
+		if (member == sender)
+			continue;
 		member->request(sender, command, target,message);
 	}
 }
