@@ -371,16 +371,29 @@ void Server::add_channel(Channel *channel)
 	this->_channels.push_back(channel);
 }
 
-void Server::removeIfDisconnected(Client *client, int client_fd, size_t &i, const std::string &context)
-{
-	if (!client->getConnectedStatus())
-	{
-		std::cout << "[Poll] Removing disconnected client fd=" << client_fd
-				  << " (" << context << ")" << std::endl;
-		removeClient(client_fd);
-		i--;
-	}
-}
+// void Server::removeIfDisconnected(Client *client, int client_fd, size_t &i, const std::string &context)
+// {
+// 	if (!client->getConnectedStatus())
+// 	{
+// 		for (std::vector<Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++)
+// 		{
+// 			Channel *channel = *it;
+// 			if (channel->isInChannel(client))
+// 			{
+// 				channel->broadcast(client, "QUIT", "",":Client disconnected");
+// 				channel->removeClient(client);
+//
+// 				// add channel is empty when nobody is there anymore
+//
+// 			}
+// 		}
+// 		std::cout << "[Poll] Removing disconnected client fd=" << client_fd
+// 				  << " (" << context << ")" << std::endl;
+// 		removeClient(client_fd);
+// 		i--;
+// 	}
+// }
+
 void Server::handleClientEvent(pollfd &entry, size_t &i)
 {
 	int client_fd = entry.fd;
