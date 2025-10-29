@@ -1,5 +1,6 @@
 #include "Client.hpp"
 
+
 Client::Client(int client_fd, std::string password)
 	: _client_fd(client_fd), _connected(true), _has_nickname(false), _has_password(false),
 	  _is_registered(false), _authenticated(false), _is_oper(false), _password(password) {}
@@ -129,26 +130,28 @@ void Client::register_client(std::string username, std::string realname)
 	this->_is_registered = true;
 }
 
-void Client::request(Client *sender, std::string command, std::string target, std::string message)
+void Client::request(Client *sender, std::string command, std::string target, std::string message) // client to client or client to channel
 {
-	std::string sender_str = sender->_nickname + '!' + sender->_username + '@' + sender->_hostname;
+	// std::string sender_str = sender->_nickname + '!' + sender->_username + '@' + sender->_hostname; // missing similicon and hostname?
+	std::string sender_str = ":" + sender->_nickname + "!" + sender->_username + "@" + sender->_hostname;
 	std::string message_str = 	command == "KICK"	||
 								command == "INVITE" ||
 								message.empty()		||
 								message[0] == ':' ? message : ':' + message;
 	std::string request = sender_str + ' ' + command + ' ' + target + ' ' + message_str + CRLF;
+	printEscapedBuffer(request);
 	send(this->_client_fd, request.c_str(), request.length(), 0);
 }
 
 bool Client::authenticate(std::string password)
 {
-	std::cout << "Client: " << _client_fd << " calls authenticated." << std::endl;
-	std::cout << "password: " << password << std::endl;
-	std::cout << "_password: " << _password << std::endl;
+	// std::cout << "Client: " << _client_fd << " calls authenticated." << std::endl;
+	// std::cout << "password: " << password << std::endl;
+	// std::cout << "_password: " << _password << std::endl;
 	if (password == _password)
 	{
 		_authenticated = true;
-		std::cout << "client_fd: " << _client_fd << " authenticated successful" << std::endl;
+		// std::cout << "client_fd: " << _client_fd << " authenticated successful" << std::endl;
 	}
 	return _authenticated;
 }

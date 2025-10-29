@@ -24,7 +24,7 @@ class Channel
 		std::string				_key;
 		unsigned int			_user_limit;
 		unsigned int			_num_users;
-		std::vector<Client *>	_clients;
+		std::vector<Client *>	_clients; // only client objects which are in the channel
 		std::vector<Client *>	_op_clients;
 		std::vector<Client *>	_invited_clients;
 		bool					_invite_only;
@@ -50,6 +50,7 @@ class Channel
 		bool	isInvited(Client *client);
 		bool	checkKey(std::string key);
 		bool	hasUserLimit();
+		void	broadcast(Client *sender, std::string command, std::string target, std::string message);
 
 		// Getters
 		std::string				getName();
@@ -58,6 +59,10 @@ class Channel
 		std::vector<Client *>	getInvitedClients();
 		unsigned int			getUserNum();
 		unsigned int			getUserLimit();
+		bool					isKeyRequired() const;
+		std::string				getClientNames();
+		std::string				getTopic() const;
+		std::string				getHostname() const;
 
 		// Setters
 		void	setInviteOnly(char mode);

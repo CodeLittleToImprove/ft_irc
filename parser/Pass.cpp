@@ -37,9 +37,8 @@ void	Pass::execute(Client *client, Tokenizer *tokens) const
 		_server->response(client,ERR_PASSWDMISMATCH, ":Incorrect password");
 		client->closeConnection("disconnected due to authentication failure");
 	}
-	// user filled nickname, usernameregistered
-	std::cout << "pre if registered" << std::endl;
-	if (client->is_registered()) // this gets not trigger yet
+	// user filled nickname, username, and password was accepted
+	if (client->is_registered())
 		_server->response(client, RPL_WELCOME, ":Welcome to the Internet Relay Network " + client->getNickname() + "!");
 	//need to add host- and username later
 

@@ -39,19 +39,29 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 			this->_server->response(client, ERR_INVITEONLYCHAN, ":You are not invited");
 			return;
 		}
-		if (!channel->checkKey(tokens->get_param(1)))
+		if (channel->isKeyRequired())
 		{
-			this->_server->response(client, ERR_BADCHANNELKEY, ":Channel key is wrong");
-			return;
+			if (!has_enough_params(client, tokens, 2))
+			{
+				this->_server->response(client, ERR_BADCHANNELKEY, ":Channel key is wrong (Key required)");
+				return;
+			}
+			if (!channel->checkKey(tokens->get_param(1))) // channel has password so it expects 2 parameters
+			{
+				this->_server->response(client, ERR_BADCHANNELKEY, ":Channel key is wrong");
+				return;
+			}
 		}
 		if (channel->hasUserLimit() && channel->getUserNum() >= channel->getUserLimit())
 		{
 			this->_server->response(client, ERR_CHANNELISFULL, ":Channel is full");
 			return;
 		}
-		client->request(client, this->_name, channel->getName(), "");
 		channel->addClient(client);
 		channel->changeUserNum("add");
+		channel->broadcast(client, "JOIN", channel->getName(), "");
+		// Also send JOIN to the joining client
+		client->request(client, "JOIN", channel->getName(), "");
 	}
 	else
 	{
@@ -60,11 +70,27 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 			this->_server->response(client, ERR_NOPRIVILEGES, ":You don't have permission to create a new channel");
 			return;
 		}
-		this->_server->response(client, ERR_NOSUCHCHANNEL, ":Creating channel '" + channel_name + "'");
 		channel = new Channel(channel_name, _server->get_hostname());
 		this->_server->add_channel(channel);
-		client->request(client, this->_name, channel->getName(), "");
+
+
 		channel->addOpClient(client);
+		channel->addClient(client);
 		channel->changeUserNum("add");
+		channel->broadcast(client, "JOIN", channel->getName(), "");
+		// Also send JOIN to the joining client
+		client->request(client, "JOIN", channel->getName(), "");
+
+		// send topic info
+		if (channel->getTopic().empty())
+			_server->response(client, RPL_NOTOPIC, channel->getName() + " :No topic is set");
+		else
+			_server->response(client, RPL_TOPIC, channel->getName() + " :" + channel->getTopic());
+
+		// send name list
+		std::string names = channel->getClientNames();
+		std::cout << "names: " << names << std::endl;
+		this->_server->response(client, RPL_NAMREPLY, "= " + channel->getName() + " :" + names);
+		this->_server->response(client, RPL_ENDOFNAMES, channel->getName() +" :End of Names list");
 	}
 }

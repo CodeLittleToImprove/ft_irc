@@ -12,7 +12,7 @@
 # include <vector>
 # include "../macros/macros.hpp"
 # include "Server.hpp"
-
+#include "../utils/utils.hpp"
 class Server;
 
 class Client

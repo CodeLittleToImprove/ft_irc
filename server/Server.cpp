@@ -346,14 +346,14 @@ void Server::onClientMessage(int client_fd, std::string message)
 	Client *client = get_client(client_fd);
 
 	std::string command = tokens.get_command();
-	// std::cout << "command in onClient: " << message << std::endl;
+	std::cout << "DEBUG: command in onClient: " << message << std::endl;
 	if (this->_commands.find(command) == this->_commands.end())
 		std::cout << "Error! Command not found." << std::endl;
 	else
 		this->_commands[command]->execute(client, &tokens);
 }
 
-void Server::response(Client *client, std::string code, std::string message)
+void Server::response(Client *client, std::string code, std::string message) // server - to client communication
 {
 	if (!client)
 		return;
@@ -362,7 +362,7 @@ void Server::response(Client *client, std::string code, std::string message)
 	std::string nickname = client->getNickname();
 	std::string nickname_str = nickname.empty() ? "unregistered " : nickname + ' ';
 	std::string response = ':' + this->_hostname + ' ' + code_str + nickname_str + message + CRLF;
-	printEscapedBuffer(response);
+	// printEscapedBuffer(response);
 	send(client->getClient_fd(), response.c_str(), response.length(), 0);
 }
 

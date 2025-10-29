@@ -30,10 +30,14 @@ void Channel::addClient(Client *client)
 
 void Channel::addOpClient(Client *client)
 {
-	std::vector<Client *>::iterator it = std::find(_clients.begin(), _clients.end(), client);
-	if (it == _clients.end())
-		this->_clients.push_back(client);
-	this->_op_clients.push_back(client);
+	// std::vector<Client *>::iterator it = std::find(_clients.begin(), _clients.end(), client);
+	// if (it == _clients.end())
+	// 	this->_clients.push_back(client); //causes duplicates
+	// this->_op_clients.push_back(client);
+
+	// Add to _op_clients if not already there
+	if (std::find(_op_clients.begin(), _op_clients.end(), client) == _op_clients.end())
+		_op_clients.push_back(client);
 }
 
 void Channel::removeClient(Client *client)
@@ -118,6 +122,15 @@ bool Channel::hasUserLimit()
 	return (this->_user_limit);
 }
 
+void Channel::broadcast(Client *sender, std::string command, std::string target, std::string message)
+{
+	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
+	{
+		Client *member = *it;
+		member->request(sender, command, target,message);
+	}
+}
+
 /******************************************************************************/
 /*                                 Getters                                    */
 /******************************************************************************/
@@ -150,6 +163,40 @@ unsigned int Channel::getUserNum()
 unsigned int Channel::getUserLimit()
 {
 	return (this->_user_limit);
+}
+
+bool Channel::isKeyRequired() const
+{
+	return (this->_has_key);
+}
+
+std::string	Channel::getClientNames()
+{
+	std::string names;
+
+	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		Client *client = *it;
+		if (!names.empty())
+			names += " ";
+		// Prefix with @ if operator
+		bool is_channel_operator = (std::find(_op_clients.begin(), _op_clients.end(), client) != _op_clients.end());
+		if (is_channel_operator)
+			names += "@";
+		names += client->getNickname();
+	}
+
+	return names;
+}
+
+std::string Channel::getTopic() const
+{
+	return this->_topic;
+}
+
+std::string	Channel::getHostname() const
+{
+	return this->_hostname;
 }
 
 /******************************************************************************/
