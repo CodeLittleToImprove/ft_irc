@@ -19,7 +19,7 @@
 /*                             Constructors                                   */
 /******************************************************************************/
 
-Server::Server(uint16_t port) : _port(port) // debug constructor without password handling
+Server::Server(uint16_t port): _port(port) // debug constructor without password handling
 {
 	std::cout << "Lazy constructor" << std::endl;
 	int backlog = 5; // for now 5 change later
@@ -45,17 +45,17 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	// this->_commands["CNOTICE"]	= new Cnotice(this);
 	// this->_commands["CPRIVMSG"]	= new Cprivmsg(this);
 	// this->_commands["INFO"] 	= new Info(this);
-	// this->_commands["INVITE"]	= new Invite(this);
-	this->_commands["JOIN"] = new Join(this);
-	// this->_commands["KICK"] 	= new Kick(this);
+	this->_commands["INVITE"]	= new Invite(this);
+	this->_commands["JOIN"]		= new Join(this);
+	this->_commands["KICK"] 	= new Kick(this);
 	// this->_commands["LIST"] 	= new List(this);
-	this->_commands["MODE"] = new Mode(this);
+	this->_commands["MODE"] 	= new Mode(this);
 	// this->_commands["NAMES"] 	= new Names(this);
 	this->_commands["NICK"] = new Nick(this);
 	// this->_commands["NOTICE"] 	= new Notice(this);
-	this->_commands["OPER"] = new Oper(this);
-	this->_commands["PASS"] = new Pass(this);
-	this->_commands["PRIVMSG"] = new Privmsg(this);
+	this->_commands["OPER"] 	= new Oper(this);
+	this->_commands["PASS"] 	= new Pass(this);
+	this->_commands["PRIVMSG"] 	= new Privmsg(this);
 	// this->_commands["QUIT"] 	= new Quit(this);
 	// this->_commands["SQUIT"] 	= new Squit(this);
 	this->_commands["USER"] = new User(this);
@@ -169,7 +169,7 @@ sockaddr_in Server::createServerAddress()
 void Server::bindServerSocket()
 {
 	sockaddr_in serverAddress = createServerAddress();
-	int bindResult = bind(_server_fd, (struct sockaddr*)&serverAddress,
+	int bindResult = bind(_server_fd, (struct sockaddr *) &serverAddress,
 	                      sizeof(serverAddress));
 	if (bindResult == -1)
 		throw std::runtime_error(std::string("Bind failed: ") + std::strerror(errno));
@@ -190,9 +190,9 @@ void Server::addClient(int client_fd)
 	try
 	{
 		// std::cout << "passsword_: "<< _password << std::endl;
-		Client* client = new Client(client_fd, _password);
+		Client *client = new Client(client_fd, _password);
 		//bool indicating if insertion succeeded
-		std::pair<std::map<int, Client*>::iterator, bool> insertSuccess;
+		std::pair<std::map<int, Client *>::iterator, bool> insertSuccess;
 		insertSuccess = _clients.insert(std::make_pair(client_fd, client));
 
 		if (!insertSuccess.second)
@@ -204,8 +204,7 @@ void Server::addClient(int client_fd)
 		std::cout << "New client connected (fd=" << client_fd << ")\n";
 		// Create and register this client's poll entry
 		addPollfd(_poll_fds, client_fd, POLLIN);
-	}
-	catch (const std::exception &e)
+	} catch (const std::exception &e)
 	{
 		std::cerr << "Failed to add client fd=" << client_fd << ": " << e.what() << std::endl;
 	}
@@ -216,7 +215,7 @@ void Server::handleNewConnection()
 {
 	sockaddr_in clientAddr;
 	socklen_t len = sizeof(clientAddr);
-	int client_fd = accept(_server_fd, (sockaddr*)&clientAddr, &len);
+	int client_fd = accept(_server_fd, (sockaddr *) &clientAddr, &len);
 
 	// If no client is ready (non-blocking) or error occurred, just return
 	if (client_fd < 0)
@@ -232,7 +231,7 @@ void Server::handleNewConnection()
 // 5. during server run , can remove clients
 void Server::removeClient(int client_fd)
 {
-	std::map<int, Client*>::iterator it = _clients.find(client_fd);
+	std::map<int, Client *>::iterator it = _clients.find(client_fd);
 	if (it == _clients.end())
 		return;
 
@@ -274,9 +273,9 @@ void Server::handleAdminInput()
 /*                          Public Functions                                  */
 /******************************************************************************/
 
-Client* Server::get_client(int client_fd)
+Client *Server::get_client(int client_fd)
 {
-	std::map<int, Client*>::iterator it = _clients.find(client_fd);
+	std::map<int, Client *>::iterator it = _clients.find(client_fd);
 	if (it == _clients.end())
 	{
 		throw std::runtime_error("Client not found");
@@ -284,19 +283,19 @@ Client* Server::get_client(int client_fd)
 	return it->second;
 }
 
-Client* Server::get_client(std::string nickname)
+Client *Server::get_client(std::string nickname)
 {
 	std::map<int, Client*>::iterator it;
 	for (it = _clients.begin(); it != _clients.end(); it++)
 	{
-		Client* current_client = it->second;
+		Client *current_client = it->second;
 		if (current_client->getNickname() == nickname)
 			return (current_client);
 	}
 	return (NULL);
 }
 
-Channel* Server::get_channel(std::string name)
+Channel *Server::get_channel(std::string name)
 {
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
@@ -311,7 +310,7 @@ std::string Server::get_hostname()
 	return (this->_hostname);
 }
 
-std::string Server::getOperPassword()
+std::string	Server::getOperPassword()
 {
 	return (this->_oper_password);
 }
@@ -320,7 +319,7 @@ void Server::onClientMessage(int client_fd, std::string message)
 {
 	// std::cout << "Debug message in onClient: " << message << std::endl;
 	Tokenizer tokens(message);
-	Client* client = get_client(client_fd);
+	Client *client = get_client(client_fd);
 
 	std::string command = tokens.get_command();
 	std::cout << "DEBUG: command in onClient: " << message << std::endl;
@@ -330,7 +329,7 @@ void Server::onClientMessage(int client_fd, std::string message)
 		this->_commands[command]->execute(client, &tokens);
 }
 
-void Server::response(Client* client, std::string code, std::string message) // server - to client communication
+void Server::response(Client *client, std::string code, std::string message) // server - to client communication
 {
 	if (!client)
 		return;
@@ -343,12 +342,12 @@ void Server::response(Client* client, std::string code, std::string message) // 
 	send(client->getClient_fd(), response.c_str(), response.length(), 0);
 }
 
-void Server::add_channel(Channel* channel)
+void Server::add_channel(Channel *channel)
 {
 	this->_channels.push_back(channel);
 }
 
-void Server::removeIfDisconnected(Client* client, int client_fd, size_t &i, const std::string &context)
+void Server::removeIfDisconnected(Client *client, int client_fd, size_t &i, const std::string &context)
 {
 	// std::cout << "[DEBUG] removeIfDisconnected called for fd=" << client_fd << std::endl;
 	if (!client->getConnectedStatus())
@@ -380,10 +379,10 @@ void Server::removeIfDisconnected(Client* client, int client_fd, size_t &i, cons
 void Server::handleClientEvent(pollfd &entry, size_t &i)
 {
 	int client_fd = entry.fd;
-	std::map<int, Client*>::iterator it = _clients.find(entry.fd);
+	std::map<int, Client *>::iterator it = _clients.find(entry.fd);
 	if (it == _clients.end())
 		return;
-	Client* curClient = it->second;
+	Client *curClient = it->second;
 
 	// // client was marked manually for removal before reading
 	// removeIfDisconnected(curClient, client_fd, i, "pre-check");
