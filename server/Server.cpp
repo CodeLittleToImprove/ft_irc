@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 20:16:04 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/27 17:15:00 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/10/30 17:10:54 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,11 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	// this->_commands["CNOTICE"]	= new Cnotice(this);
 	// this->_commands["CPRIVMSG"]	= new Cprivmsg(this);
 	// this->_commands["INFO"] 	= new Info(this);
-	// this->_commands["INVITE"]	= new Invite(this);
+	this->_commands["INVITE"]	= new Invite(this);
 	this->_commands["JOIN"]		= new Join(this);
-	// this->_commands["KICK"] 	= new Kick(this);
+	this->_commands["KICK"] 	= new Kick(this);
 	// this->_commands["LIST"] 	= new List(this);
-	// this->_commands["MODE"] 	= new Mode(this);
+	this->_commands["MODE"] 	= new Mode(this);
 	// this->_commands["NAMES"] 	= new Names(this);
 	this->_commands["NICK"] = new Nick(this);
 	// this->_commands["NOTICE"] 	= new Notice(this);
