@@ -31,6 +31,7 @@ class Channel
 		bool					_restriction;
 		bool					_has_key;
 		bool					_has_user_limit;
+		bool					_is_empty;
 
 	public:
 
@@ -63,6 +64,7 @@ class Channel
 		std::string				getClientNames();
 		std::string				getTopic() const;
 		std::string				getHostname() const;
+		bool					isEmpty() const;
 
 		// Setters
 		void	setInviteOnly(char mode);

@@ -53,6 +53,7 @@ std::vector<std::string> Client::readData()
 
 void Client::closeConnection(std::string message)
 {
+	std::cout << "DEBUG: closeConnection on client called" << std::endl;
 	if (_connected)
 	{
 		// add hostname later

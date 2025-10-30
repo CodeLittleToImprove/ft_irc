@@ -44,7 +44,7 @@ private:
 	void listenServerSocket(size_t backlog);
 	void addClient(int client_fd);
 	// void addClient(int client_fd, const std::string password);
-	void removeClient(int index);
+	void removeClient(int client_fd);
 	void removeIfDisconnected(Client *client, int client_fd, size_t &i, const std::string &context);
 	void handlePollEvents();
 	void handleNewConnection();

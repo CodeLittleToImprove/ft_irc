@@ -17,7 +17,7 @@
 /******************************************************************************/
 
 Channel::Channel(std::string name, std::string hostname)
-: _name(name), _hostname(hostname), _num_users(0), _invite_only(false),  _restriction(false), _has_key(false) {}
+: _name(name), _hostname(hostname), _num_users(0), _invite_only(false),  _restriction(false), _has_key(false), _is_empty(true) {}
 
 /******************************************************************************/
 /*                            Member Functions                                */
@@ -26,6 +26,7 @@ Channel::Channel(std::string name, std::string hostname)
 void Channel::addClient(Client *client)
 {
 	this->_clients.push_back(client);
+	_is_empty = false;
 }
 
 void Channel::addOpClient(Client *client)
@@ -42,11 +43,15 @@ void Channel::addOpClient(Client *client)
 
 void Channel::removeClient(Client *client)
 {
+	std::cout << "[DEBUG] removeClient() actually deleting client fd=" << client->getClient_fd() << std::endl;
 	std::vector<Client *>::iterator it = std::find(_clients.begin(), _clients.end(), client);
 	if (it == _clients.end())
 		std::cout	<< "Client not found." << std::endl;
 	else
 		_clients.erase(it);
+	this->removeOpClient(client);
+	if (_clients.empty())
+		_is_empty = true;
 }
 
 void Channel::removeOpClient(Client *client)
@@ -199,6 +204,11 @@ std::string Channel::getTopic() const
 std::string	Channel::getHostname() const
 {
 	return this->_hostname;
+}
+
+bool Channel::isEmpty() const
+{
+	return _clients.empty();
 }
 
 /******************************************************************************/
