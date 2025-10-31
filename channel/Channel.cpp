@@ -17,7 +17,7 @@
 /******************************************************************************/
 
 Channel::Channel(std::string name, std::string hostname)
-: _name(name), _hostname(hostname), _num_users(0), _invite_only(false),  _restriction(false), _has_key(false), _is_empty(true) {}
+: _name(name), _hostname(hostname), _num_users(0), _invite_only(false),  _topic_restriction(false), _has_key(false), _is_empty(true) {}
 
 /******************************************************************************/
 /*                            Member Functions                                */
@@ -152,7 +152,7 @@ std::vector<Client *> Channel::getClients()
 	return (this->_clients);
 }
 
-std::vector<Client *> Channel::getOpClients()
+std::vector<Client *> Channel::getOpClients() // never used
 {
 	return (this->_op_clients);
 }
@@ -211,6 +211,55 @@ bool Channel::isEmpty() const
 	return _clients.empty();
 }
 
+std::string Channel::getChannelOpNickNames() const
+{
+	std::string names;
+	for (std::vector<Client *>::const_iterator it = this->_op_clients.begin(); it != this->_op_clients.end(); it++)
+		names += (*it)->getNickname() + " ";
+	return names;
+}
+
+std::string Channel::getModes() const
+{
+	std::string flags = "+";
+	std::string params = "";
+
+	if (this->_topic_restriction)
+		flags += "t";
+	if (this->_invite_only)
+		flags += "i";
+	if (this->_has_key)
+	{
+		flags += "k";
+		if (!params.empty())
+			params += " ";
+		params += this->_key;
+	}
+	if (this->_has_user_limit)
+	{
+		flags += "l";
+		if (!params.empty())
+			params += " ";
+		std::stringstream ss;
+		ss << this->_user_limit;
+		params += ss.str();
+	}
+
+	std::string op_nicks = this->getChannelOpNickNames();
+	if (!op_nicks.empty())
+	{
+		if (this->_op_clients.size() > 0)
+			flags += "o";
+		if (!params.empty())
+			params += " ";
+		params += op_nicks;
+	}
+	if (!params.empty())
+		return flags + " " + params;
+	// if params is empty, only return the flags
+	return flags;
+}
+
 /******************************************************************************/
 /*                                 Setters                                    */
 /******************************************************************************/
@@ -242,7 +291,7 @@ void Channel::setUserLimit(bool mode, int num)
 void Channel::setRestriction(char mode)
 {
 	if (mode == '+')
-		this->_restriction = true;
+		this->_topic_restriction = true;
 	else if (mode == '-')
-		this->_restriction = false;
+		this->_topic_restriction = false;
 }

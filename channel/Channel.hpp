@@ -28,7 +28,7 @@ class Channel
 		std::vector<Client *>	_op_clients;
 		std::vector<Client *>	_invited_clients;
 		bool					_invite_only;
-		bool					_restriction;
+		bool					_topic_restriction;
 		bool					_has_key;
 		bool					_has_user_limit;
 		bool					_is_empty;
@@ -56,7 +56,7 @@ class Channel
 		// Getters
 		std::string				getName();
 		std::vector<Client *>	getClients();
-		std::vector<Client *>	getOpClients();
+		std::vector<Client *>	getOpClients(); //not used
 		std::vector<Client *>	getInvitedClients();
 		unsigned int			getUserNum();
 		unsigned int			getUserLimit();
@@ -65,6 +65,8 @@ class Channel
 		std::string				getTopic() const;
 		std::string				getHostname() const;
 		bool					isEmpty() const;
+		std::string				getChannelOpNickNames() const;
+		std::string				getModes() const;
 
 		// Setters
 		void	setInviteOnly(char mode);
