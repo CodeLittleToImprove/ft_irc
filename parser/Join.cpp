@@ -27,7 +27,8 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 		this->_server->response(client, ERR_NOSUCHCHANNEL, ":incorrect format. Please use '#' in front of the channel name");
 		return;
 	}
-	if (Channel *channel = this->_server->get_channel(channel_name))
+	Channel *channel = this->_server->get_channel(channel_name);
+	if (channel)
 	{
 		if (channel->isInChannel(client))
 		{
@@ -80,17 +81,16 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 		channel->broadcast(client, "JOIN", channel->getName(), "");
 		// Also send JOIN to the joining client
 		client->request(client, "JOIN", channel->getName(), "");
-
-		// send topic info
-		if (channel->getTopic().empty())
-			_server->response(client, RPL_NOTOPIC, channel->getName() + " :No topic is set");
-		else
-			_server->response(client, RPL_TOPIC, channel->getName() + " :" + channel->getTopic());
-
-		// send name list
-		std::string names = channel->getClientNames();
-		std::cout << "names: " << names << std::endl;
-		this->_server->response(client, RPL_NAMREPLY, "= " + channel->getName() + " :" + names);
-		this->_server->response(client, RPL_ENDOFNAMES, channel->getName() +" :End of Names list");
 	}
+	// send topic info
+	if (channel->getTopic().empty())
+		_server->response(client, RPL_NOTOPIC, channel->getName() + " :No topic is set");
+	else
+		_server->response(client, RPL_TOPIC, channel->getName() + " :" + channel->getTopic());
+
+	// send name list
+	std::string names = channel->getClientNames();
+	std::cout << "names: " << names << std::endl;
+	this->_server->response(client, RPL_NAMREPLY, "= " + channel->getName() + " :" + names);
+	this->_server->response(client, RPL_ENDOFNAMES, channel->getName() +" :End of Names list");
 }
