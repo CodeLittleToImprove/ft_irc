@@ -50,6 +50,9 @@ class Client
 		bool		isAuthenticated() const;
 		bool		isOper() const;
 		std::string	getNickname() const;
+		std::string	getUsername() const;
+		std::string	getRealname() const;
+		std::string getHostname() const;
 		std::string	getPassword() const;
 
 		// Setter

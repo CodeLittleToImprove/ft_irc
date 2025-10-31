@@ -40,7 +40,7 @@ void Mode::execute(Client *client, Tokenizer *tokens) const
 	if (tokens->get_params().size() == 1)
 	{
 		std::string current_modes = channel->getModes();
-		std::cout << "DEBUG currentmodes: " << current_modes << std::endl;
+		// std::cout << "DEBUG currentmodes: " << current_modes << std::endl;
 		this->_server->response(client, RPL_CHANNELMODEIS, channel_name + " " + current_modes);
 		return;
 	}
@@ -120,7 +120,7 @@ void Mode::execute(Client *client, Tokenizer *tokens) const
 			channel->setUserLimit(false, 0);
 			break;
 		default:
-			this->_server->response(client, ERR_UNKNOWNMODE, ":Uknown mode");
+			this->_server->response(client, ERR_UNKNOWNMODE, ":Unknown mode");
 			return;
 	}
 	std::string msg = !param.empty() ? " " + param : "";

@@ -183,3 +183,11 @@ class Users : public ACommand
 		Users(Server *server);
 		void	execute(Client *client, Tokenizer *tokens) const;
 };
+
+class Who : public ACommand
+{
+	private:
+	public:
+		Who(Server *server);
+		void	execute(Client *client, Tokenizer *tokens) const;
+};

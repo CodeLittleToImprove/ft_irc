@@ -3,11 +3,8 @@
 
 Client::Client(int client_fd, std::string password)
 	: _client_fd(client_fd), _connected(true), _has_nickname(false), _has_password(false),
-	  _is_registered(false), _authenticated(false), _is_oper(false), _password(password) {}
+	  _is_registered(false), _authenticated(false), _is_oper(false), _password(password), _realname(""),_hostname("localhost") {}
 
-// Client::Client(int client_fd, std::string password)
-// 	: _client_fd(client_fd), _connected(true), _has_nickname(false),
-// 	  _is_registered(false), _authenticated(false), _password("") {} // setting default password not working yet
 // Client::~Client()
 // {
 // 	if (_connected == false)
@@ -96,6 +93,21 @@ std::string Client::getNickname() const
 	return _nickname;
 }
 
+std::string Client::getUsername() const
+{
+	return _username;
+}
+
+std::string Client::getRealname() const
+{
+	return _realname;
+}
+
+std::string Client::getHostname() const
+{
+	return _hostname;
+}
+
 std::string	Client::getPassword() const
 {
 	return _password;
@@ -113,7 +125,7 @@ bool Client::isOper() const
 
 void Client::setNickname(std::string nickname)
 {
-	std::cout << "successfully set nickname: " << nickname << std::endl;
+	// std::cout << "successfully set nickname: " << nickname << std::endl;
 	this->_nickname = nickname;
 	this->_has_nickname = true;
 }
@@ -133,7 +145,6 @@ void Client::register_client(std::string username, std::string realname)
 
 void Client::request(Client *sender, std::string command, std::string target, std::string message) // client to client or client to channel
 {
-	// std::string sender_str = sender->_nickname + '!' + sender->_username + '@' + sender->_hostname; // missing similicon and hostname?
 	std::string sender_str = ":" + sender->_nickname + "!" + sender->_username + "@" + sender->_hostname;
 	std::string message_str = 	command == "KICK"	||
 								command == "INVITE" ||

@@ -60,6 +60,7 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	// this->_commands["SQUIT"] 	= new Squit(this);
 	this->_commands["USER"] = new User(this);
 	// this->_commands["USERS"] 	= new Users(this);
+	this->_commands["WHO"] = new Who(this);
 }
 
 Server::~Server()
