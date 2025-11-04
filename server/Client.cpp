@@ -1,9 +1,9 @@
 #include "Client.hpp"
 
-
 Client::Client(int client_fd, std::string password)
 	: _client_fd(client_fd), _connected(true), _has_nickname(false), _has_password(false),
-	  _is_registered(false), _authenticated(false), _is_oper(false), _password(password), _realname(""),_hostname("localhost") {}
+	  _is_registered(false), _authenticated(false), _is_oper(false), _realname(""), _hostname("localhost"), _password(password) {}
+
 
 // Client::~Client()
 // {
