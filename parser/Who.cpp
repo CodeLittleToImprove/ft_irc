@@ -47,9 +47,11 @@ void	Who::execute(Client *client, Tokenizer *tokens) const
 					member->getHostname() + " " +
 					this->_server->get_hostname() + " " +
 					member->getNickname() + " " +
-					status + " :0 " +
+					status + " 0 " + // hopcount
 					member->getRealname();
+		// std::cout << "who info:" << whoInfo << std::endl;
 		this->_server->response(client, RPL_WHOREPLY, whoInfo);
 	}
+	std::cout << "end of who list" << std::endl;
 	this->_server->response(client, RPL_ENDOFWHO, channel_name + " :End of WHO list");
 }
