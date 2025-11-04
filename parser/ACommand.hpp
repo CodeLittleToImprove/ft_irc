@@ -40,6 +40,14 @@ class ACommand
 		virtual void	execute(Client *client, Tokenizer *tokens) const = 0;
 };
 
+class Cap : public ACommand
+{
+	private:
+	public:
+		Cap(Server *server);
+		void	execute(Client *client, Tokenizer *tokens) const;
+};
+
 class Cnotice : public ACommand
 {
 	private:

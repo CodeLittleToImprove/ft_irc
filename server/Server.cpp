@@ -45,6 +45,7 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	// this->_commands["CNOTICE"]	= new Cnotice(this);
 	// this->_commands["CPRIVMSG"]	= new Cprivmsg(this);
 	// this->_commands["INFO"] 	= new Info(this);
+	this->_commands["CAP"] = new Cap(this);
 	this->_commands["INVITE"]	= new Invite(this);
 	this->_commands["JOIN"]		= new Join(this);
 	this->_commands["KICK"] 	= new Kick(this);

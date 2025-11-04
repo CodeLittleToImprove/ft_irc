@@ -40,7 +40,8 @@ add_executable(ft_irc_server
         utils/utils.hpp
         utils/utils.cpp
         channel/Channel.cpp
-        parser/Who.cpp)
+        parser/Who.cpp
+        parser/Cap.cpp)
 
 add_executable(ft_irc_client
         #        test/Template.cpp

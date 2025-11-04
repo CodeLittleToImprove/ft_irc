@@ -58,6 +58,8 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 			this->_server->response(client, ERR_CHANNELISFULL, ":Channel is full");
 			return;
 		}
+		// case: join channel
+		std::cout << "try to join a channel" << std::endl;
 		channel->addClient(client);
 		channel->changeUserNum("add");
 		channel->broadcast(client, "JOIN", channel->getName(), "");
@@ -71,9 +73,9 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 			this->_server->response(client, ERR_NOPRIVILEGES, ":You don't have permission to create a new channel");
 			return;
 		}
+		// case: create new channel
 		channel = new Channel(channel_name, _server->get_hostname());
 		this->_server->add_channel(channel);
-
 
 		channel->addOpClient(client);
 		channel->addClient(client);
@@ -90,7 +92,7 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 
 	// send name list
 	std::string names = channel->getClientNames();
-	std::cout << "names: " << names << std::endl;
+	// std::cout << "namelist of channel: " << names << std::endl;
 	this->_server->response(client, RPL_NAMREPLY, "= " + channel->getName() + " :" + names);
 	this->_server->response(client, RPL_ENDOFNAMES, channel->getName() +" :End of Names list");
 }

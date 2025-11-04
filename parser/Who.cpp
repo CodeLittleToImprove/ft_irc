@@ -26,13 +26,12 @@ void	Who::execute(Client *client, Tokenizer *tokens) const
 	if (!hasChannelAndIsInChannel(client, channel, channel_name))
 		return;
 
-	std::string flag;
+	std::string flag; // is needed for operator filter
 	if (tokens->get_params().size() > 1)
 		flag = tokens->get_params()[1];
 	else
 		flag = "";
 	const std::vector<Client*> &clients = channel->getClients();
-
 	for (size_t i = 0; i < clients.size(); ++i)
 	{
 		Client *member = clients[i];
@@ -52,6 +51,6 @@ void	Who::execute(Client *client, Tokenizer *tokens) const
 		// std::cout << "who info:" << whoInfo << std::endl;
 		this->_server->response(client, RPL_WHOREPLY, whoInfo);
 	}
-	std::cout << "end of who list" << std::endl;
+	// std::cout << "end of who list" << std::endl;
 	this->_server->response(client, RPL_ENDOFWHO, channel_name + " :End of WHO list");
 }
