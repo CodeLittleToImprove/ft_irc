@@ -57,7 +57,7 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	this->_commands["OPER"] 	= new Oper(this);
 	this->_commands["PASS"] 	= new Pass(this);
 	this->_commands["PRIVMSG"] 	= new Privmsg(this);
-	// this->_commands["QUIT"] 	= new Quit(this);
+	this->_commands["QUIT"] 	= new Quit(this);
 	// this->_commands["SQUIT"] 	= new Squit(this);
 	this->_commands["USER"] = new User(this);
 	// this->_commands["USERS"] 	= new Users(this);
@@ -237,13 +237,13 @@ void Server::removeClient(int client_fd)
 	if (it == _clients.end())
 		return;
 
+	// remove the corresponding pollfd
+	removePollfd(_poll_fds, client_fd);
+
 	if (close(client_fd) == -1)
 		std::cout << "Warning: failed to close fd " << client_fd << ": " << strerror(errno) << std::endl;
 	delete it->second; // free the client object
 	_clients.erase(it);
-
-	// remove the corresponding pollfd
-	removePollfd(_poll_fds, client_fd);
 	std::cout << "Client disconnected (fd=" << client_fd << ")\n";
 }
 
@@ -257,7 +257,7 @@ void Server::handleAdminInput()
 	buffer[bytes] = '\0';
 	std::string input(buffer);
 
-	if (input == "exit\n" || input == "quit\n")
+	if (input == "exit\n")
 	{
 		std::cout << "Shutting down server..." << std::endl;
 		_is_running = false;
@@ -317,11 +317,29 @@ std::string	Server::getOperPassword()
 	return (this->_oper_password);
 }
 
+std::vector<Channel*> Server::getJoinedChannelsByClient(Client *client)
+{
+	std::vector<Channel*> result;
+	for (std::vector<Channel*>::iterator it = _channels.begin(); it != _channels.end(); it++)
+	{
+		Channel *channel = *it;
+		if (channel->isInChannel(client))
+		{
+			std::cout << "Debug: "<< client->getUsername() << " is in " << channel->getName() << std::endl;
+			result.push_back(channel);
+		}
+
+	}
+	return (result);
+}
+
 void Server::onClientMessage(int client_fd, std::string message)
 {
-	// std::cout << "Debug message in onClient: " << message << std::endl;
+
 	Tokenizer tokens(message);
 	Client *client = get_client(client_fd);
+	if (!client) // client not existing anymore
+		return;
 
 	std::string command = tokens.get_command();
 	std::cout << "DEBUG: command in onClient: " << message << std::endl;
@@ -441,6 +459,11 @@ void Server::handlePollEvents()
 		// Case 3: Current client has events
 		handleClientEvent(curPollEntry, i);
 	}
+}
+
+void Server::removeClientFromServer(Client *client)
+{
+	removeClient(client->getClient_fd());
 }
 
 void Server::run()

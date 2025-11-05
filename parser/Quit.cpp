@@ -14,22 +14,24 @@
 
 Quit::Quit(Server *server) : ACommand("QUIT", server) {}
 
-void	Quit::execute(Tokenizer *tokens) const
+void	Quit::execute(Client *client, Tokenizer *tokens) const
 {
-	std::cout	<< "Command " << this->_name << " called!" << std::endl;
-	std::cout	<< "Prefix: ";
-	if (tokens->get_prefix().empty())
-		std::cout	<< "None" << std::endl;
-	else
-		std::cout	<< tokens->get_prefix() << std::endl;
-	std::cout	<< "Command: " << tokens->get_command() << std::endl;
-	std::cout	<< "Parameter: ";
-	if (tokens->get_params().empty())
-		std::cout	<< "None" << std::endl;
-	else
+
+	std::string reason = "Bye Bye";
+	if (tokens->get_params().size() > 1)
 	{
-		for (size_t i = 0; i < tokens->get_params().size(); i++)
-			std::cout	<< tokens->get_params().at(i) << "|";
-		std::cout	<< std::endl;
+		reason = tokens->get_params()[1];
+		std::cout << "DEBUG Multiple parameter quit message " << reason << std::endl;
 	}
+	client->closeConnection("I decided to leave");
+	std::vector<Channel*> joined_channels = _server->getJoinedChannelsByClient(client);
+	for (size_t i = 0; i < joined_channels.size(); i++)
+	{
+		Channel *channel = joined_channels[i];
+		if (!channel) // for the case channel gets not properly deleted for some reason
+			continue;
+		channel->broadcast(client, "QUIT", "", reason);
+		channel->removeClient(client);
+	}
+	this->_server->removeClientFromServer(client);
 }

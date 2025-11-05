@@ -165,7 +165,7 @@ class Quit : public ACommand
 	private:
 	public:
 		Quit(Server *server);
-		void	execute(Tokenizer *tokens) const;
+		void	execute(Client *client, Tokenizer *tokens) const;
 };
 
 class Squit : public ACommand

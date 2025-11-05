@@ -46,7 +46,7 @@ void Channel::removeClient(Client *client)
 	std::cout << "[DEBUG] removeClient() actually deleting client fd=" << client->getClient_fd() << std::endl;
 	std::vector<Client *>::iterator it = std::find(_clients.begin(), _clients.end(), client);
 	if (it == _clients.end())
-		std::cout	<< "Client not found." << std::endl;
+		std::cout	<< "[DEBUG] Client not found from Channel remove Client." << std::endl;
 	else
 		_clients.erase(it);
 	this->removeOpClient(client);
@@ -57,9 +57,7 @@ void Channel::removeClient(Client *client)
 void Channel::removeOpClient(Client *client)
 {
 	std::vector<Client *>::iterator it = std::find(_op_clients.begin(), _op_clients.end(), client);
-	if (it == _op_clients.end())
-		std::cout	<< "Client not found." << std::endl;
-	else
+	if (it != _op_clients.end())
 		_op_clients.erase(it);
 }
 
@@ -132,7 +130,7 @@ void Channel::broadcast(Client *sender, std::string command, std::string target,
 	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); it++)
 	{
 		Client *member = *it;
-		if (member == sender)
+		if (member == sender || !member->getConnectedStatus())
 			continue;
 		member->request(sender, command, target,message);
 	}
