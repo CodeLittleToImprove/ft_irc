@@ -144,6 +144,14 @@ class Oper : public ACommand
 		void	execute(Client *client, Tokenizer *tokens) const;
 };
 
+class Part : public ACommand
+{
+private:
+public:
+	Part(Server *server);
+	void	execute(Client *client, Tokenizer *tokens) const;
+};
+
 class Pass : public ACommand
 {
 	private:

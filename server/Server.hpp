@@ -73,6 +73,7 @@ public:
 	void onClientMessage(int client_fd, std::string message);
 	void response(Client *client, std::string code, std::string message);
 	void add_channel(Channel *channel);
+	void remove_channel(const std::string &channelName);
 	void removeClientFromServer(Client *client);
 	void run();
 };

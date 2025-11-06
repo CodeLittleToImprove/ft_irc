@@ -16,7 +16,6 @@ Quit::Quit(Server *server) : ACommand("QUIT", server) {}
 
 void	Quit::execute(Client *client, Tokenizer *tokens) const
 {
-
 	std::string reason = "Bye Bye";
 	if (tokens->get_params().size() > 1)
 	{
@@ -32,6 +31,10 @@ void	Quit::execute(Client *client, Tokenizer *tokens) const
 			continue;
 		channel->broadcast(client, "QUIT", "", reason);
 		channel->removeClient(client);
+		if (channel->isEmpty())
+		{
+			_server->remove_channel(channel->getName());
+		}
 	}
 	this->_server->removeClientFromServer(client);
 }
