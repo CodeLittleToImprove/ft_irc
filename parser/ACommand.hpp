@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ACommand.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: phillymilly <phillymilly@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 16:13:05 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/28 13:04:31 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/11/07 00:27:21 by phillymilly      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,5 +197,13 @@ class Who : public ACommand
 	private:
 	public:
 		Who(Server *server);
+		void	execute(Client *client, Tokenizer *tokens) const;
+};
+
+class Topic : public ACommand
+{
+	private:
+	public:
+		Topic(Server *server);
 		void	execute(Client *client, Tokenizer *tokens) const;
 };

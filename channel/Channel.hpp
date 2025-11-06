@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: phillymilly <phillymilly@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:21:47 by phillymilly       #+#    #+#             */
-/*   Updated: 2025/10/28 14:39:15 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/11/07 00:02:14 by phillymilly      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,23 +54,25 @@ class Channel
 		void	broadcast(Client *sender, std::string command, std::string target, std::string message);
 
 		// Getters
-		std::string				getName();
 		std::vector<Client *>	getClients();
 		std::vector<Client *>	getOpClients(); //not used
 		std::vector<Client *>	getInvitedClients();
-		unsigned int			getUserNum();
-		unsigned int			getUserLimit();
-		bool					isKeyRequired() const;
+		std::string				getName();
 		std::string				getClientNames();
 		std::string				getTopic() const;
 		std::string				getHostname() const;
-		bool					isEmpty() const;
 		std::string				getChannelOpNickNames() const;
 		std::string				getModes() const;
+		unsigned int			getUserNum();
+		unsigned int			getUserLimit();
+		bool					isEmpty() const;
+		bool					isKeyRequired() const;
+		bool					hasRestriction() const;
 
 		// Setters
 		void	setInviteOnly(char mode);
 		void	setKey(char mode, std::string key);
 		void	setUserLimit(bool toggle, int num);
 		void	setRestriction(char mode);
+		void	setTopic(std::string topic);
 };

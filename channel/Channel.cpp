@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: phillymilly <phillymilly@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/24 20:22:50 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/28 14:39:24 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/11/07 00:03:16 by phillymilly      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,6 +258,11 @@ std::string Channel::getModes() const
 	return flags;
 }
 
+bool Channel::hasRestriction() const
+{
+	return (this->_topic_restriction);
+}
+
 /******************************************************************************/
 /*                                 Setters                                    */
 /******************************************************************************/
@@ -292,4 +297,10 @@ void Channel::setRestriction(char mode)
 		this->_topic_restriction = true;
 	else if (mode == '-')
 		this->_topic_restriction = false;
+}
+
+void Channel::setTopic(std::string topic)
+{
+	if (!this->_topic_restriction)
+		this->_topic = topic;
 }
