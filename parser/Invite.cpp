@@ -39,9 +39,9 @@ void	Invite::execute(Client *client, Tokenizer *tokens) const
 		this->_server->response(client, ERR_NOSUCHNICK, ":Target-user not found");
 		return;
 	}
-	if (!channel->isInChannel(target))
+	if (channel->isInChannel(target))
 	{
-		this->_server->response(client, ERR_NOTONCHANNEL, ":" + target->getNickname() + " is not on the channel " + channel_name);
+		this->_server->response(client, ERR_NOTONCHANNEL, ":" + target->getNickname() + " is already on the channel " + channel_name);
 		return;
 	}
 	channel->inviteClient(target);

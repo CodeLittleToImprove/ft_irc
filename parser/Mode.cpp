@@ -31,12 +31,6 @@ void Mode::execute(Client *client, Tokenizer *tokens) const
 	// {
 	// 	this->_server->response(client, RPL_CHANNELMODEIS, channel_name + )
 	// }
-	if (!client->isOper() && !channel->isChOper(client->getNickname()))
-	{
-		this->_server->response(client, ERR_NOPRIVILEGES, ":Permission denied");
-		return;
-	}
-	// mode is called with no extra arguments
 	if (tokens->get_params().size() == 1)
 	{
 		std::string current_modes = channel->getModes();
@@ -44,12 +38,19 @@ void Mode::execute(Client *client, Tokenizer *tokens) const
 		this->_server->response(client, RPL_CHANNELMODEIS, channel_name + " " + current_modes);
 		return;
 	}
+	if (!client->isOper() && !channel->isChOper(client->getNickname()))
+	{
+		this->_server->response(client, ERR_NOPRIVILEGES, ":Permission denied");
+		return;
+	}
+	// mode is called with no extra arguments
+
 	// attempt to retrieve optional mode flag (e.g., "+i", "-o", "+k")
 	std::string mode_flag = tokens->get_param(1);
 	std::string param = "";
 	if (mode_flag.length() != 2 && mode_flag[0] != '-' && mode_flag[0] != '+')
 	{
-		this->_server->response(client, ERR_UNKNOWNMODE, ":Uknown mode");
+		this->_server->response(client, ERR_UNKNOWNMODE, ":Unknown mode");
 		return;
 	}
 	if (mode_flag == "+k" || mode_flag == "+o" || mode_flag == "+l")
