@@ -41,7 +41,6 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	listenServerSocket(backlog);
 	this->_is_running = false;
 	this->_hostname = "127.0.0.1";
-
 	// this->_commands["CNOTICE"]	= new Cnotice(this);
 	// this->_commands["CPRIVMSG"]	= new Cprivmsg(this);
 	// this->_commands["INFO"] 	= new Info(this);
@@ -55,6 +54,7 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	this->_commands["NICK"] = new Nick(this);
 	// this->_commands["NOTICE"] 	= new Notice(this);
 	this->_commands["OPER"] 	= new Oper(this);
+	this->_commands["PART"] 	= new Part(this);
 	this->_commands["PASS"] 	= new Pass(this);
 	this->_commands["PRIVMSG"] 	= new Privmsg(this);
 	this->_commands["QUIT"] 	= new Quit(this);
@@ -72,11 +72,9 @@ Server::~Server()
 		if (_poll_fds[i].fd >= 0)
 			close(_poll_fds[i].fd);
 	}
-
 	// Close server socket last
 	if (_server_fd >= 0)
 		close(_server_fd);
-
 	std::cout << "All sockets closed. Server stopped." << std::endl;
 }
 
@@ -89,10 +87,7 @@ Server::~Server()
 static int make_socket_nonblocking(int fd)
 {
 	//fcntl stands for file control int fcntl(int fd, int cmd, ... /* arg */);
-	int current_flags = fcntl(fd, F_GETFL, 0);
-	// get the current file status flags for this fd, returns an integer bitmask something like O_RDONLY | O_NONBLOCK | O_APPEND
-	// std::cout << "current flags: " << current_flags << std::endl;
-	return fcntl(fd, F_SETFL, current_flags | O_NONBLOCK); // add to the current flags the nonblocking flag
+	return fcntl(fd, F_SETFL, O_NONBLOCK); // add to the current flags the nonblocking flag
 }
 
 // static void closeClient(std::vector<pollfd>& fds, size_t i) // not used yet
@@ -172,7 +167,7 @@ void Server::bindServerSocket()
 {
 	sockaddr_in serverAddress = createServerAddress();
 	int bindResult = bind(_server_fd, (struct sockaddr *) &serverAddress,
-	                      sizeof(serverAddress));
+		sizeof(serverAddress));
 	if (bindResult == -1)
 		throw std::runtime_error(std::string("Bind failed: ") + std::strerror(errno));
 }
@@ -206,7 +201,8 @@ void Server::addClient(int client_fd)
 		std::cout << "New client connected (fd=" << client_fd << ")\n";
 		// Create and register this client's poll entry
 		addPollfd(_poll_fds, client_fd, POLLIN);
-	} catch (const std::exception &e)
+	}
+	catch (const std::exception &e)
 	{
 		std::cerr << "Failed to add client fd=" << client_fd << ": " << e.what() << std::endl;
 	}
@@ -266,11 +262,6 @@ void Server::handleAdminInput()
 		std::cout << "Unknown command: " << input;
 }
 
-// void Server::handleClient(int index) // maybe add later again
-// {
-// 	_clients[index - 1].readData();
-// }
-
 /******************************************************************************/
 /*                          Public Functions                                  */
 /******************************************************************************/
@@ -325,10 +316,9 @@ std::vector<Channel*> Server::getJoinedChannelsByClient(Client *client)
 		Channel *channel = *it;
 		if (channel->isInChannel(client))
 		{
-			std::cout << "Debug: "<< client->getUsername() << " is in " << channel->getName() << std::endl;
+			// std::cout << "Debug: "<< client->getUsername() << " is in " << channel->getName() << std::endl;
 			result.push_back(channel);
 		}
-
 	}
 	return (result);
 }
@@ -365,6 +355,26 @@ void Server::response(Client *client, std::string code, std::string message) // 
 void Server::add_channel(Channel *channel)
 {
 	this->_channels.push_back(channel);
+}
+
+void Server::remove_channel(const std::string &channel_name)
+{
+	std::vector<Channel*>::iterator it = _channels.begin();
+
+	while (it != _channels.end())
+	{
+		Channel *channel = *it;
+		if (channel && channel->getName() == channel_name)
+		{
+			std::cout << "[Server] Removing empty channel: " << channel_name << std::endl;
+			delete channel;
+			it = _channels.erase(it);
+			return;
+		}
+		else
+			++it;
+	}
+	std::cout << "[Server] Tried to remove non-existent channel: " << channel_name << std::endl;
 }
 
 void Server::removeIfDisconnected(Client *client, int client_fd, size_t &i, const std::string &context)

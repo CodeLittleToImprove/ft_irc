@@ -1,0 +1,31 @@
+#include "ACommand.hpp"
+
+Part::Part(Server *server) : ACommand("PART", server)
+{
+}
+
+void Part::execute(Client *client, Tokenizer *tokens) const
+{
+	if (!client->isAuthenticated() && !client->is_registered())
+	{
+		this->_server->response(client, ERR_NOTREGISTERED, ":You are not registered yet");
+		return;
+	}
+
+	if (!has_enough_params(client, tokens, 1))
+		return;
+
+	std::string channel_name = tokens->get_params()[0];
+	Channel *channel = _server->get_channel(channel_name);
+
+	if (!hasChannelAndIsInChannel(client, channel, channel_name))
+		return;
+	std::string reason = "Leaving";
+	if (tokens->get_params().size() > 1)
+		reason = tokens->get_param(1);
+	channel->broadcast(client, "PART", channel->getName(), reason);
+	client->request(client, "PART", channel->getName(), reason);
+	channel->removeClient(client);
+	if (channel->isEmpty())
+		_server->remove_channel(channel_name);
+}

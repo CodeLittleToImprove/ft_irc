@@ -12,7 +12,6 @@ Client::Client(int client_fd, std::string password)
 // }
 
 
-
 std::vector<std::string> Client::readData()
 {
 	std::vector<std::string> messages;
@@ -23,7 +22,14 @@ std::vector<std::string> Client::readData()
 	{
 		recvBuf[bytesReceived] = '\0';
 		_buffer += recvBuf;
-		// printEscapedBuffer(buffer);
+		// std::cout << "buffer pre message: "<< _buffer << std::endl;
+		// printEscapedBuffer(_buffer);
+		if (_buffer.size() > buffermaxsize)
+		{
+			std::cout << "Message to long from client" << _client_fd << ", discard it" << std::endl;
+			_buffer.clear();
+			return messages;
+		}
 		size_t end;
 		while ((end = _buffer.find("\r\n")) != std::string::npos)
 		{
@@ -31,7 +37,6 @@ std::vector<std::string> Client::readData()
 			_buffer.erase(0, end + 2);
 			// std::cout << "Message from " << _client_fd << ": " << msg << "\n";
 			messages.push_back(msg);
-			// handleIRCCommand(message);  // parse and respond this should be done somewhere else
 		}
 	}
 	else if (bytesReceived == 0)

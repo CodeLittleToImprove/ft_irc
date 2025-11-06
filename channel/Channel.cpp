@@ -43,7 +43,7 @@ void Channel::addOpClient(Client *client)
 
 void Channel::removeClient(Client *client)
 {
-	std::cout << "[DEBUG] removeClient() actually deleting client fd=" << client->getClient_fd() << std::endl;
+	// std::cout << "[DEBUG] removeClient() actually deleting client fd=" << client->getClient_fd() << std::endl;
 	std::vector<Client *>::iterator it = std::find(_clients.begin(), _clients.end(), client);
 	if (it == _clients.end())
 		std::cout	<< "[DEBUG] Client not found from Channel remove Client." << std::endl;
