@@ -33,3 +33,6 @@
 
 # Idea
 *.xml
+
+#
+server/basic_server
