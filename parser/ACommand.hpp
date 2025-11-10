@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ACommand.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phillymilly <phillymilly@student.42.fr>    +#+  +:+       +#+        */
+/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 16:13:05 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/11/07 00:27:21 by phillymilly      ###   ########.fr       */
+/*   Updated: 2025/11/10 15:22:30 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,22 +45,6 @@ class Cap : public ACommand
 	private:
 	public:
 		Cap(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
-};
-
-class Cnotice : public ACommand
-{
-	private:
-	public:
-		Cnotice(Server *server);
-		void	execute(Tokenizer *tokens) const;
-};
-
-class Cprivmsg : public ACommand
-{
-	private:
-	public:
-		Cprivmsg(Server *server);
 		void	execute(Client *client, Tokenizer *tokens) const;
 };
 
@@ -133,7 +117,7 @@ class Notice : public ACommand
 	private:
 	public:
 		Notice(Server *server);
-		void	execute(Tokenizer *tokens) const;
+		void	execute(Client *client, Tokenizer *tokens) const;
 };
 
 class Oper : public ACommand

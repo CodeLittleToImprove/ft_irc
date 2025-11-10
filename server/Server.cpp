@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 20:16:04 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/27 17:15:00 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/11/10 16:05:17 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,6 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	listenServerSocket(backlog);
 	this->_is_running = false;
 	this->_hostname = "127.0.0.1";
-	// this->_commands["CNOTICE"]	= new Cnotice(this);
-	// this->_commands["CPRIVMSG"]	= new Cprivmsg(this);
 	// this->_commands["INFO"] 	= new Info(this);
 	this->_commands["CAP"] = new Cap(this);
 	this->_commands["INVITE"]	= new Invite(this);
@@ -51,18 +49,19 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	// this->_commands["LIST"] 	= new List(this);
 	this->_commands["MODE"] 	= new Mode(this);
 	// this->_commands["NAMES"] 	= new Names(this);
-	this->_commands["NICK"] = new Nick(this);
-	// this->_commands["NOTICE"] 	= new Notice(this);
+	this->_commands["NICK"] 	= new Nick(this);
+	this->_commands["NOTICE"] 	= new Notice(this);
 	this->_commands["OPER"] 	= new Oper(this);
 	this->_commands["PART"] 	= new Part(this);
 	this->_commands["PASS"] 	= new Pass(this);
-	this->_commands["PING"] = new Ping(this);
+	this->_commands["PING"] 	= new Ping(this);
 	this->_commands["PRIVMSG"] 	= new Privmsg(this);
 	this->_commands["QUIT"] 	= new Quit(this);
+	this->_commands["TOPIC"]	= new Topic(this); 
 	// this->_commands["SQUIT"] 	= new Squit(this);
-	this->_commands["USER"] = new User(this);
+	this->_commands["USER"] 	= new User(this);
 	// this->_commands["USERS"] 	= new Users(this);
-	this->_commands["WHO"] = new Who(this);
+	this->_commands["WHO"] 		= new Who(this);
 }
 
 Server::~Server()
@@ -77,6 +76,7 @@ Server::~Server()
 	if (_server_fd >= 0)
 		close(_server_fd);
 	std::cout << "All sockets closed. Server stopped." << std::endl;
+
 }
 
 
