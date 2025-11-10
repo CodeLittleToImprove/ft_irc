@@ -56,6 +56,7 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	this->_commands["OPER"] 	= new Oper(this);
 	this->_commands["PART"] 	= new Part(this);
 	this->_commands["PASS"] 	= new Pass(this);
+	this->_commands["PING"] = new Ping(this);
 	this->_commands["PRIVMSG"] 	= new Privmsg(this);
 	this->_commands["QUIT"] 	= new Quit(this);
 	// this->_commands["SQUIT"] 	= new Squit(this);
@@ -350,6 +351,11 @@ void Server::response(Client *client, std::string code, std::string message) // 
 	std::string response = ':' + this->_hostname + ' ' + code_str + nickname_str + message + CRLF;
 	// printEscapedBuffer(response);
 	send(client->getClient_fd(), response.c_str(), response.length(), 0);
+}
+
+void Server::sendRaw(Client *client, const std::string &raw)
+{
+	send(client->getClient_fd(), raw.c_str(), raw.length(), 0);
 }
 
 void Server::add_channel(Channel *channel)

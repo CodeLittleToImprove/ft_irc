@@ -72,6 +72,7 @@ public:
 	// Member functions
 	void onClientMessage(int client_fd, std::string message);
 	void response(Client *client, std::string code, std::string message);
+	void sendRaw(Client *client, const std::string &raw);
 	void add_channel(Channel *channel);
 	void remove_channel(const std::string &channelName);
 	void removeClientFromServer(Client *client);

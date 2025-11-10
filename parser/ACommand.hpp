@@ -160,6 +160,14 @@ class Pass : public ACommand
 		void	execute(Client *client, Tokenizer *tokens) const;
 };
 
+class Ping : public ACommand
+{
+private:
+public:
+	Ping(Server *server);
+	void	execute(Client *client, Tokenizer *tokens) const;
+};
+
 class Privmsg : public ACommand
 {
 	private:

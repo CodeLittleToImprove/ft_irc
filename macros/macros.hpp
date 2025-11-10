@@ -52,7 +52,8 @@
 // Invite
 # define RPL_INVITING               "341" // <client> <nick> <channel>
 
-
+// Ping
+# define PONG                  "PONG :" // <token> : where <token> is the parameter sent by the client in the PING request.
 /******************************************************************************/
 /*                             ERROR REPLIES                                  */
 /******************************************************************************/
