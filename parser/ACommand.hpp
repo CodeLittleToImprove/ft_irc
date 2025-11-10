@@ -31,6 +31,7 @@ class ACommand
 
 		// Constructors
 		ACommand(std::string name, Server *server);
+		virtual ~ACommand(void);
 
 		// Member functions
 		bool			is_registered_full(Client *client) const;

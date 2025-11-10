@@ -14,6 +14,11 @@
 
 ACommand::ACommand(std::string name, Server *server) : _name(name), _server(server) {}
 
+ACommand::~ACommand(void)
+{
+
+}
+
 bool	ACommand::is_registered_full(Client *client) const
 {
 	if (!client)

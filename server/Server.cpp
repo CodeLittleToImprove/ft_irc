@@ -67,6 +67,18 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 
 Server::~Server()
 {
+	for (std::map<int, Client *>::iterator client_it = _clients.begin(); client_it != _clients.end(); client_it++)
+		delete client_it->second;
+	_clients.clear();
+
+	for (std::map<std::string, ACommand *>::iterator command_it = _commands.begin(); command_it != _commands.end(); command_it++)
+		delete command_it->second;
+	_commands.clear();
+
+	for (std::vector<Channel *>::iterator channel_it = _channels.begin(); channel_it != _channels.end(); channel_it++)
+		delete *channel_it;
+	_channels.clear();
+
 	// Close all client sockets first
 	for (size_t i = 1; i < _poll_fds.size(); ++i)
 	{
@@ -227,7 +239,7 @@ void Server::handleNewConnection()
 	addClient(client_fd);
 }
 
-// 5. during server run , can remove clients
+// 5. during server run, can remove clients
 void Server::removeClient(int client_fd)
 {
 	std::map<int, Client *>::iterator it = _clients.find(client_fd);
