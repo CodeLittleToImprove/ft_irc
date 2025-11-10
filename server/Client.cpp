@@ -156,7 +156,7 @@ void Client::request(Client *sender, std::string command, std::string target, st
 								message.empty()		||
 								message[0] == ':' ? message : ':' + message;
 	std::string request = sender_str + ' ' + command + ' ' + target + ' ' + message_str + CRLF;
-	printEscapedBuffer(request);
+	// printEscapedBuffer(request);
 	send(this->_client_fd, request.c_str(), request.length(), 0);
 }
 

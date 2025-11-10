@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 18:24:00 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/21 19:13:11 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/11/10 16:45:06 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,22 +14,19 @@
 
 Notice::Notice(Server *server) : ACommand("NOTICE", server) {}
 
-void	Notice::execute(Tokenizer *tokens) const
+void	Notice::execute(Client *client, Tokenizer *tokens) const
 {
-	std::cout	<< "Command " << this->_name << " called!" << std::endl;
-	std::cout	<< "Prefix: ";
-	if (tokens->get_prefix().empty())
-		std::cout	<< "None" << std::endl;
-	else
-		std::cout	<< tokens->get_prefix() << std::endl;
-	std::cout	<< "Command: " << tokens->get_command() << std::endl;
-	std::cout	<< "Parameter: ";
-	if (tokens->get_params().empty())
-		std::cout	<< "None" << std::endl;
-	else
-	{
-		for (size_t i = 0; i < tokens->get_params().size(); i++)
-			std::cout	<< tokens->get_params().at(i) << "|";
-		std::cout	<< std::endl;
-	}
+	parser_debugging(tokens);
+
+	if (!is_registered_full(client) || !has_enough_params(client, tokens, 2))
+		return;
+
+	std::string target_name	= tokens->get_param(0);
+	std::string message		= tokens->get_param(1);
+	Client		*target = this->_server->get_client(target_name);
+
+	std::cout	<< "TARGET: " + target->getNickname() << std::endl;
+
+	if (target)
+		target->request(client, this->_name, target_name, message);
 }
