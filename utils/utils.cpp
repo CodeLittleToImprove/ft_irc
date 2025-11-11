@@ -14,24 +14,24 @@
 
 std::vector<std::string> split(const std::string &str)
 {
-    std::vector<std::string> tokens;
-    std::istringstream iss(str);
-    std::string token;
+	std::vector<std::string> tokens;
+	std::istringstream iss(str);
+	std::string token;
 
-    while (iss >> token)
-    {
-        if (!token.empty() && token[0] == ':' && tokens.size() > 0)
-        {
-            std::string rest;
-            std::getline(iss, rest);
-            token += rest;
-            tokens.push_back(token);
-            break;
-        }
+	while (iss >> token)
+	{
+		if (!token.empty() && token[0] == ':' && tokens.size() > 0)
+		{
+			std::string rest;
+			std::getline(iss, rest);
+			token += rest;
+			tokens.push_back(token);
+			break;
+		}
 
-        tokens.push_back(token);
-    }
-    return tokens;
+		tokens.push_back(token);
+	}
+	return tokens;
 }
 
 void printEscapedBuffer(const std::string &buffer)
@@ -49,4 +49,3 @@ void printEscapedBuffer(const std::string &buffer)
 	}
 	std::cout << std::endl;
 }
-

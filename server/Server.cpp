@@ -44,7 +44,7 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	this->_commands["PRIVMSG"] 	= new Privmsg(this);
 	this->_commands["QUIT"] 	= new Quit(this);
 	this->_commands["TOPIC"]	= new Topic(this); 
-	// this->_commands["SQUIT"] 	= new Squit(this);
+	// this->_commands["SQUIT"] 	= new Squit(this); -- not needed
 	this->_commands["USER"] 	= new User(this);
 	// this->_commands["USERS"] 	= new Users(this);
 	this->_commands["WHO"] 		= new Who(this);
@@ -88,13 +88,6 @@ static int make_socket_nonblocking(int fd)
 	//fcntl stands for file control int fcntl(int fd, int cmd, ... /* arg */);
 	return fcntl(fd, F_SETFL, O_NONBLOCK); // add to the current flags the nonblocking flag
 }
-
-// static void closeClient(std::vector<pollfd>& fds, size_t i) // not used yet
-// {
-// 	std::cout << "Client " << fds[i].fd << " disconnected\n";
-// 	close(fds[i].fd);
-// 	fds.erase(fds.begin() + i);
-// }
 
 // Add a pollfd entry by file descriptor
 static void addPollfd(std::vector<pollfd> &fds, int fd, short events)
@@ -140,24 +133,23 @@ int Server::createServerSocket()
 	return server_fd;
 }
 
+// this is how a sockaddrr_in looks like
+// struct sockaddr_in
+// {
+// 	sa_family_t sin_family; // Address family (always AF_INET for IPv4)
+// 	in_port_t sin_port; // Port number (must be in network byte order)
+// 	struct in_addr sin_addr; // IPv4 address (struct with a 32-bit value)
+// 	unsigned char sin_zero[8]; // Padding (not used)
+// };
 // 2. creating serverAddress
 sockaddr_in Server::createServerAddress()
 {
-	// this is how a sockaddrr_in looks like
-	// struct sockaddr_in
-	// {
-	// 	sa_family_t sin_family; // Address family (always AF_INET for IPv4)
-	// 	in_port_t sin_port; // Port number (must be in network byte order)
-	// 	struct in_addr sin_addr; // IPv4 address (struct with a 32-bit value)
-	// 	unsigned char sin_zero[8]; // Padding (not used)
-	// };
 	sockaddr_in serverAddress;
 	memset(&serverAddress, 0, sizeof(serverAddress)); // just nice to do not necessary
 	// specifying the address
 	serverAddress.sin_family = AF_INET; // format of ipaddress
 	serverAddress.sin_port = htons(_port); // converts to network byte order
 	serverAddress.sin_addr.s_addr = INADDR_ANY; // accept connections on any IP
-	// inet_pton(AF_INET, "0.0.0.0", &serverAddress.sin_addr); // works similar to INADDR_ANY
 	return serverAddress;
 }
 
@@ -185,9 +177,7 @@ void Server::addClient(int client_fd)
 {
 	try
 	{
-		// std::cout << "passsword_: "<< _password << std::endl;
 		Client *client = new Client(client_fd, _password);
-		//bool indicating if insertion succeeded
 		std::pair<std::map<int, Client *>::iterator, bool> insertSuccess;
 		insertSuccess = _clients.insert(std::make_pair(client_fd, client));
 
@@ -197,7 +187,7 @@ void Server::addClient(int client_fd)
 			delete client;
 			return;
 		}
-		std::cout << "New client connected (fd=" << client_fd << ")\n";
+		std::cout << "DEBUG: New client connected (fd=" << client_fd << ")\n";
 		// Create and register this client's poll entry
 		addPollfd(_poll_fds, client_fd, POLLIN);
 	}
@@ -216,11 +206,7 @@ void Server::handleNewConnection()
 
 	// If no client is ready (non-blocking) or error occurred, just return
 	if (client_fd < 0)
-	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return; // no client right now
 		throw std::runtime_error(std::string("Accept failed: ") + strerror(errno));
-	}
 	make_socket_nonblocking(client_fd);
 	addClient(client_fd);
 }
@@ -403,8 +389,6 @@ void Server::removeIfDisconnected(Client *client, int client_fd, size_t &i, cons
 			}
 			++i; // default case when not deleting
 		}
-		std::cout << "[Poll] Removing disconnected client fd=" << client_fd
-			<< " (" << context << ")" << std::endl;
 		this->removeClient(client_fd);
 		i--;
 	}
@@ -417,9 +401,6 @@ void Server::handleClientEvent(pollfd &entry, size_t &i)
 	if (it == _clients.end())
 		return;
 	Client *curClient = it->second;
-
-	// // client was marked manually for removal before reading
-	// removeIfDisconnected(curClient, client_fd, i, "pre-check");
 
 	// Disconnected or error event (not in my control)
 	if (entry.revents & (POLLHUP | POLLERR | POLLNVAL))
@@ -438,11 +419,7 @@ void Server::handleClientEvent(pollfd &entry, size_t &i)
 			return;
 
 		for (size_t i = 0; i < messages.size(); i++)
-		{
-			// std::cout << "[DEBUG] Received from fd " << client_fd
-			// 		<< ": \"" << messages[i] << "\"" << std::endl;
 			onClientMessage(client_fd, messages[i]);
-		}
 	}
 }
 

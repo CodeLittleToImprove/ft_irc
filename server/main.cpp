@@ -27,6 +27,13 @@ int main(int argc, const char *argv[])
 	std::string password = argv[2];
 	std::cout << "password from argv: " << password << std::endl;
 	Server server(listenPort, password);
-	server.run();
+	try
+	{
+		server.run();
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << "Fatal Server Error: " << e.what() << std::endl;
+	}
 	return 0;
 }

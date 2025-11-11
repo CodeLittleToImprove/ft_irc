@@ -17,7 +17,7 @@ CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror #-std=c++98
 
 # Target executable
-TARGET = basic_server
+TARGET = irsserv
 
 # Source files (current + parser directory)
 SRC = $(wildcard *.cpp) $(wildcard ../parser/*.cpp) $(wildcard ../utils/*.cpp) $(wildcard ../channel/*.cpp)

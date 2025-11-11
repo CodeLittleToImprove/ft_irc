@@ -32,9 +32,7 @@ void	Quit::execute(Client *client, Tokenizer *tokens) const
 		channel->broadcast(client, "QUIT", "", reason);
 		channel->removeClient(client);
 		if (channel->isEmpty())
-		{
 			_server->remove_channel(channel->getName());
-		}
 	}
 	this->_server->removeClientFromServer(client);
 }

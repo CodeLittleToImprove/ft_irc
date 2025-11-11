@@ -2,15 +2,7 @@
 
 Client::Client(int client_fd, std::string password)
 	: _client_fd(client_fd), _connected(true), _has_nickname(false), _has_password(false),
-	  _is_registered(false), _authenticated(false), _is_oper(false), _realname(""), _hostname("localhost"), _password(password) {}
-
-
-// Client::~Client()
-// {
-// 	if (_connected == false)
-// 		close(_client_fd); // is this really needed?
-// }
-
+	_is_registered(false), _authenticated(false), _is_oper(false), _realname(""), _hostname("localhost"), _password(password) {}
 
 std::vector<std::string> Client::readData()
 {
@@ -43,9 +35,9 @@ std::vector<std::string> Client::readData()
 	{
 		// Client closed connection gracefully
 		std::cout << "Client " << _client_fd << " closed connection." << std::endl;
-		_connected = false; // maybe optional
+		_connected = false;
 	}
-	else if (!(errno == EAGAIN || errno == EWOULDBLOCK))
+	else
 	{
 		std::cout << "Recv error on client " << _client_fd << ": " << strerror(errno) << std::endl;
 		_connected = false;
@@ -58,12 +50,10 @@ void Client::closeConnection(std::string message)
 	std::cout << "DEBUG: closeConnection on client called" << std::endl;
 	if (_connected)
 	{
-		// add hostname later
 		std::string quitMessage = std::string(":") + RPL_QUIT + " QUIT :" + message + CRLF;
 		send(_client_fd, quitMessage.c_str(), quitMessage.length(), 0);
 		// need client request RPL_QUIT?
 		_connected = false;
-		// std::cout << _client_fd << " marked as to close" << std::endl;
 		shutdown(_client_fd, SHUT_RDWR); // wake poll via POLLHUP
 	}
 }
