@@ -183,16 +183,18 @@ void Server::addClient(int client_fd)
 
 		if (!insertSuccess.second)
 		{
-			std::cout << "Warning: client with fd " << client_fd << " already exists!" << std::endl;
+			std::cout << "[DEBUG] Warning: client with fd " << client_fd << " already exists!" << std::endl;
 			delete client;
 			return;
 		}
-		std::cout << "DEBUG: New client connected (fd=" << client_fd << ")\n";
+		std::cout << "[DEBUG]: New client connected (fd=" << client_fd << ")\n";
 		// Create and register this client's poll entry
 		addPollfd(_poll_fds, client_fd, POLLIN);
 	}
 	catch (const std::exception &e)
 	{
+		if (client_fd >= 0)
+			close (client_fd);
 		std::cerr << "Failed to add client fd=" << client_fd << ": " << e.what() << std::endl;
 	}
 }
@@ -204,7 +206,6 @@ void Server::handleNewConnection()
 	socklen_t len = sizeof(clientAddr);
 	int client_fd = accept(_server_fd, (sockaddr *) &clientAddr, &len);
 
-	// If no client is ready (non-blocking) or error occurred, just return
 	if (client_fd < 0)
 		throw std::runtime_error(std::string("Accept failed: ") + strerror(errno));
 	make_socket_nonblocking(client_fd);
@@ -222,10 +223,10 @@ void Server::removeClient(int client_fd)
 	removePollfd(_poll_fds, client_fd);
 
 	if (close(client_fd) == -1)
-		std::cout << "Warning: failed to close fd " << client_fd << ": " << strerror(errno) << std::endl;
+		std::cout << "[DEBUG]Warning: failed to close fd " << client_fd << ": " << strerror(errno) << std::endl;
 	delete it->second; // free the client object
 	_clients.erase(it);
-	std::cout << "Client disconnected (fd=" << client_fd << ")\n";
+	std::cout << "[DEBUG] Client disconnected (fd=" << client_fd << ")\n";
 }
 
 void Server::handleAdminInput()
@@ -301,7 +302,7 @@ std::vector<Channel*> Server::getJoinedChannelsByClient(Client *client)
 		Channel *channel = *it;
 		if (channel->isInChannel(client))
 		{
-			// std::cout << "Debug: "<< client->getUsername() << " is in " << channel->getName() << std::endl;
+			// std::cout << "[DEBUG]: "<< client->getUsername() << " is in " << channel->getName() << std::endl;
 			result.push_back(channel);
 		}
 	}
@@ -317,9 +318,9 @@ void Server::onClientMessage(int client_fd, std::string message)
 		return;
 
 	std::string command = tokens.get_command();
-	std::cout << "DEBUG: command in onClient: " << message << std::endl;
+	std::cout << "[DEBUG]: command in onClient: " << message << std::endl;
 	if (this->_commands.find(command) == this->_commands.end())
-		std::cout << "Error! Command not found." << std::endl;
+		std::cout << "[DEBUG] Error! Command not found." << std::endl;
 	else
 		this->_commands[command]->execute(client, &tokens);
 }
@@ -356,15 +357,15 @@ void Server::remove_channel(const std::string &channel_name)
 		Channel *channel = *it;
 		if (channel && channel->getName() == channel_name)
 		{
-			std::cout << "[Server] Removing empty channel: " << channel_name << std::endl;
+			std::cout << "[DEBUG][Server] Removing empty channel: " << channel_name << std::endl;
 			delete channel;
-			it = _channels.erase(it);
+			_channels.erase(it);
 			return;
 		}
 		else
 			++it;
 	}
-	std::cout << "[Server] Tried to remove non-existent channel: " << channel_name << std::endl;
+	std::cout << "[DEBUG][Server] Tried to remove non-existent channel: " << channel_name << std::endl;
 }
 
 void Server::removeIfDisconnected(Client *client, int client_fd, size_t &i, const std::string &context)
@@ -381,7 +382,7 @@ void Server::removeIfDisconnected(Client *client, int client_fd, size_t &i, cons
 				channel->removeClient(client);
 				if (channel->isEmpty())
 				{
-					std::cout << "[Server] Removing empty channel: " << channel->getName() << std::endl;
+					std::cout << "[DEBUG][Server] Removing empty channel: " << channel->getName() << std::endl;
 					delete channel;
 					it = _channels.erase(it); // points the next valid iterator
 					continue; // skip ++it
@@ -405,7 +406,7 @@ void Server::handleClientEvent(pollfd &entry, size_t &i)
 	// Disconnected or error event (not in my control)
 	if (entry.revents & (POLLHUP | POLLERR | POLLNVAL))
 	{
-		std::cout << "Client fd=" << curClient->getClient_fd() << " disconnected/error\n";
+		std::cout << "[DEBUG] Client fd=" << curClient->getClient_fd() << " disconnected/error\n";
 		removeClient(client_fd);
 		i--;
 		return;
@@ -434,7 +435,7 @@ void Server::handlePollEvents()
 		{
 			handleAdminInput();
 			if (!_is_running)
-				break; // stop the loop if exit/quit was entered
+				break;
 			continue;
 		}
 		// Case 1: New client connection
@@ -459,7 +460,7 @@ void Server::removeClientFromServer(Client *client)
 
 void Server::run()
 {
-	std::cout << "Server started" << std::endl;
+	std::cout << "[DEBUG] Server started" << std::endl;
 	// Add the server socket to the pollfd vector using the helper
 	addPollfd(_poll_fds, _server_fd, POLLIN);
 	// Add stdin ot the pollfd vector
