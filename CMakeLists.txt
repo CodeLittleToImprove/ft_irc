@@ -18,8 +18,6 @@ add_executable(ft_irc_server
         server/main.cpp
         parser/ACommand.hpp
         parser/ACommand.cpp
-        parser/Cnotice.cpp
-        parser/Cprivmsg.cpp
         parser/Info.cpp
         parser/Invite.cpp
         parser/Join.cpp
@@ -34,6 +32,7 @@ add_executable(ft_irc_server
         parser/Privmsg.cpp
         parser/Quit.cpp
         parser/Squit.cpp
+        parser/Topic.cpp
         parser/Tokenizer.cpp
         parser/User.cpp
         parser/Users.cpp
@@ -44,7 +43,3 @@ add_executable(ft_irc_server
         parser/Cap.cpp
         parser/Part.cpp
         parser/Ping.cpp)
-
-add_executable(ft_irc_client
-        #        test/Template.cpp
-        testClient/TestClient.cpp)

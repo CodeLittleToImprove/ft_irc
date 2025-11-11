@@ -19,20 +19,6 @@
 /*                             Constructors                                   */
 /******************************************************************************/
 
-Server::Server(uint16_t port): _port(port) // debug constructor without password handling
-{
-	std::cout << "Lazy constructor" << std::endl;
-	int backlog = 5; // for now 5 change later
-	_server_fd = createServerSocket();
-	bindServerSocket();
-	listenServerSocket(backlog);
-	this->_password = "default";
-	// supported commands so far
-	this->_commands["NICK"] = new Nick(this);
-	this->_commands["USER"] = new User(this);
-	this->_commands["PASS"] = new Pass(this);
-}
-
 Server::Server(uint16_t port, std::string password) : _port(port), _password(password), _oper_password("1234")
 {
 	int backlog = 5; // for now 5 change later

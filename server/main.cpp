@@ -1,38 +1,32 @@
 #include "Server.hpp"
 
-int main (int argc, const char * argv[])
+int main(int argc, const char *argv[])
 {
-	if (argc < 2)
+	if (argc != 3)
 	{
-		std::cout << "default password is defaultpassword" << std::endl;
-		uint16_t listenPort = 8080; // typical uint16_t is used for tdp and udp ports
-		std::string password = "defaultpassword";
-		Server server(listenPort, password);
-		server.run();
+		std::cerr << "Usage: " << argv[0] << " <port> <server_password>" << std::endl;
+		return -1;
 	}
-	else if (argc == 3)
+	uint16_t listenPort = 0;
+	std::string port_str = argv[1];
+	std::istringstream ss(port_str);
+	int temp_port;
+
+	if (!(ss >> temp_port) || !ss.eof())
 	{
-		uint16_t listenPort = atoi(argv[1]); // need error handling here later
-		std::string password = argv[2];
-		std::cout << "password from argv: "<< password << std::endl;
-		Server server(listenPort, password);
-		server.run();
+		std::cerr << "Error: Port must be a valid, whole number." << std::endl;
+		return -1;
 	}
+	if (temp_port < 1 || temp_port > 65535)
+	{
+		std::cerr << "Error: Port number must be between 1 and 65535." << std::endl;
+		return -1;
+	}
+	listenPort = static_cast<uint16_t>(temp_port);
+	std::cout << "listenPort from argv: " << listenPort << std::endl;
+	std::string password = argv[2];
+	std::cout << "password from argv: " << password << std::endl;
+	Server server(listenPort, password);
+	server.run();
 	return 0;
 }
-
-// int main()
-// {
-// 	uint16_t listenPort = 8080; // typical uint16_t is used for tdp and udp ports
-// 	Server server(listenPort);
-// 	server.run();
-// 	return 0;
-// }
-
-// int main(int ac, char **av)
-// {
-// 	(void)ac;
-// 	Server	server(347858, "kaka");
-// 	server.onClientMessage(av[1]);
-// 	return (0);
-// }
