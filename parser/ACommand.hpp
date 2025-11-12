@@ -49,14 +49,6 @@ class Cap : public ACommand
 		void	execute(Client *client, Tokenizer *tokens) const;
 };
 
-class Info : public ACommand
-{
-	private:
-	public:
-		Info(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
-};
-
 class Invite : public ACommand
 {
 	private:
@@ -79,14 +71,6 @@ class Kick : public ACommand
 	public:
 		Kick(Server *server);
 		void	execute(Client *client, Tokenizer *tokens) const;
-};
-
-class List : public ACommand
-{
-	private:
-	public:
-		List(Server *server);
-		void	execute(Tokenizer *tokens) const;
 };
 
 class Mode : public ACommand
@@ -169,27 +153,11 @@ class Quit : public ACommand
 		void	execute(Client *client, Tokenizer *tokens) const;
 };
 
-class Squit : public ACommand
-{
-	private:
-	public:
-		Squit(Server *server);
-		void	execute(Tokenizer *tokens) const;
-};
-
 class User : public ACommand
 {
 	private:
 	public:
 		User(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
-};
-
-class Users : public ACommand
-{
-	private:
-	public:
-		Users(Server *server);
 		void	execute(Client *client, Tokenizer *tokens) const;
 };
 

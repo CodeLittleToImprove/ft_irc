@@ -49,6 +49,7 @@ void	Oper::execute(Client *client, Tokenizer *tokens) const
 			return;
 		}
 		target->giveOper(this->_server->getOperPassword(), this->_server);
+		this->_server->response(client, RPL_YOUREOPER, ":" + target_name + " is now an operator");
 	}
 	else
 	{

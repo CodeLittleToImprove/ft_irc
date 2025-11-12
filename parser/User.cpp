@@ -59,6 +59,7 @@ void	User::execute(Client *client, Tokenizer *tokens) const
 		return;
 	}
 	client->register_client(username, realname);
-	this->_server->response(client, RPL_WELCOME, ":Welcome to the Internet Relay Network " + client->getNickname() + "!");
+	if (client->is_fully_registered())
+		this->_server->response(client, RPL_WELCOME, ":Welcome to the Internet Relay Network " + client->getNickname() + "!");
 	std::cout << username << " registered as " << realname << std::endl;
 }

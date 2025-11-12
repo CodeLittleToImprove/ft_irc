@@ -44,12 +44,12 @@ void Mode::execute(Client *client, Tokenizer *tokens) const
 	// attempt to retrieve optional mode flag (e.g., "+i", "-o", "+k")
 	std::string mode_flag = tokens->get_param(1);
 	std::string param = "";
-	if (mode_flag.length() != 2 && mode_flag[0] != '-' && mode_flag[0] != '+')
+	if (mode_flag.length() != 2 || (mode_flag[0] != '-' && mode_flag[0] != '+'))
 	{
 		this->_server->response(client, ERR_UNKNOWNMODE, ":Unknown mode");
 		return;
 	}
-	if (mode_flag == "+k" || mode_flag == "+o" || mode_flag == "+l")
+	if (mode_flag == "+k" || mode_flag == "+o" || mode_flag == "-o" || mode_flag == "+l")
 	{
 		if (tokens->get_params().size() < 3)
 		{
@@ -98,7 +98,7 @@ void Mode::execute(Client *client, Tokenizer *tokens) const
 			}
 			break;
 		}
-		case 'l':
+	case 'l':
 			if (mode_flag[0] == '+')
 			{
 				if (param.find_first_not_of("0123456789") != std::string::npos)
@@ -114,7 +114,8 @@ void Mode::execute(Client *client, Tokenizer *tokens) const
 				}
 				channel->setUserLimit(true, limit);
 			}
-			channel->setUserLimit(false, 0);
+			else
+				channel->setUserLimit(false, 0);
 			break;
 		default:
 			this->_server->response(client, ERR_UNKNOWNMODE, ":Unknown mode");

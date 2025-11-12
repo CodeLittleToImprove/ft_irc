@@ -78,6 +78,14 @@ bool Client::is_registered() const
 	return _is_registered;
 }
 
+bool Client::is_fully_registered() const
+{
+	if (is_registered() && isAuthenticated())
+		return true;
+	return false;
+}
+
+
 bool Client::getConnectedStatus() const
 {
 	return _connected;

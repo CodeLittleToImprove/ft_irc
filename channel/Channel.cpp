@@ -26,6 +26,7 @@ Channel::Channel(std::string name, std::string hostname)
 void Channel::addClient(Client *client)
 {
 	this->_clients.push_back(client);
+	this->changeUserNum("add");
 	_is_empty = false;
 }
 
@@ -52,6 +53,7 @@ void Channel::removeClient(Client *client)
 	this->removeOpClient(client);
 	if (_clients.empty())
 		_is_empty = true;
+	this->changeUserNum("sub");
 }
 
 void Channel::removeOpClient(Client *client)
@@ -235,16 +237,13 @@ std::string Channel::getModes() const
 	}
 	if (this->_has_user_limit)
 	{
-		std::cout << "in if has user limit" << std::endl;
 		flags += "l";
 		if (!params.empty())
 			params += " ";
 		std::stringstream ss;
 		ss << this->_user_limit;
-		std::cout << "ss: "<< ss.str() << std::endl;
 		params += ss.str();
 	}
-
 	std::string op_nicks = this->getChannelOpNickNames();
 	if (!op_nicks.empty())
 	{
@@ -257,7 +256,6 @@ std::string Channel::getModes() const
 	if (!params.empty())
 		return flags + " " + params;
 	// if params is empty, only return the flags
-	std::cout << "final flags: "<< flags << std::endl;
 	return flags;
 }
 

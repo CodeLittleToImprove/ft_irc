@@ -61,7 +61,6 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 		// case: join channel
 		std::cout << "try to join a channel" << std::endl;
 		channel->addClient(client);
-		channel->changeUserNum("add");
 		channel->broadcast(client, "JOIN", channel->getName(), "");
 		// Also send JOIN to the joining client
 		client->request(client, "JOIN", channel->getName(), "");
@@ -79,7 +78,6 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 
 		channel->addOpClient(client);
 		channel->addClient(client);
-		channel->changeUserNum("add");
 		channel->broadcast(client, "JOIN", channel->getName(), "");
 		// Also send JOIN to the joining client
 		client->request(client, "JOIN", channel->getName(), "");

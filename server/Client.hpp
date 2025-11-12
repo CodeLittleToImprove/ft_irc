@@ -46,6 +46,7 @@ class Client
 		bool		hasNickname() const;
 		bool		hasPassword() const;
 		bool		is_registered() const;
+		bool		is_fully_registered() const;
 		bool		getConnectedStatus() const;
 		bool		isAuthenticated() const;
 		bool		isOper() const;

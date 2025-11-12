@@ -27,14 +27,11 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	listenServerSocket(backlog);
 	this->_is_running = false;
 	this->_hostname = "127.0.0.1";
-	// this->_commands["INFO"] 	= new Info(this);
 	this->_commands["CAP"] = new Cap(this);
 	this->_commands["INVITE"]	= new Invite(this);
 	this->_commands["JOIN"]		= new Join(this);
 	this->_commands["KICK"] 	= new Kick(this);
-	// this->_commands["LIST"] 	= new List(this);
 	this->_commands["MODE"] 	= new Mode(this);
-	// this->_commands["NAMES"] 	= new Names(this);
 	this->_commands["NICK"] 	= new Nick(this);
 	this->_commands["NOTICE"] 	= new Notice(this);
 	this->_commands["OPER"] 	= new Oper(this);
@@ -43,10 +40,8 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	this->_commands["PING"] 	= new Ping(this);
 	this->_commands["PRIVMSG"] 	= new Privmsg(this);
 	this->_commands["QUIT"] 	= new Quit(this);
-	this->_commands["TOPIC"]	= new Topic(this); 
-	// this->_commands["SQUIT"] 	= new Squit(this); -- not needed
+	this->_commands["TOPIC"]	= new Topic(this);
 	this->_commands["USER"] 	= new User(this);
-	// this->_commands["USERS"] 	= new Users(this);
 	this->_commands["WHO"] 		= new Who(this);
 }
 

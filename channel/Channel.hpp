@@ -72,7 +72,7 @@ class Channel
 		// Setters
 		void	setInviteOnly(char mode);
 		void	setKey(char mode, std::string key);
-		void	setUserLimit(bool toggle, int num);
+		void	setUserLimit(bool mode, int num);
 		void	setRestriction(char mode);
 		void	setTopic(std::string topic);
 };
