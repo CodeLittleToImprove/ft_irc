@@ -235,11 +235,13 @@ std::string Channel::getModes() const
 	}
 	if (this->_has_user_limit)
 	{
+		std::cout << "in if has user limit" << std::endl;
 		flags += "l";
 		if (!params.empty())
 			params += " ";
 		std::stringstream ss;
 		ss << this->_user_limit;
+		std::cout << "ss: "<< ss.str() << std::endl;
 		params += ss.str();
 	}
 
@@ -255,6 +257,7 @@ std::string Channel::getModes() const
 	if (!params.empty())
 		return flags + " " + params;
 	// if params is empty, only return the flags
+	std::cout << "final flags: "<< flags << std::endl;
 	return flags;
 }
 

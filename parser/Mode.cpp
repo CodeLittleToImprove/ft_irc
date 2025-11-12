@@ -27,10 +27,6 @@ void Mode::execute(Client *client, Tokenizer *tokens) const
 	// // ensures the channel exists and the client issuing the command is a member of it
 	if (!hasChannelAndIsInChannel(client, channel, channel_name))
 		return;
-	// if (tokens->get_params().size() == 1)
-	// {
-	// 	this->_server->response(client, RPL_CHANNELMODEIS, channel_name + )
-	// }
 	if (tokens->get_params().size() == 1)
 	{
 		std::string current_modes = channel->getModes();
