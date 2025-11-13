@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 16:13:05 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/11/10 15:22:30 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/11/13 15:55:46 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,6 +158,14 @@ class User : public ACommand
 	private:
 	public:
 		User(Server *server);
+		void	execute(Client *client, Tokenizer *tokens) const;
+};
+
+class Unoper : public ACommand
+{
+	private:
+	public:
+		Unoper(Server *server);
 		void	execute(Client *client, Tokenizer *tokens) const;
 };
 

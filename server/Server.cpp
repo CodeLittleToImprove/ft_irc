@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/21 20:16:04 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/11/10 16:05:17 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/11/13 15:58:04 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ Server::Server(uint16_t port, std::string password) : _port(port), _password(pas
 	this->_commands["PRIVMSG"] 	= new Privmsg(this);
 	this->_commands["QUIT"] 	= new Quit(this);
 	this->_commands["TOPIC"]	= new Topic(this);
+	this->_commands["UNOPER"]	= new Unoper(this);
 	this->_commands["USER"] 	= new User(this);
 	this->_commands["WHO"] 		= new Who(this);
 }
