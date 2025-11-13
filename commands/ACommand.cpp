@@ -16,7 +16,7 @@ ACommand::ACommand(std::string name, Server *server) : _name(name), _server(serv
 
 ACommand::~ACommand(void) {}
 
-bool	ACommand::is_registered_full(Client *client) const
+bool	ACommand::isRegisteredFull(Client *client) const
 {
 	if (!client)
 		return (false);
@@ -26,7 +26,7 @@ bool	ACommand::is_registered_full(Client *client) const
 	return (false);
 }
 
-bool	ACommand::has_enough_params(Client *client, Tokenizer *tokens, size_t num) const
+bool	ACommand::hasEnoughParams(Client *client, Tokenizer *tokens, size_t num) const
 {
 	if (!client || !tokens)
 		return (false);
@@ -53,7 +53,7 @@ bool	ACommand::hasChannelAndIsInChannel(Client *client, Channel *channel, std::s
 	return (true);
 }
 
-void	ACommand::parser_debugging(Tokenizer *tokens) const
+void	ACommand::parserDebugging(Tokenizer *tokens) const
 {
 	std::cout	<< "Command " << this->_name << " called!" << std::endl;
 	std::cout	<< "Prefix: ";

@@ -17,7 +17,7 @@ Topic::Topic(Server *server) : ACommand("TOPIC", server) {}
 void	Topic::execute(Client *client, Tokenizer *tokens) const
 {
 	// parser_debugging(tokens);
-	if (!is_registered_full(client) || !has_enough_params(client, tokens, 1))
+	if (!isRegisteredFull(client) || !hasEnoughParams(client, tokens, 1))
 		return;
 	
 	std::string channel_name = tokens->get_param(0);

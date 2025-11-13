@@ -34,8 +34,8 @@ class ACommand
 		virtual ~ACommand(void);
 
 		// Member functions
-		bool			is_registered_full(Client *client) const;
-		bool			has_enough_params(Client *client, Tokenizer *tokens, size_t num) const;
+		bool			isRegisteredFull(Client *client) const;
+		bool			hasEnoughParams(Client *client, Tokenizer *tokens, size_t num) const;
 		bool			hasChannelAndIsInChannel(Client *client, Channel *channel, std::string channel_name) const;
 		void			parser_debugging(Tokenizer *tokens) const;
 		virtual void	execute(Client *client, Tokenizer *tokens) const = 0;

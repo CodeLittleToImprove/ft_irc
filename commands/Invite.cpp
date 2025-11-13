@@ -18,9 +18,9 @@ void	Invite::execute(Client *client, Tokenizer *tokens) const
 {
 	// parser_debugging(tokens);
 
-	if (!is_registered_full(client))
+	if (!isRegisteredFull(client))
 		return;
-	if (!has_enough_params(client, tokens, 2))
+	if (!hasEnoughParams(client, tokens, 2))
 		return;
 	
 	std::string	channel_name = tokens->get_param(1);

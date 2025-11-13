@@ -16,7 +16,7 @@ Unoper::Unoper(Server *server) : ACommand("UNOPER", server) {}
 
 void Unoper::execute(Client *client, Tokenizer *tokens) const
 {
-	if (!is_registered_full(client) || !has_enough_params(client, tokens, 1))
+	if (!isRegisteredFull(client) || !hasEnoughParams(client, tokens, 1))
 		return;
 	if (!client->isOper())
 	{

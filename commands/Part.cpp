@@ -11,7 +11,7 @@ void Part::execute(Client *client, Tokenizer *tokens) const
 		return;
 	}
 
-	if (!has_enough_params(client, tokens, 1))
+	if (!hasEnoughParams(client, tokens, 1))
 		return;
 
 	std::string channel_name = tokens->get_params()[0];

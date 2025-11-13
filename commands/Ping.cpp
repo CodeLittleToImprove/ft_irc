@@ -6,7 +6,7 @@ Ping::Ping(Server *server) : ACommand("PING", server)
 
 void Ping::execute(Client *client, Tokenizer *tokens) const
 {
-	if (!has_enough_params(client, tokens, 1))
+	if (!hasEnoughParams(client, tokens, 1))
 		return;
 
 	std::string payload = tokens->get_params()[0];

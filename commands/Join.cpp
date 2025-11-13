@@ -17,7 +17,7 @@ Join::Join(Server *server) : ACommand("JOIN", server) {}
 void	Join::execute(Client *client, Tokenizer *tokens) const
 {
 	// parser_debugging(tokens);
-	if (!is_registered_full(client) || !has_enough_params(client, tokens, 1))
+	if (!isRegisteredFull(client) || !hasEnoughParams(client, tokens, 1))
 		return;
 	
 	std::string channel_name = tokens->get_param(0);
@@ -41,7 +41,7 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 		}
 		if (channel->isKeyRequired())
 		{
-			if (!has_enough_params(client, tokens, 2))
+			if (!hasEnoughParams(client, tokens, 2))
 			{
 				this->_server->response(client, ERR_BADCHANNELKEY, ":Channel key is wrong (Key required)");
 				return;

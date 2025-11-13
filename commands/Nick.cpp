@@ -28,7 +28,7 @@ void	Nick::execute(Client *client, Tokenizer *tokens) const
 {
 	// parser_debugging(tokens);
 
-	if (!has_enough_params(client, tokens, 1))
+	if (!hasEnoughParams(client, tokens, 1))
 		return;
 	std::string nickname = tokens->get_param(0);
 	if (nickname.empty())

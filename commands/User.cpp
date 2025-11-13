@@ -44,7 +44,7 @@ void	User::execute(Client *client, Tokenizer *tokens) const
 		this->_server->response(client, ERR_NONICKNAMEGIVEN, ":You have to set a nickname before registering");
 		return;
 	}
-	if (!has_enough_params(client, tokens, 4))
+	if (!hasEnoughParams(client, tokens, 4))
 		return;
 	std::string username = tokens->get_param(0);
 	if (hasSpecialChar(username))

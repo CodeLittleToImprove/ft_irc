@@ -17,7 +17,7 @@ Privmsg::Privmsg(Server *server) : ACommand("PRIVMSG", server) {}
 void	Privmsg::execute(Client *client, Tokenizer *tokens) const
 {
 	// parser_debugging(tokens);
-	if (!is_registered_full(client) || !has_enough_params(client, tokens, 2))
+	if (!isRegisteredFull(client) || !hasEnoughParams(client, tokens, 2))
 		return;
 	
 	std::string target_name = tokens->get_param(0);

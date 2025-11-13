@@ -22,7 +22,7 @@ void	Pass::execute(Client *client, Tokenizer *tokens) const
 		_server->response(client, ERR_ALREADYREGISTRED, ":You are already authenticated from pass");
 		return;
 	}
-	if (!has_enough_params(client, tokens, 1))
+	if (!hasEnoughParams(client, tokens, 1))
 		return;
 
 	client->authenticate(tokens->get_params()[0]);
