@@ -38,17 +38,17 @@ private:
 	std::map<std::string, ACommand*>	_commands;
 	bool								_is_running;
 
-	int createServerSocket();
-	sockaddr_in createServerAddress();
-	void bindServerSocket();
-	void listenServerSocket(size_t backlog);
-	void addClient(int client_fd);
-	void removeClient(int client_fd);
-	void removeIfDisconnected(Client *client, int client_fd, size_t &i);
-	void handlePollEvents();
-	void handleNewConnection();
-	void handleClientEvent(pollfd &entry, size_t &i);
-	void handleAdminInput();
+	int			createServerSocket();
+	sockaddr_in	createServerAddress();
+	void		bindServerSocket();
+	void		listenServerSocket(size_t backlog);
+	void		addClient(int client_fd);
+	void		removeClient(int client_fd);
+	void		removeIfDisconnected(Client *client, int client_fd, size_t &i);
+	void		handlePollEvents();
+	void		handleNewConnection();
+	void		handleClientEvent(pollfd &entry, size_t &i);
+	void		handleAdminInput();
 
 public:
 	// Constructors & Destructor
@@ -56,12 +56,12 @@ public:
 	~Server();
 
 	// Getter
-	Client		*get_client(int client_fd);
-	Client		*get_client(std::string nickname);
-	Channel		*get_channel(std::string name);
-	std::string	get_hostname();
-	std::string	getOperPassword();
-	std::vector<Channel*>getJoinedChannelsByClient(Client *client);
+	Client					*getClient(int client_fd);
+	Client					*getClient(std::string nickname);
+	Channel					*getChannel(std::string name);
+	std::string				getHostname();
+	std::string				getOperPassword();
+	std::vector<Channel*>	getJoinedChannelsByClient(Client *client);
 
 	// Member functions
 	void onClientMessage(int client_fd, std::string message);

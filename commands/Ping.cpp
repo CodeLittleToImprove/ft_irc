@@ -9,7 +9,7 @@ void Ping::execute(Client *client, Tokenizer *tokens) const
 	if (!hasEnoughParams(client, tokens, 1))
 		return;
 
-	std::string payload = tokens->get_params()[0];
+	std::string payload = tokens->getParams()[0];
 	if (!payload.empty() && payload[0] == ':')
 		payload = payload.substr(1);
 	_server->sendRaw(client, PONG + payload + CRLF);

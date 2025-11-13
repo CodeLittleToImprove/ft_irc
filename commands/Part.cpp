@@ -14,14 +14,14 @@ void Part::execute(Client *client, Tokenizer *tokens) const
 	if (!hasEnoughParams(client, tokens, 1))
 		return;
 
-	std::string channel_name = tokens->get_params()[0];
-	Channel *channel = _server->get_channel(channel_name);
+	std::string channel_name = tokens->getParams()[0];
+	Channel *channel = _server->getChannel(channel_name);
 
 	if (!hasChannelAndIsInChannel(client, channel, channel_name))
 		return;
 	std::string reason = "Leaving";
-	if (tokens->get_params().size() > 1)
-		reason = tokens->get_param(1);
+	if (tokens->getParams().size() > 1)
+		reason = tokens->getParam(1);
 	channel->broadcast(client, "PART", channel->getName(), reason);
 	client->request(client, "PART", channel->getName(), reason);
 	channel->removeClient(client);

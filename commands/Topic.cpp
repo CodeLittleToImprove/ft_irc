@@ -20,8 +20,8 @@ void	Topic::execute(Client *client, Tokenizer *tokens) const
 	if (!isRegisteredFull(client) || !hasEnoughParams(client, tokens, 1))
 		return;
 	
-	std::string channel_name = tokens->get_param(0);
-	Channel		*channel = this->_server->get_channel(channel_name);
+	std::string channel_name = tokens->getParam(0);
+	Channel		*channel = this->_server->getChannel(channel_name);
 
 	if (!channel)
 	{
@@ -33,14 +33,14 @@ void	Topic::execute(Client *client, Tokenizer *tokens) const
 		this->_server->response(client, ERR_NOTONCHANNEL, ":You are not on the channel " + channel_name);
 		return;
 	}
-	if (tokens->get_params().size() == 2)
+	if (tokens->getParams().size() == 2)
 	{
 		if (channel->hasRestriction() && !channel->isChOper(client->getNickname()))
 		{
 			this->_server->response(client,  ERR_CHANOPRIVSNEEDED, ":" + channel_name + " Cannot set topic. You are not a channel operator");
 			return;
 		}
-		std::string	topic = tokens->get_param(1);
+		std::string	topic = tokens->getParam(1);
 		channel->setTopic(topic);
 		channel->broadcast(client, this->_name, channel_name, topic);
 	}

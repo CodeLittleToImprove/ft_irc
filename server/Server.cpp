@@ -243,7 +243,7 @@ void Server::handleAdminInput()
 /*                          Public Functions                                  */
 /******************************************************************************/
 
-Client *Server::get_client(int client_fd)
+Client *Server::getClient(int client_fd)
 {
 	std::map<int, Client *>::iterator it = _clients.find(client_fd);
 	if (it == _clients.end())
@@ -253,7 +253,7 @@ Client *Server::get_client(int client_fd)
 	return it->second;
 }
 
-Client *Server::get_client(std::string nickname)
+Client *Server::getClient(std::string nickname)
 {
 	std::map<int, Client*>::iterator it;
 	for (it = _clients.begin(); it != _clients.end(); it++)
@@ -265,7 +265,7 @@ Client *Server::get_client(std::string nickname)
 	return (NULL);
 }
 
-Channel *Server::get_channel(std::string name)
+Channel *Server::getChannel(std::string name)
 {
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
@@ -275,7 +275,7 @@ Channel *Server::get_channel(std::string name)
 	return (NULL);
 }
 
-std::string Server::get_hostname()
+std::string Server::getHostname()
 {
 	return (this->_hostname);
 }
@@ -303,11 +303,11 @@ void Server::onClientMessage(int client_fd, std::string message)
 {
 
 	Tokenizer tokens(message);
-	Client *client = get_client(client_fd);
+	Client *client = getClient(client_fd);
 	if (!client)
 		return;
 
-	std::string command = tokens.get_command();
+	std::string command = tokens.getCommand();
 	// std::cout << "[DEBUG]: command in onClient: " << message << std::endl;
 	if (this->_commands.find(command) == this->_commands.end())
 		std::cout << "[DEBUG] Error! Command not found." << std::endl;

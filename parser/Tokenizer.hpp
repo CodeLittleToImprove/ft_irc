@@ -24,11 +24,11 @@ class Tokenizer
 		std::string					_command;
 		std::vector<std::string>	_params;
 	public:
-		Tokenizer(std::string message);
+		Tokenizer	(std::string message);
 		Tokenizer	&operator=(const Tokenizer &copy);
 
-		std::string					get_prefix();
-		std::string					get_command();
-		std::vector<std::string>	get_params();
-		std::string					get_param(size_t pos);
+		std::string					getPrefix();
+		std::string					getCommand();
+		std::vector<std::string>	getParams();
+		std::string					getParam(size_t pos);
 };

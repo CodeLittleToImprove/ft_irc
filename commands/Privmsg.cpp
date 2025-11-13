@@ -20,10 +20,10 @@ void	Privmsg::execute(Client *client, Tokenizer *tokens) const
 	if (!isRegisteredFull(client) || !hasEnoughParams(client, tokens, 2))
 		return;
 	
-	std::string target_name = tokens->get_param(0);
-	std::string message = tokens->get_param(1);
-	Channel *channel = this->_server->get_channel(target_name);
-	Client *target = this->_server->get_client(target_name);
+	std::string target_name = tokens->getParam(0);
+	std::string message = tokens->getParam(1);
+	Channel *channel = this->_server->getChannel(target_name);
+	Client *target = this->_server->getClient(target_name);
 
 	if (!channel && !target)
 	{

@@ -30,7 +30,7 @@ bool	ACommand::hasEnoughParams(Client *client, Tokenizer *tokens, size_t num) co
 {
 	if (!client || !tokens)
 		return (false);
-	if (tokens->get_params().size() < num)
+	if (tokens->getParams().size() < num)
 	{
 		this->_server->response(client, ERR_NEEDMOREPARAMS, ":Not enough parameters");
 		return (false);
@@ -53,22 +53,22 @@ bool	ACommand::hasChannelAndIsInChannel(Client *client, Channel *channel, std::s
 	return (true);
 }
 
-void	ACommand::parserDebugging(Tokenizer *tokens) const
+void	ACommand::parser_debugging(Tokenizer *tokens) const
 {
 	std::cout	<< "Command " << this->_name << " called!" << std::endl;
 	std::cout	<< "Prefix: ";
-	if (tokens->get_prefix().empty())
+	if (tokens->getPrefix().empty())
 		std::cout	<< "None" << std::endl;
 	else
-		std::cout	<< tokens->get_prefix() << std::endl;
-	std::cout	<< "Command: " << tokens->get_command() << std::endl;
+		std::cout	<< tokens->getPrefix() << std::endl;
+	std::cout	<< "Command: " << tokens->getCommand() << std::endl;
 	std::cout	<< "Parameter: ";
-	if (tokens->get_params().empty())
+	if (tokens->getParams().empty())
 		std::cout	<< "None" << std::endl;
 	else
 	{
-		for (size_t i = 0; i < tokens->get_params().size(); i++)
-			std::cout	<< tokens->get_params().at(i) << "|";
+		for (size_t i = 0; i < tokens->getParams().size(); i++)
+			std::cout	<< tokens->getParams().at(i) << "|";
 		std::cout	<< std::endl;
 	}
 }

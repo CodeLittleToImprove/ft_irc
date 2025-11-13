@@ -20,15 +20,15 @@ void	Who::execute(Client *client, Tokenizer *tokens) const
 	if (!isRegisteredFull(client) || !hasEnoughParams(client, tokens, 1))
 		return;
 
-	std::string channel_name = tokens->get_params()[0];
-	Channel *channel = this->_server->get_channel(channel_name);
+	std::string channel_name = tokens->getParams()[0];
+	Channel *channel = this->_server->getChannel(channel_name);
 
 	if (!hasChannelAndIsInChannel(client, channel, channel_name))
 		return;
 
 	std::string flag; // is needed for operator filter
-	if (tokens->get_params().size() > 1)
-		flag = tokens->get_params()[1];
+	if (tokens->getParams().size() > 1)
+		flag = tokens->getParams()[1];
 	else
 		flag = "";
 	const std::vector<Client*> &clients = channel->getClients();
@@ -44,7 +44,7 @@ void	Who::execute(Client *client, Tokenizer *tokens) const
 		std::string whoInfo = channel_name + " " +
 					member->getUsername() + " " +
 					member->getHostname() + " " +
-					this->_server->get_hostname() + " " +
+					this->_server->getHostname() + " " +
 					member->getNickname() + " " +
 					status + " 0 " + // hopcount not possible thats why static
 					member->getRealname();

@@ -20,13 +20,13 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 	if (!isRegisteredFull(client) || !hasEnoughParams(client, tokens, 1))
 		return;
 	
-	std::string channel_name = tokens->get_param(0);
+	std::string channel_name = tokens->getParam(0);
 	if (channel_name[0] != '#')
 	{
 		this->_server->response(client, ERR_NOSUCHCHANNEL, ":incorrect format. Please use '#' in front of the channel name");
 		return;
 	}
-	Channel *channel = this->_server->get_channel(channel_name);
+	Channel *channel = this->_server->getChannel(channel_name);
 	if (channel)
 	{
 		if (channel->isInChannel(client))
@@ -46,7 +46,7 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 				this->_server->response(client, ERR_BADCHANNELKEY, ":Channel key is wrong (Key required)");
 				return;
 			}
-			if (!channel->checkKey(tokens->get_param(1))) // channel has password so it expects 2 parameters
+			if (!channel->checkKey(tokens->getParam(1))) // channel has password so it expects 2 parameters
 			{
 				this->_server->response(client, ERR_BADCHANNELKEY, ":Channel key is wrong");
 				return;
@@ -72,7 +72,7 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 			return;
 		}
 		// case: create new channel
-		channel = new Channel(channel_name, _server->get_hostname());
+		channel = new Channel(channel_name, _server->getHostname());
 		this->_server->addChannel(channel);
 
 		channel->addOpClient(client);

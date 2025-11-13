@@ -24,8 +24,8 @@ void Unoper::execute(Client *client, Tokenizer *tokens) const
 		return;
 	}
 
-	std::string	target_name = tokens->get_param(0);
-	Client		*target = this->_server->get_client(target_name);
+	std::string	target_name = tokens->getParam(0);
+	Client		*target = this->_server->getClient(target_name);
 
 	if (!target)
 	{

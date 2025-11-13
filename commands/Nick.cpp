@@ -30,13 +30,13 @@ void	Nick::execute(Client *client, Tokenizer *tokens) const
 
 	if (!hasEnoughParams(client, tokens, 1))
 		return;
-	std::string nickname = tokens->get_param(0);
+	std::string nickname = tokens->getParam(0);
 	if (nickname.empty())
 	{
 		this->_server->response(client, ERR_NONICKNAMEGIVEN, ":No nickname given");
 		return;
 	}
-	if (this->_server->get_client(nickname))
+	if (this->_server->getClient(nickname))
 	{
 		this->_server->response(client, ERR_NICKNAMEINUSE, ":Nickname already in use");
 		return;

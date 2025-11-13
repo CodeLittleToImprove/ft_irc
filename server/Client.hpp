@@ -50,11 +50,11 @@ class Client
 		void setPassword(const std::string &password);
 
 		// Member functions
-		std::vector<std::string> readData();
-		void closeConnection(std::string message);
-		void registerClient(std::string username, std::string realname);
-		void request(Client *client, std::string command, std::string target, std::string message);
-		bool authenticate(std::string password);
-		void giveOper(std::string oper_password, Server *server);
-		void takeOper();
+		std::vector<std::string>	readData();
+		void						closeConnection(std::string message);
+		void						registerClient(std::string username, std::string realname);
+		void						request(Client *client, std::string command, std::string target, std::string message);
+		bool						authenticate(std::string password);
+		void						giveOper(std::string oper_password, Server *server);
+		void						takeOper();
 };

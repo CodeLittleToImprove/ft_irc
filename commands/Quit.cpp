@@ -17,8 +17,8 @@ Quit::Quit(Server *server) : ACommand("QUIT", server) {}
 void	Quit::execute(Client *client, Tokenizer *tokens) const
 {
 	std::string reason = "Bye Bye";
-	if (tokens->get_params().size() > 0)
-		reason = tokens->get_param(0);
+	if (tokens->getParams().size() > 0)
+		reason = tokens->getParam(0);
 	client->closeConnection("I decided to leave");
 	std::vector<Channel*> joined_channels = _server->getJoinedChannelsByClient(client);
 	for (size_t i = 0; i < joined_channels.size(); i++)

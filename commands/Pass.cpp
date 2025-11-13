@@ -25,7 +25,7 @@ void	Pass::execute(Client *client, Tokenizer *tokens) const
 	if (!hasEnoughParams(client, tokens, 1))
 		return;
 
-	client->authenticate(tokens->get_params()[0]);
+	client->authenticate(tokens->getParams()[0]);
 
 	if (!client->isAuthenticated())
 	{

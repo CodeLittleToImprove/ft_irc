@@ -29,7 +29,7 @@ class ACommand
 		Server		*_server;
 	public:
 
-		// Constructors
+		// Constructors & Deconstructors
 		ACommand(std::string name, Server *server);
 		virtual ~ACommand(void);
 

@@ -20,13 +20,13 @@ void Mode::execute(Client *client, Tokenizer *tokens) const
 	if (!isRegisteredFull(client) || !hasEnoughParams(client, tokens, 1))
 		return;
 	
-	std::string	channel_name = tokens->get_param(0);
-	Channel		*channel = this->_server->get_channel(channel_name);
+	std::string	channel_name = tokens->getParam(0);
+	Channel		*channel = this->_server->getChannel(channel_name);
 
 	// // ensures the channel exists and the client issuing the command is a member of it
 	if (!hasChannelAndIsInChannel(client, channel, channel_name))
 		return;
-	if (tokens->get_params().size() == 1)
+	if (tokens->getParams().size() == 1)
 	{
 		std::string current_modes = channel->getModes();
 		this->_server->response(client, RPL_CHANNELMODEIS, channel_name + " " + current_modes);
@@ -39,7 +39,7 @@ void Mode::execute(Client *client, Tokenizer *tokens) const
 	}
 
 	// attempt to retrieve optional mode flag (e.g., "+i", "-o", "+k")
-	std::string mode_flag = tokens->get_param(1);
+	std::string mode_flag = tokens->getParam(1);
 	std::string param = "";
 	if (mode_flag.length() != 2 || (mode_flag[0] != '-' && mode_flag[0] != '+'))
 	{
@@ -48,12 +48,12 @@ void Mode::execute(Client *client, Tokenizer *tokens) const
 	}
 	if (mode_flag == "+k" || mode_flag == "+o" || mode_flag == "-o" || mode_flag == "+l")
 	{
-		if (tokens->get_params().size() < 3)
+		if (tokens->getParams().size() < 3)
 		{
 			this->_server->response(client, ERR_NEEDMOREPARAMS, ":not enough parameters");
 			return;
 		}
-		param = tokens->get_param(2);
+		param = tokens->getParam(2);
 	}
 	switch (mode_flag[1])
 	{
@@ -68,7 +68,7 @@ void Mode::execute(Client *client, Tokenizer *tokens) const
 			break;
 		case 'o':
 		{
-			Client *target = this->_server->get_client(param);
+			Client *target = this->_server->getClient(param);
 			if (!channel->isInChannel(target))
 			{
 				this->_server->response(client, ERR_USERNOTINCHANNEL,

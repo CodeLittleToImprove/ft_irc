@@ -23,9 +23,9 @@ void	Invite::execute(Client *client, Tokenizer *tokens) const
 	if (!hasEnoughParams(client, tokens, 2))
 		return;
 	
-	std::string	channel_name = tokens->get_param(1);
-	Channel 	*channel = this->_server->get_channel(channel_name);
-	Client		*target = this->_server->get_client(tokens->get_param(0));
+	std::string	channel_name = tokens->getParam(1);
+	Channel 	*channel = this->_server->getChannel(channel_name);
+	Client		*target = this->_server->getClient(tokens->getParam(0));
 
 	if (!hasChannelAndIsInChannel(client, channel, channel_name))
 		return;

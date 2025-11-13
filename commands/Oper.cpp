@@ -22,8 +22,8 @@ void	Oper::execute(Client *client, Tokenizer *tokens) const
 	if (!hasEnoughParams(client, tokens, 1))
 		return;
 	
-	std::string target_name = tokens->get_param(0);
-	Client *target = this->_server->get_client(target_name);
+	std::string target_name = tokens->getParam(0);
+	Client *target = this->_server->getClient(target_name);
 
 	if (!target)
 	{
@@ -40,7 +40,7 @@ void	Oper::execute(Client *client, Tokenizer *tokens) const
 		this->_server->response(client, RPL_YOUREOPER, ":" + target_name + " is already an operator");
 		return;
 	}
-	if (tokens->get_params().size() == 1)
+	if (tokens->getParams().size() == 1)
 	{
 		if (!client->isOper())
 		{
@@ -52,7 +52,7 @@ void	Oper::execute(Client *client, Tokenizer *tokens) const
 	}
 	else
 	{
-		target->giveOper(tokens->get_param(1), this->_server);
+		target->giveOper(tokens->getParam(1), this->_server);
 		if (target->isOper())
 		{
 			this->_server->response(client, RPL_YOUREOPER, ":" + target_name + " is now an operator");

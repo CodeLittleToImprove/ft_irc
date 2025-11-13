@@ -19,10 +19,10 @@ void	Kick::execute(Client *client, Tokenizer *tokens) const
 	// parser_debugging(tokens);
 	if (!isRegisteredFull(client) || !hasEnoughParams(client, tokens, 2))
 		return;
-	std::string	channel_name = tokens->get_param(0);
-	Channel		*channel = this->_server->get_channel(channel_name);
-	Client		*target = this->_server->get_client(tokens->get_param(1));
-	std::string	reason = tokens->get_params().size() > 2 ? tokens->get_param(2) : "Kicked";
+	std::string	channel_name = tokens->getParam(0);
+	Channel		*channel = this->_server->getChannel(channel_name);
+	Client		*target = this->_server->getClient(tokens->getParam(1));
+	std::string	reason = tokens->getParams().size() > 2 ? tokens->getParam(2) : "Kicked";
 
 	if (!hasChannelAndIsInChannel(client, channel, channel_name))
 		return;

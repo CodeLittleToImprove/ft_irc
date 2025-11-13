@@ -52,22 +52,22 @@ Tokenizer	&Tokenizer::operator=(const Tokenizer &copy)
 }
 
 // Getter
-std::string	Tokenizer::get_prefix()
+std::string	Tokenizer::getPrefix()
 {
 	return (this->_prefix);
 }
 
-std::string Tokenizer::get_command()
+std::string Tokenizer::getCommand()
 {
 	return (this->_command);
 }
 
-std::vector<std::string> Tokenizer::get_params()
+std::vector<std::string> Tokenizer::getParams()
 {
 	return (this->_params);
 }
 
-std::string Tokenizer::get_param(size_t pos)
+std::string Tokenizer::getParam(size_t pos)
 {
 	return(this->_params.at(pos));
 }
