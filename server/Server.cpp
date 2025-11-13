@@ -331,12 +331,12 @@ void Server::response(Client *client, std::string code, std::string message) // 
 	std::string nickname_str = nickname.empty() ? "unregistered " : nickname + ' ';
 	std::string response = ':' + this->_hostname + ' ' + code_str + nickname_str + message + CRLF;
 	// printEscapedBuffer(response);
-	send(client->getClient_fd(), response.c_str(), response.length(), 0);
+	send(client->getClientFd(), response.c_str(), response.length(), 0);
 }
 
 void Server::sendRaw(Client *client, const std::string &raw)
 {
-	send(client->getClient_fd(), raw.c_str(), raw.length(), 0);
+	send(client->getClientFd(), raw.c_str(), raw.length(), 0);
 }
 
 void Server::add_channel(Channel *channel)
@@ -402,7 +402,7 @@ void Server::handleClientEvent(pollfd &entry, size_t &i)
 	// Disconnected or error event (not in my control)
 	if (entry.revents & (POLLHUP | POLLERR | POLLNVAL))
 	{
-		std::cout << "[DEBUG] Client fd=" << curClient->getClient_fd() << " disconnected/error\n";
+		std::cout << "[DEBUG] Client fd=" << curClient->getClientFd() << " disconnected/error\n";
 		removeClient(client_fd);
 		i--;
 		return;
@@ -451,7 +451,7 @@ void Server::handlePollEvents()
 
 void Server::removeClientFromServer(Client *client)
 {
-	removeClient(client->getClient_fd());
+	removeClient(client->getClientFd());
 }
 
 void Server::run()

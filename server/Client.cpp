@@ -52,7 +52,7 @@ void Client::closeConnection(std::string message)
 	}
 }
 
-int Client::getClient_fd() const
+int Client::getClientFd() const
 {
 	return _client_fd;
 }
@@ -67,14 +67,14 @@ bool Client::hasPassword() const
 	return _has_password;
 }
 
-bool Client::is_registered() const
+bool Client::isRegistered() const
 {
 	return _is_registered;
 }
 
-bool Client::is_fully_registered() const
+bool Client::isFullyRegistered() const
 {
-	if (is_registered() && isAuthenticated())
+	if (isRegistered() && isAuthenticated())
 		return true;
 	return false;
 }
@@ -132,7 +132,7 @@ void Client::setPassword(const std::string &password)
 	_has_password = true;
 }
 
-void Client::register_client(std::string username, std::string realname)
+void Client::registerClient(std::string username, std::string realname)
 {
 	this->_username = username;
 	this->_realname = realname;
@@ -154,14 +154,8 @@ void Client::request(Client *sender, std::string command, std::string target, st
 
 bool Client::authenticate(std::string password)
 {
-	// std::cout << "Client: " << _client_fd << " calls authenticated." << std::endl;
-	// std::cout << "password: " << password << std::endl;
-	// std::cout << "_password: " << _password << std::endl;
 	if (password == _password)
-	{
 		_authenticated = true;
-		// std::cout << "client_fd: " << _client_fd << " authenticated successful" << std::endl;
-	}
 	return _authenticated;
 }
 

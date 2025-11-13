@@ -31,7 +31,7 @@ void	Oper::execute(Client *client, Tokenizer *tokens) const
 		this->_server->response(client, ERR_NOSUCHNICK, ":User not found");
 		return;
 	}
-	if (!target->is_registered())
+	if (!target->isRegistered())
 	{
 		this->_server->response(client, ERR_NOTREGISTERED, ":" + target_name + " is not registered yet");
 		return;

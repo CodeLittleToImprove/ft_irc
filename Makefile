@@ -17,10 +17,10 @@ CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror #-std=c++98
 
 # Target executable
-TARGET = irsserv
+TARGET = ircserv
 
 # Source files (current + parser directory)
-SRC = $(wildcard *.cpp) $(wildcard ../parser/*.cpp) $(wildcard ../utils/*.cpp) $(wildcard ../channel/*.cpp)
+SRC = $(wildcard server/*.cpp) $(wildcard parser/*.cpp) $(wildcard utils/*.cpp) $(wildcard channel/*.cpp)
 
 # Object files (replace .cpp with .o)
 OBJ = $(SRC:.cpp=.o)

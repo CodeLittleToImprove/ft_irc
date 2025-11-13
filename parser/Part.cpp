@@ -6,7 +6,7 @@ Part::Part(Server *server) : ACommand("PART", server)
 
 void Part::execute(Client *client, Tokenizer *tokens) const
 {
-	if (!client->isAuthenticated() && !client->is_registered())
+	if (!client->isAuthenticated() && !client->isRegistered())
 	{
 		this->_server->response(client, ERR_NOTREGISTERED, ":You are not registered yet");
 		return;

@@ -38,7 +38,7 @@ void	Pass::execute(Client *client, Tokenizer *tokens) const
 		client->closeConnection("disconnected due to authentication failure");
 	}
 	// user filled nickname, username, and password was accepted
-	if (client->is_fully_registered())
+	if (client->isFullyRegistered())
 		_server->response(client, RPL_WELCOME, ":Welcome to the Internet Relay Network " + client->getNickname() + "!");
 	//need to add host- and username later
 

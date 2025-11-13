@@ -10,6 +10,7 @@ add_compile_options(-Wall -Wextra -Werror)
 
 add_executable(ft_irc_server
 #        test/Template.cpp
+        channel/Channel.cpp
         server/Server.cpp
         server/Server.cpp
         server/Client.cpp
@@ -26,16 +27,16 @@ add_executable(ft_irc_server
         parser/Nick.cpp
         parser/Notice.cpp
         parser/Oper.cpp
+        parser/Part.cpp
         parser/Pass.cpp
+        parser/Ping.cpp
         parser/Privmsg.cpp
         parser/Quit.cpp
         parser/Tokenizer.cpp
         parser/Topic.cpp
+        parser/Unoper.cpp
         parser/User.cpp
         parser/Who.cpp
         utils/utils.hpp
         utils/utils.cpp
-        channel/Channel.cpp
-
-        parser/Part.cpp
-        parser/Ping.cpp)
+        )

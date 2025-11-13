@@ -1,24 +1,16 @@
 #pragma once
 
-# include <cstring>
-# include <iostream>
-# include <netinet/in.h>
-# include <sys/socket.h>
-# include <unistd.h>
-# include <cerrno>
-# include <cstdio> // for perror
-// # include <poll.h> // for pollfd
 # include <vector>
 # include "../macros/macros.hpp"
 # include "Server.hpp"
 # include "../utils/utils.hpp"
+
 class Server;
 
 class Client
 {
 	private:
 		int			_client_fd;
-		// pollfd *_pollEntry;
 		bool 		_connected;
 		bool		_has_nickname;
 		bool		_has_password;
@@ -35,17 +27,15 @@ class Client
 	public:
 
 		// Constructors
-		// Client(int client_fd, std::string password);
 		Client(int client_fd, std::string password);
-		// Client(int client_fd, std::string password); // not in use right now
 		// ~Client();
 
 		// Getter
-		int			getClient_fd() const;
+		int			getClientFd() const;
 		bool		hasNickname() const;
 		bool		hasPassword() const;
-		bool		is_registered() const;
-		bool		is_fully_registered() const;
+		bool		isRegistered() const;
+		bool		isFullyRegistered() const;
 		bool		getConnectedStatus() const;
 		bool		isAuthenticated() const;
 		bool		isOper() const;
@@ -62,7 +52,7 @@ class Client
 		// Member functions
 		std::vector<std::string> readData();
 		void closeConnection(std::string message);
-		void register_client(std::string username, std::string realname);
+		void registerClient(std::string username, std::string realname);
 		void request(Client *client, std::string command, std::string target, std::string message);
 		bool authenticate(std::string password);
 		void giveOper(std::string oper_password, Server *server);

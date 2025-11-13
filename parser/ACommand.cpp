@@ -23,7 +23,7 @@ bool	ACommand::is_registered_full(Client *client) const
 {
 	if (!client)
 		return (false);
-	if (client->isAuthenticated() && client->is_registered())
+	if (client->isAuthenticated() && client->isRegistered())
 		return (true);
 	this->_server->response(client, ERR_NOTREGISTERED, ":You are not registered yet");
 	return (false);
