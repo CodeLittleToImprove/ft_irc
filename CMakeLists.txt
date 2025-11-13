@@ -17,26 +17,26 @@ add_executable(ft_irc_server
         server/Client.hpp
         server/main.cpp
         server/main.cpp
-        parser/ACommand.hpp
-        parser/ACommand.cpp
-        parser/Cap.cpp
-        parser/Invite.cpp
-        parser/Join.cpp
-        parser/Kick.cpp
-        parser/Mode.cpp
-        parser/Nick.cpp
-        parser/Notice.cpp
-        parser/Oper.cpp
-        parser/Part.cpp
-        parser/Pass.cpp
-        parser/Ping.cpp
-        parser/Privmsg.cpp
-        parser/Quit.cpp
+        commands/ACommand.hpp
+        commands/ACommand.cpp
+        commands/Cap.cpp
+        commands/Invite.cpp
+        commands/Join.cpp
+        commands/Kick.cpp
+        commands/Mode.cpp
+        commands/Nick.cpp
+        commands/Notice.cpp
+        commands/Oper.cpp
+        commands/Part.cpp
+        commands/Pass.cpp
+        commands/Ping.cpp
+        commands/Privmsg.cpp
+        commands/Quit.cpp
         parser/Tokenizer.cpp
-        parser/Topic.cpp
-        parser/Unoper.cpp
-        parser/User.cpp
-        parser/Who.cpp
+        commands/Topic.cpp
+        commands/Unoper.cpp
+        commands/User.cpp
+        commands/Who.cpp
         utils/utils.hpp
         utils/utils.cpp
         )

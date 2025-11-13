@@ -17,7 +17,7 @@
 #include <poll.h> // for pollfds
 
 #include "Client.hpp"
-#include "../parser/ACommand.hpp"
+#include "../commands/ACommand.hpp"
 #include "../channel/Channel.hpp"
 
 class ACommand;

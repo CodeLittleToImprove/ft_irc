@@ -293,7 +293,6 @@ std::vector<Channel*> Server::getJoinedChannelsByClient(Client *client)
 		Channel *channel = *it;
 		if (channel->isInChannel(client))
 		{
-			// std::cout << "[DEBUG]: "<< client->getUsername() << " is in " << channel->getName() << std::endl;
 			result.push_back(channel);
 		}
 	}
@@ -305,11 +304,11 @@ void Server::onClientMessage(int client_fd, std::string message)
 
 	Tokenizer tokens(message);
 	Client *client = get_client(client_fd);
-	if (!client) // client not existing anymore
+	if (!client)
 		return;
 
 	std::string command = tokens.get_command();
-	std::cout << "[DEBUG]: command in onClient: " << message << std::endl;
+	// std::cout << "[DEBUG]: command in onClient: " << message << std::endl;
 	if (this->_commands.find(command) == this->_commands.end())
 		std::cout << "[DEBUG] Error! Command not found." << std::endl;
 	else

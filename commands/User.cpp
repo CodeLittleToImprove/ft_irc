@@ -32,7 +32,7 @@ bool	hasSpecialChar(std::string str)
 
 void	User::execute(Client *client, Tokenizer *tokens) const
 {
-	parser_debugging(tokens);
+	// parser_debugging(tokens);
 	
 	if (client->isRegistered())
 	{

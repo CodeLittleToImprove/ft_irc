@@ -26,7 +26,7 @@ bool	isValid(std::string str)
 
 void	Nick::execute(Client *client, Tokenizer *tokens) const
 {
-	parser_debugging(tokens);
+	// parser_debugging(tokens);
 
 	if (!has_enough_params(client, tokens, 1))
 		return;
