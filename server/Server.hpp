@@ -45,7 +45,7 @@ private:
 	void addClient(int client_fd);
 	// void addClient(int client_fd, const std::string password);
 	void removeClient(int client_fd);
-	void removeIfDisconnected(Client *client, int client_fd, size_t &i, const std::string &context);
+	void removeIfDisconnected(Client *client, int client_fd, size_t &i);
 	void handlePollEvents();
 	void handleNewConnection();
 	void handleClientEvent(pollfd &entry, size_t &i);

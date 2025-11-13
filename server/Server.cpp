@@ -363,7 +363,7 @@ void Server::remove_channel(const std::string &channel_name)
 	std::cout << "[DEBUG][Server] Tried to remove non-existent channel: " << channel_name << std::endl;
 }
 
-void Server::removeIfDisconnected(Client *client, int client_fd, size_t &i, const std::string &context)
+void Server::removeIfDisconnected(Client *client, int client_fd, size_t &i)
 {
 	// std::cout << "[DEBUG] removeIfDisconnected called for fd=" << client_fd << std::endl;
 	if (!client->getConnectedStatus())
@@ -410,7 +410,7 @@ void Server::handleClientEvent(pollfd &entry, size_t &i)
 	if (entry.revents & POLLIN)
 	{
 		std::vector<std::string> messages = curClient->readData();
-		removeIfDisconnected(curClient, client_fd, i, "after read");
+		removeIfDisconnected(curClient, client_fd, i);
 		if (_clients.find(client_fd) == _clients.end()) // no such client, probably disconnected
 			return;
 

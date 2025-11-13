@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)  # don't silently upgrade
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Add strict warnings
-#add_compile_options(-Wall -Wextra -Werror)
+add_compile_options(-Wall -Wextra -Werror)
 
 add_executable(ft_irc_server
 #        test/Template.cpp
@@ -18,6 +18,7 @@ add_executable(ft_irc_server
         server/main.cpp
         parser/ACommand.hpp
         parser/ACommand.cpp
+        parser/Cap.cpp
         parser/Invite.cpp
         parser/Join.cpp
         parser/Kick.cpp
@@ -28,13 +29,13 @@ add_executable(ft_irc_server
         parser/Pass.cpp
         parser/Privmsg.cpp
         parser/Quit.cpp
-        parser/Topic.cpp
         parser/Tokenizer.cpp
+        parser/Topic.cpp
         parser/User.cpp
+        parser/Who.cpp
         utils/utils.hpp
         utils/utils.cpp
         channel/Channel.cpp
-        parser/Who.cpp
-        parser/Cap.cpp
+
         parser/Part.cpp
         parser/Ping.cpp)

@@ -14,11 +14,9 @@ std::vector<std::string> Client::readData()
 	{
 		recvBuf[bytesReceived] = '\0';
 		_buffer += recvBuf;
-		// std::cout << "buffer pre message: "<< _buffer << std::endl;
-		// printEscapedBuffer(_buffer);
 		if (_buffer.size() > buffermaxsize)
 		{
-			std::cout << "Message to long from client" << _client_fd << ", discard it" << std::endl;
+			std::cout << "Error: Message to long from client" << _client_fd << ", discard it" << std::endl;
 			_buffer.clear();
 			return messages;
 		}
@@ -27,13 +25,11 @@ std::vector<std::string> Client::readData()
 		{
 			std::string msg = _buffer.substr(0, end);
 			_buffer.erase(0, end + 2);
-			// std::cout << "Message from " << _client_fd << ": " << msg << "\n";
 			messages.push_back(msg);
 		}
 	}
-	else if (bytesReceived == 0)
+	else if (bytesReceived == 0) // Client closed connection gracefully
 	{
-		// Client closed connection gracefully
 		std::cout << "Client " << _client_fd << " closed connection." << std::endl;
 		_connected = false;
 	}
@@ -47,12 +43,10 @@ std::vector<std::string> Client::readData()
 
 void Client::closeConnection(std::string message)
 {
-	std::cout << "DEBUG: closeConnection on client called" << std::endl;
 	if (_connected)
 	{
 		std::string quitMessage = std::string(":") + RPL_QUIT + " QUIT :" + message + CRLF;
 		send(_client_fd, quitMessage.c_str(), quitMessage.length(), 0);
-		// need client request RPL_QUIT?
 		_connected = false;
 		shutdown(_client_fd, SHUT_RDWR); // wake poll via POLLHUP
 	}
@@ -128,7 +122,6 @@ bool Client::isOper() const
 
 void Client::setNickname(std::string nickname)
 {
-	// std::cout << "successfully set nickname: " << nickname << std::endl;
 	this->_nickname = nickname;
 	this->_has_nickname = true;
 }
@@ -146,7 +139,8 @@ void Client::register_client(std::string username, std::string realname)
 	this->_is_registered = true;
 }
 
-void Client::request(Client *sender, std::string command, std::string target, std::string message) // client to client or client to channel
+// send an IRC message/request from a sender to this client which is used when client to client / client to channel
+void Client::request(Client *sender, std::string command, std::string target, std::string message)
 {
 	std::string sender_str = ":" + sender->_nickname + "!" + sender->_username + "@" + sender->_hostname;
 	std::string message_str = 	command == "KICK"	||

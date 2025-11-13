@@ -5,14 +5,13 @@
 # include <netinet/in.h>
 # include <sys/socket.h>
 # include <unistd.h>
-# include <signal.h> // need for signal cmd
 # include <cerrno>
 # include <cstdio> // for perror
-# include <poll.h> // for pollfd
+// # include <poll.h> // for pollfd
 # include <vector>
 # include "../macros/macros.hpp"
 # include "Server.hpp"
-#include "../utils/utils.hpp"
+# include "../utils/utils.hpp"
 class Server;
 
 class Client

@@ -81,14 +81,6 @@ class Mode : public ACommand
 		void	execute(Client *client, Tokenizer *tokens) const;
 };
 
-class Names : public ACommand
-{
-	private:
-	public:
-		Names(Server *server);
-		void	execute(Tokenizer *tokens) const;
-};
-
 class Nick : public ACommand
 {
 	private:
@@ -147,10 +139,18 @@ class Privmsg : public ACommand
 
 class Quit : public ACommand
 {
-	private:
-	public:
-		Quit(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
+private:
+public:
+	Quit(Server *server);
+	void	execute(Client *client, Tokenizer *tokens) const;
+};
+
+class Topic : public ACommand
+{
+private:
+public:
+	Topic(Server *server);
+	void	execute(Client *client, Tokenizer *tokens) const;
 };
 
 class User : public ACommand
@@ -166,13 +166,5 @@ class Who : public ACommand
 	private:
 	public:
 		Who(Server *server);
-		void	execute(Client *client, Tokenizer *tokens) const;
-};
-
-class Topic : public ACommand
-{
-	private:
-	public:
-		Topic(Server *server);
 		void	execute(Client *client, Tokenizer *tokens) const;
 };
