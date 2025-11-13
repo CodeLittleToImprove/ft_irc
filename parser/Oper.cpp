@@ -16,8 +16,7 @@ Oper::Oper(Server *server) : ACommand("OPER", server) {}
 
 void	Oper::execute(Client *client, Tokenizer *tokens) const
 {
-	parser_debugging(tokens);
-
+	// parser_debugging(tokens);
 	if (!is_registered_full(client))
 		return;
 	if (!has_enough_params(client, tokens, 1))

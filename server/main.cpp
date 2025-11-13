@@ -7,7 +7,7 @@ int main(int argc, const char *argv[])
 		std::cerr << "Usage: " << argv[0] << " <port> <server_password>" << std::endl;
 		return -1;
 	}
-	uint16_t listenPort = 0;
+	uint16_t listen_port = 0;
 	std::string port_str = argv[1];
 	std::istringstream ss(port_str);
 	int temp_port;
@@ -22,11 +22,11 @@ int main(int argc, const char *argv[])
 		std::cerr << "Error: Port number must be between 1 and 65535." << std::endl;
 		return -1;
 	}
-	listenPort = static_cast<uint16_t>(temp_port);
-	std::cout << "listenPort from argv: " << listenPort << std::endl;
+	listen_port = static_cast<uint16_t>(temp_port);
+	std::cout << "listen_Port from argv: " << listen_port << std::endl;
 	std::string password = argv[2];
 	std::cout << "password from argv: " << password << std::endl;
-	Server server(listenPort, password);
+	Server server(listen_port, password);
 	try
 	{
 		server.run();

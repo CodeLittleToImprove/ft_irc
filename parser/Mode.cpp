@@ -16,8 +16,7 @@ Mode::Mode(Server *server) : ACommand("MODE", server) {}
 
 void Mode::execute(Client *client, Tokenizer *tokens) const
 {
-	parser_debugging(tokens);
-
+	// parser_debugging(tokens);
 	if (!is_registered_full(client) || !has_enough_params(client, tokens, 1))
 		return;
 	
@@ -30,7 +29,6 @@ void Mode::execute(Client *client, Tokenizer *tokens) const
 	if (tokens->get_params().size() == 1)
 	{
 		std::string current_modes = channel->getModes();
-		// std::cout << "DEBUG currentmodes: " << current_modes << std::endl;
 		this->_server->response(client, RPL_CHANNELMODEIS, channel_name + " " + current_modes);
 		return;
 	}
@@ -39,7 +37,6 @@ void Mode::execute(Client *client, Tokenizer *tokens) const
 		this->_server->response(client, ERR_NOPRIVILEGES, ":Permission denied");
 		return;
 	}
-	// mode is called with no extra arguments
 
 	// attempt to retrieve optional mode flag (e.g., "+i", "-o", "+k")
 	std::string mode_flag = tokens->get_param(1);

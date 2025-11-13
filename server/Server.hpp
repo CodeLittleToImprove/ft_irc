@@ -43,7 +43,6 @@ private:
 	void bindServerSocket();
 	void listenServerSocket(size_t backlog);
 	void addClient(int client_fd);
-	// void addClient(int client_fd, const std::string password);
 	void removeClient(int client_fd);
 	void removeIfDisconnected(Client *client, int client_fd, size_t &i);
 	void handlePollEvents();
@@ -53,13 +52,8 @@ private:
 
 public:
 	// Constructors & Destructor
-	Server(uint16_t port);
 	Server(uint16_t port, std::string password);
-	Server(const Server& copy); // should be private?
 	~Server();
-
-	// Operator overloads
-	Server& operator=(const Server& copy); // should be private ?
 
 	// Getter
 	Client		*get_client(int client_fd);
@@ -73,8 +67,8 @@ public:
 	void onClientMessage(int client_fd, std::string message);
 	void response(Client *client, std::string code, std::string message);
 	void sendRaw(Client *client, const std::string &raw);
-	void add_channel(Channel *channel);
-	void remove_channel(const std::string &channelName);
+	void addChannel(Channel *channel);
+	void removeChannel(const std::string &channelName);
 	void removeClientFromServer(Client *client);
 	void run();
 };

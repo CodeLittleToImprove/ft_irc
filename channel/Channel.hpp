@@ -55,7 +55,6 @@ class Channel
 
 		// Getters
 		std::vector<Client *>	getClients();
-		std::vector<Client *>	getOpClients(); //not used
 		std::vector<Client *>	getInvitedClients();
 		std::string				getName();
 		std::string				getClientNames();

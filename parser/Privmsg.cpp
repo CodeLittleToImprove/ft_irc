@@ -16,8 +16,7 @@ Privmsg::Privmsg(Server *server) : ACommand("PRIVMSG", server) {}
 
 void	Privmsg::execute(Client *client, Tokenizer *tokens) const
 {
-	parser_debugging(tokens);
-
+	// parser_debugging(tokens);
 	if (!is_registered_full(client) || !has_enough_params(client, tokens, 2))
 		return;
 	
@@ -31,6 +30,7 @@ void	Privmsg::execute(Client *client, Tokenizer *tokens) const
 		this->_server->response(client, ERR_NOSUCHNICK, ":Target-user/-channel not found");
 		return;
 	}
+
 	if (channel)
 	{
 		if (!channel->isInChannel(client))

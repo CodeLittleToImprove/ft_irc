@@ -70,22 +70,18 @@ Server::~Server()
 	if (_server_fd >= 0)
 		close(_server_fd);
 	std::cout << "All sockets closed. Server stopped." << std::endl;
-
 }
-
 
 /******************************************************************************/
 /*                         Static Functions                                   */
 /******************************************************************************/
 
-// 0. make socket nonblocking
+//sets the given file descriptor (socket) to non-blocking mode
 static int make_socket_nonblocking(int fd)
 {
-	//fcntl stands for file control int fcntl(int fd, int cmd, ... /* arg */);
-	return fcntl(fd, F_SETFL, O_NONBLOCK); // add to the current flags the nonblocking flag
+	return fcntl(fd, F_SETFL, O_NONBLOCK);
 }
 
-// Add a pollfd entry by file descriptor
 static void addPollfd(std::vector<pollfd> &fds, int fd, short events)
 {
 	struct pollfd pfd;
@@ -95,7 +91,6 @@ static void addPollfd(std::vector<pollfd> &fds, int fd, short events)
 	fds.push_back(pfd);
 }
 
-// Remove a pollfd entry by file descriptor
 static void removePollfd(std::vector<pollfd> &fds, int fd)
 {
 	for (std::vector<pollfd>::iterator it = fds.begin(); it != fds.end(); ++it)
@@ -137,6 +132,7 @@ int Server::createServerSocket()
 // 	struct in_addr sin_addr; // IPv4 address (struct with a 32-bit value)
 // 	unsigned char sin_zero[8]; // Padding (not used)
 // };
+
 // 2. creating serverAddress
 sockaddr_in Server::createServerAddress()
 {
@@ -153,7 +149,7 @@ sockaddr_in Server::createServerAddress()
 void Server::bindServerSocket()
 {
 	sockaddr_in serverAddress = createServerAddress();
-	int bindResult = bind(_server_fd, (struct sockaddr *) &serverAddress,
+	int bindResult = bind(_server_fd, reinterpret_cast<struct sockaddr*>(&serverAddress),
 		sizeof(serverAddress));
 	if (bindResult == -1)
 		throw std::runtime_error(std::string("Bind failed: ") + std::strerror(errno));
@@ -174,10 +170,10 @@ void Server::addClient(int client_fd)
 	try
 	{
 		Client *client = new Client(client_fd, _password);
-		std::pair<std::map<int, Client *>::iterator, bool> insertSuccess;
-		insertSuccess = _clients.insert(std::make_pair(client_fd, client));
+		std::pair<std::map<int, Client *>::iterator, bool> insert_success;
+		insert_success = _clients.insert(std::make_pair(client_fd, client));
 
-		if (!insertSuccess.second)
+		if (!insert_success.second)
 		{
 			std::cout << "[DEBUG] Warning: client with fd " << client_fd << " already exists!" << std::endl;
 			delete client;
@@ -191,7 +187,7 @@ void Server::addClient(int client_fd)
 	{
 		if (client_fd >= 0)
 			close (client_fd);
-		std::cerr << "Failed to add client fd=" << client_fd << ": " << e.what() << std::endl;
+		std::cerr << "Error: Failed to add client fd=" << client_fd << ": " << e.what() << std::endl;
 	}
 }
 
@@ -215,12 +211,11 @@ void Server::removeClient(int client_fd)
 	if (it == _clients.end())
 		return;
 
-	// remove the corresponding pollfd
 	removePollfd(_poll_fds, client_fd);
 
 	if (close(client_fd) == -1)
 		std::cout << "[DEBUG]Warning: failed to close fd " << client_fd << ": " << strerror(errno) << std::endl;
-	delete it->second; // free the client object
+	delete it->second;
 	_clients.erase(it);
 	std::cout << "[DEBUG] Client disconnected (fd=" << client_fd << ")\n";
 }
@@ -339,12 +334,12 @@ void Server::sendRaw(Client *client, const std::string &raw)
 	send(client->getClientFd(), raw.c_str(), raw.length(), 0);
 }
 
-void Server::add_channel(Channel *channel)
+void Server::addChannel(Channel *channel)
 {
 	this->_channels.push_back(channel);
 }
 
-void Server::remove_channel(const std::string &channel_name)
+void Server::removeChannel(const std::string &channel_name)
 {
 	std::vector<Channel*>::iterator it = _channels.begin();
 

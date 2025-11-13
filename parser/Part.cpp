@@ -1,11 +1,10 @@
 #include "ACommand.hpp"
 
-Part::Part(Server *server) : ACommand("PART", server)
-{
-}
+Part::Part(Server *server) : ACommand("PART", server){}
 
 void Part::execute(Client *client, Tokenizer *tokens) const
 {
+	// parser_debugging(tokens);
 	if (!client->isAuthenticated() && !client->isRegistered())
 	{
 		this->_server->response(client, ERR_NOTREGISTERED, ":You are not registered yet");
@@ -27,5 +26,5 @@ void Part::execute(Client *client, Tokenizer *tokens) const
 	client->request(client, "PART", channel->getName(), reason);
 	channel->removeClient(client);
 	if (channel->isEmpty())
-		_server->remove_channel(channel_name);
+		_server->removeChannel(channel_name);
 }

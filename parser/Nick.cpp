@@ -14,7 +14,7 @@
 
 Nick::Nick(Server *server) : ACommand("NICK", server) {}
 
-bool	is_valid(std::string str) // muss woanders hin da du das auch in user benutzt?
+bool	isValid(std::string str)
 {
 	for (size_t i = 0; i < str.length(); i++)
 	{
@@ -41,7 +41,7 @@ void	Nick::execute(Client *client, Tokenizer *tokens) const
 		this->_server->response(client, ERR_NICKNAMEINUSE, ":Nickname already in use");
 		return;
 	}
-	if (!is_valid(nickname))
+	if (!isValid(nickname))
 	{
 		this->_server->response(client, ERR_ERRONEUSNICKNAME, ":Nickname should only contain letters, numbers and underscores");
 		return;

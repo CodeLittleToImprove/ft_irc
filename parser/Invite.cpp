@@ -16,7 +16,7 @@ Invite::Invite(Server *server) : ACommand("INVITE", server) {}
 
 void	Invite::execute(Client *client, Tokenizer *tokens) const
 {
-	parser_debugging(tokens);
+	// parser_debugging(tokens);
 
 	if (!is_registered_full(client))
 		return;

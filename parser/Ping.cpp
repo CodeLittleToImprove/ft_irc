@@ -12,6 +12,5 @@ void Ping::execute(Client *client, Tokenizer *tokens) const
 	std::string payload = tokens->get_params()[0];
 	if (!payload.empty() && payload[0] == ':')
 		payload = payload.substr(1);
-	// std::cout << "debug payload: " << payload << std::endl;
 	_server->sendRaw(client, PONG + payload + CRLF);
 }

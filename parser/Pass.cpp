@@ -16,19 +16,14 @@ Pass::Pass(Server *server) : ACommand("PASS", server) {}
 
 void	Pass::execute(Client *client, Tokenizer *tokens) const
 {
-
-	parser_debugging(tokens);
-	// Check if client is already authenticated
-
+	// parser_debugging(tokens);
 	if (client->isAuthenticated())
 	{
 		_server->response(client, ERR_ALREADYREGISTRED, ":You are already authenticated from pass");
 		return;
 	}
-	// Check if message has enough parameters
 	if (!has_enough_params(client, tokens, 1))
 		return;
-
 
 	client->authenticate(tokens->get_params()[0]);
 
@@ -40,7 +35,5 @@ void	Pass::execute(Client *client, Tokenizer *tokens) const
 	// user filled nickname, username, and password was accepted
 	if (client->isFullyRegistered())
 		_server->response(client, RPL_WELCOME, ":Welcome to the Internet Relay Network " + client->getNickname() + "!");
-	//need to add host- and username later
-
 }
 

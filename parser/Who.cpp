@@ -16,7 +16,7 @@ Who::Who(Server *server) : ACommand("WHO", server) {}
 
 void	Who::execute(Client *client, Tokenizer *tokens) const
 {
-	parser_debugging(tokens);
+	// parser_debugging(tokens);
 	if (!is_registered_full(client) || !has_enough_params(client, tokens, 1))
 		return;
 
@@ -46,11 +46,9 @@ void	Who::execute(Client *client, Tokenizer *tokens) const
 					member->getHostname() + " " +
 					this->_server->get_hostname() + " " +
 					member->getNickname() + " " +
-					status + " 0 " + // hopcount
+					status + " 0 " + // hopcount not possible thats why static
 					member->getRealname();
-		// std::cout << "who info:" << whoInfo << std::endl;
 		this->_server->response(client, RPL_WHOREPLY, whoInfo);
 	}
-	// std::cout << "end of who list" << std::endl;
 	this->_server->response(client, RPL_ENDOFWHO, channel_name + " :End of WHO list");
 }

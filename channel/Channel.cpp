@@ -32,19 +32,12 @@ void Channel::addClient(Client *client)
 
 void Channel::addOpClient(Client *client)
 {
-	// std::vector<Client *>::iterator it = std::find(_clients.begin(), _clients.end(), client);
-	// if (it == _clients.end())
-	// 	this->_clients.push_back(client); //causes duplicates
-	// this->_op_clients.push_back(client);
-
-	// Add to _op_clients if not already there
 	if (std::find(_op_clients.begin(), _op_clients.end(), client) == _op_clients.end())
 		_op_clients.push_back(client);
 }
 
 void Channel::removeClient(Client *client)
 {
-	// std::cout << "[DEBUG] removeClient() actually deleting client fd=" << client->getClient_fd() << std::endl;
 	std::vector<Client *>::iterator it = std::find(_clients.begin(), _clients.end(), client);
 	if (it == _clients.end())
 		std::cout	<< "[DEBUG] Client not found from Channel remove Client." << std::endl;
@@ -74,7 +67,7 @@ void Channel::changeUserNum(std::string mode)
 		this->_num_users++;
 	else if (mode == "sub")
 	{
-		if (this->_num_users > 0) // should pre probably bigger than 0 otherwise it would not compile
+		if (this->_num_users > 0)
 			this->_num_users--;
 	}
 }
@@ -107,8 +100,7 @@ bool Channel::isInvited(Client *client)
 	std::vector<Client *>::iterator it = std::find(_invited_clients.begin(), _invited_clients.end(), client);
 	if (it == _invited_clients.end())
 		return (false);
-	else
-		return (true);
+	return (true);
 }
 
 bool Channel::checkKey(std::string key)
@@ -150,11 +142,6 @@ std::string Channel::getName()
 std::vector<Client *> Channel::getClients()
 {
 	return (this->_clients);
-}
-
-std::vector<Client *> Channel::getOpClients() // never used
-{
-	return (this->_op_clients);
 }
 
 std::vector<Client *> Channel::getInvitedClients()

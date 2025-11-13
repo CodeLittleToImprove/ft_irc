@@ -16,8 +16,7 @@ Join::Join(Server *server) : ACommand("JOIN", server) {}
 
 void	Join::execute(Client *client, Tokenizer *tokens) const
 {
-	parser_debugging(tokens);
-
+	// parser_debugging(tokens);
 	if (!is_registered_full(client) || !has_enough_params(client, tokens, 1))
 		return;
 	
@@ -74,7 +73,7 @@ void	Join::execute(Client *client, Tokenizer *tokens) const
 		}
 		// case: create new channel
 		channel = new Channel(channel_name, _server->get_hostname());
-		this->_server->add_channel(channel);
+		this->_server->addChannel(channel);
 
 		channel->addOpClient(client);
 		channel->addClient(client);

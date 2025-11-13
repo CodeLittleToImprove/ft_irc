@@ -14,7 +14,7 @@
 
 User::User(Server *server) : ACommand("USER", server) {}
 
-bool	is_printable(std::string str)
+bool	isPrintable(std::string str)
 {
 	for (size_t i = 0; i < str.length(); i++)
 		if (!std::isprint(str[i]))
@@ -22,12 +22,12 @@ bool	is_printable(std::string str)
 	return (true);
 }
 
-static bool	is_valid(std::string str) // added static to prevent compiler error
+bool	hasSpecialChar(std::string str)
 {
 	for (size_t i = 0; i < str.length(); i++)
 		if (!std::isalnum(str[i]) && str[i] != '_' && str[i] != '-' && str[i] != '.')
-			return (false);
-	return (true);
+			return (true);
+	return (false);
 }
 
 void	User::execute(Client *client, Tokenizer *tokens) const
@@ -47,13 +47,13 @@ void	User::execute(Client *client, Tokenizer *tokens) const
 	if (!has_enough_params(client, tokens, 4))
 		return;
 	std::string username = tokens->get_param(0);
-	if (!is_valid(username))
+	if (hasSpecialChar(username))
 	{
 		this->_server->response(client, ERR_ERRONEUSUSERNAME, ":Username should only contain letters, numbers, underscores, dashes and dots");
 		return;
 	}
 	std::string realname = tokens->get_param(3); // already includes a :
-	if (!is_printable(realname))
+	if (!isPrintable(realname))
 	{
 		this->_server->response(client, ERR_ERRONEUSREALNAME, ":Realname should only contain printable characters");
 		return;

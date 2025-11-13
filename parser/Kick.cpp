@@ -16,7 +16,7 @@ Kick::Kick(Server *server) : ACommand("KICK", server) {}
 
 void	Kick::execute(Client *client, Tokenizer *tokens) const
 {
-	parser_debugging(tokens);
+	// parser_debugging(tokens);
 	if (!is_registered_full(client) || !has_enough_params(client, tokens, 2))
 		return;
 	std::string	channel_name = tokens->get_param(0);
