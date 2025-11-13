@@ -52,7 +52,7 @@ void	User::execute(Client *client, Tokenizer *tokens) const
 		this->_server->response(client, ERR_ERRONEUSUSERNAME, ":Username should only contain letters, numbers, underscores, dashes and dots");
 		return;
 	}
-	std::string realname = tokens->get_param(3); // already includes a :
+	std::string realname = tokens->get_param(3);
 	if (!isPrintable(realname))
 	{
 		this->_server->response(client, ERR_ERRONEUSREALNAME, ":Realname should only contain printable characters");
