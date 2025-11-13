@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phillymilly <phillymilly@student.42.fr>    +#+  +:+       +#+        */
+/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/24 20:22:50 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/11/07 00:03:16 by phillymilly      ###   ########.fr       */
+/*   Updated: 2025/11/13 17:50:17 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,22 +180,22 @@ std::string	Channel::getClientNames()
 		names += client->getNickname();
 	}
 
-	return names;
+	return (names);
 }
 
 std::string Channel::getTopic() const
 {
-	return this->_topic;
+	return (this->_topic);
 }
 
 std::string	Channel::getHostname() const
 {
-	return this->_hostname;
+	return (this->_hostname);
 }
 
 bool Channel::isEmpty() const
 {
-	return _clients.empty();
+	return (_clients.empty());
 }
 
 std::string Channel::getChannelOpNickNames() const
@@ -203,7 +203,7 @@ std::string Channel::getChannelOpNickNames() const
 	std::string names;
 	for (std::vector<Client *>::const_iterator it = this->_op_clients.begin(); it != this->_op_clients.end(); it++)
 		names += (*it)->getNickname() + " ";
-	return names;
+	return (names);
 }
 
 std::string Channel::getModes() const
@@ -241,9 +241,9 @@ std::string Channel::getModes() const
 		params += op_nicks;
 	}
 	if (!params.empty())
-		return flags + " " + params;
+		return (flags + " " + params);
 	// if params is empty, only return the flags
-	return flags;
+	return (flags);
 }
 
 bool Channel::hasRestriction() const

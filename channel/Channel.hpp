@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phillymilly <phillymilly@student.42.fr>    +#+  +:+       +#+        */
+/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/23 15:21:47 by phillymilly       #+#    #+#             */
-/*   Updated: 2025/11/07 00:02:14 by phillymilly      ###   ########.fr       */
+/*   Updated: 2025/11/13 17:49:07 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ class Channel
 		std::string				_key;
 		unsigned int			_user_limit;
 		unsigned int			_num_users;
-		std::vector<Client *>	_clients; // only client objects which are in the channel
+		std::vector<Client *>	_clients;
 		std::vector<Client *>	_op_clients;
 		std::vector<Client *>	_invited_clients;
 		bool					_invite_only;

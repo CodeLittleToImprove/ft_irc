@@ -6,7 +6,7 @@
 /*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/20 16:12:57 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/10/28 13:04:55 by pschmunk         ###   ########.fr       */
+/*   Updated: 2025/11/13 17:50:39 by pschmunk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,7 @@
 
 ACommand::ACommand(std::string name, Server *server) : _name(name), _server(server) {}
 
-ACommand::~ACommand(void)
-{
-
-}
+ACommand::~ACommand(void) {}
 
 bool	ACommand::is_registered_full(Client *client) const
 {
