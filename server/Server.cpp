@@ -307,7 +307,7 @@ void Server::onClientMessage(int client_fd, std::string message)
 		return;
 
 	std::string command = tokens.getCommand();
-	// std::cout << "[DEBUG]: command in onClient: " << message << std::endl;
+	std::cout << "[DEBUG]: command in onClient: " << message << std::endl;
 	if (this->_commands.find(command) == this->_commands.end())
 		std::cout << "[DEBUG] Error! Command not found." << std::endl;
 	else
@@ -323,7 +323,7 @@ void Server::response(Client *client, std::string code, std::string message) // 
 	std::string nickname = client->getNickname();
 	std::string nickname_str = nickname.empty() ? "unregistered " : nickname + ' ';
 	std::string response = ':' + this->_hostname + ' ' + code_str + nickname_str + message + CRLF;
-	// printEscapedBuffer(response);
+	printEscapedBuffer(response);
 	send(client->getClientFd(), response.c_str(), response.length(), 0);
 }
 
@@ -408,7 +408,7 @@ void Server::removeIfDisconnected(Client *client, int client_fd, size_t &i)
 		if (_clients.find(client_fd) == _clients.end()) // no such client, probably disconnected
 			return;
 
-		for (size_t j = 0; i < messages.size(); j++)
+		for (size_t j = 0; j < messages.size(); j++)
 			onClientMessage(client_fd, messages[j]);
 	}
 }

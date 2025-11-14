@@ -21,7 +21,6 @@ std::vector<std::string> Client::readData()
 	std::vector<std::string> messages;
 	char recvBuf[512];
 	int bytesReceived = recv(_client_fd, recvBuf, sizeof(recvBuf) - 1, 0);
-
 	if (bytesReceived > 0)
 	{
 		recvBuf[bytesReceived] = '\0';
@@ -160,7 +159,7 @@ void Client::request(Client *sender, std::string command, std::string target, st
 								message.empty()		||
 								message[0] == ':' ? message : ':' + message;
 	std::string request = sender_str + ' ' + command + ' ' + target + ' ' + message_str + CRLF;
-	// printEscapedBuffer(request);
+	printEscapedBuffer(request);
 	send(this->_client_fd, request.c_str(), request.length(), 0);
 }
 
