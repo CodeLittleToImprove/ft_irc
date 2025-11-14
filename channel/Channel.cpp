@@ -116,7 +116,7 @@ bool Channel::checkKey(std::string key)
 
 bool Channel::hasUserLimit()
 {
-	return (this->_user_limit);
+	return (this->_has_user_limit);
 }
 
 void Channel::broadcast(Client *sender, std::string command, std::string target, std::string message)
