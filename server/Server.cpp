@@ -384,7 +384,7 @@ void Server::removeIfDisconnected(Client *client, int client_fd, size_t &i)
 	}
 }
 
-void Server::handleClientEvent(pollfd &entry, size_t &i)
+	void Server::handleClientEvent(pollfd &entry, size_t &i)
 {
 	int client_fd = entry.fd;
 	std::map<int, Client *>::iterator it = _clients.find(entry.fd);
@@ -408,8 +408,8 @@ void Server::handleClientEvent(pollfd &entry, size_t &i)
 		if (_clients.find(client_fd) == _clients.end()) // no such client, probably disconnected
 			return;
 
-		for (size_t i = 0; i < messages.size(); i++)
-			onClientMessage(client_fd, messages[i]);
+		for (size_t j = 0; i < messages.size(); j++)
+			onClientMessage(client_fd, messages[j]);
 	}
 }
 
@@ -463,7 +463,6 @@ void Server::run()
 	this->_is_running = true;
 	while (_is_running)
 	{
-		// int poll(struct pollfd *fds, nfds_t nfds, int timeout);
 		// _poll_fds.data() -> array of pollfd structs representing all sockets
 		// _poll_fds.size() -> how many pollfd structs it should check
 		// int timeout -> timeout in milliseconds / -1 means "wait indefinitely" until at least one fd becomes ready
