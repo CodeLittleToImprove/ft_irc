@@ -20,7 +20,7 @@
 
 Server::Server(uint16_t port, std::string password) : _port(port), _password(password), _oper_password("1234")
 {
-	int backlog = 5; // for now 5 change later
+	int backlog = BACKLOG;
 	_server_fd = createServerSocket();
 	bindServerSocket();
 	listenServerSocket(backlog);
@@ -136,7 +136,7 @@ int Server::createServerSocket()
 sockaddr_in Server::createServerAddress()
 {
 	sockaddr_in serverAddress;
-	memset(&serverAddress, 0, sizeof(serverAddress)); // just nice to do not necessary
+	memset(&serverAddress, 0, sizeof(serverAddress));
 	// specifying the address
 	serverAddress.sin_family = AF_INET; // format of ipaddress
 	serverAddress.sin_port = htons(_port); // converts to network byte order
@@ -419,7 +419,12 @@ void Server::handlePollEvents()
 	for (size_t i = 0; i < _poll_fds.size(); i++)
 	{
 		pollfd &curPollEntry = _poll_fds[i];
-		// --- Case 0: Handle STDIN (admin commands like "exit") ---
+
+		// Case 0: No events — skip immediately
+		if (curPollEntry.revents == 0)
+			continue;
+
+		// Case 1: Handle STDIN (admin commands like "exit") ---
 		if (curPollEntry.fd == STDIN_FILENO && (curPollEntry.revents & POLLIN))
 		{
 			handleAdminInput();
@@ -427,17 +432,18 @@ void Server::handlePollEvents()
 				break;
 			continue;
 		}
-		// Case 1: New client connection
-		// revents check if any revents occurred and pollin signals connection ready to accept, both together means connection is ready or there is fd which has data to read
-		if (curPollEntry.fd == _server_fd && (curPollEntry.revents & POLLIN))
+		// Case 2: Server listening socket
+		if (curPollEntry.fd == _server_fd)
 		{
-			handleNewConnection();
+			// If POLLIN is set, a new client is waiting to connect
+			// revents check if any revents occurred and pollin signals connection ready to accept, both together means connection is ready or there is fd which has data to read
+			if (curPollEntry.revents & POLLIN)
+				handleNewConnection();
+
+			// Case 3: skip server fd when no events
 			continue;
 		}
-		// Case 2: Ignore server socket entries here
-		if (curPollEntry.fd == _server_fd)
-			continue;
-		// Case 3: Current client has events
+		// Case 4: Current client has events
 		handleClientEvent(curPollEntry, i);
 	}
 }
@@ -464,7 +470,7 @@ void Server::run()
 		int ready = poll(_poll_fds.data(), _poll_fds.size(), -1);
 		if (ready == -1)
 		{
-			if (errno == EINTR)
+			if (errno == EINTR) //check if poll() was interrupted by a signal. If yes restart the poll call.
 				continue;
 			throw std::runtime_error("Poll failed: " + std::string(strerror(errno)));
 		}
