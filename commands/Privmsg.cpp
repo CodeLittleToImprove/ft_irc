@@ -39,7 +39,7 @@ void	Privmsg::execute(Client *client, Tokenizer *tokens) const
 			return;
 		}
 		channel->broadcast(client, this->_name, target_name, message);
-		client->request(client, this->_name, target_name, message);
+	//	client->request(client, this->_name, target_name, message);
 	}
 	else
 		target->request(client, this->_name, target_name, message);

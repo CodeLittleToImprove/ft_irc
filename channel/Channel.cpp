@@ -289,6 +289,5 @@ void Channel::setRestriction(char mode)
 
 void Channel::setTopic(std::string topic)
 {
-	if (!this->_topic_restriction)
 		this->_topic = topic;
 }
