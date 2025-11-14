@@ -38,7 +38,7 @@ void	Who::execute(Client *client, Tokenizer *tokens) const
 		// if flag == "o", skip non-operators
 		if (flag == "o" && !channel->isChOper(member->getNickname()))
 			continue;
-		std::string status = "H";
+		std::string status = "H"; // represents online and active
 		if (channel->isChOper(member->getNickname()))
 			status += "@";
 		std::string whoInfo = channel_name + " " +
