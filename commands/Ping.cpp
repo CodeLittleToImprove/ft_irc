@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Ping.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tbui-quo <tbui-quo@student.42wolfsburg.d>  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/14 13:58:34 by tbui-quo          #+#    #+#             */
+/*   Updated: 2025/11/14 13:58:34 by tbui-quo         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "ACommand.hpp"
 //Incoming PING → respond with PONG
 Ping::Ping(Server *server) : ACommand("PING", server)

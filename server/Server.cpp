@@ -3,13 +3,12 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: pschmunk <pschmunk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: tbui-quo <tbui-quo@student.42wolfsburg.d>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/21 20:16:04 by pschmunk          #+#    #+#             */
-/*   Updated: 2025/11/13 15:58:04 by pschmunk         ###   ########.fr       */
+/*   Created: 2025/11/14 13:58:34 by tbui-quo          #+#    #+#             */
+/*   Updated: 2025/11/14 14:06:26 by tbui-quo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "Server.hpp"
 
